@@ -4,7 +4,11 @@
 #define main main
 
 int main(int argc, char *argv[]) {
-    initScreen(10,10, 100, 100);
+    Context ctx;
+    initRenderer(ctx);
+    initScreen(ctx, 10,10, 100, 100);
     std::cout << "Test\n";
+    releaseRenderer(ctx);
+    
     return 0;
 }
