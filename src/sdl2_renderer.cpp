@@ -16,6 +16,7 @@ int initRenderer(Context &ctx) {
 
 int releaseRenderer(Context &ctx) {
     if (!ctx.mCreated) {
+        std::cerr << "Not initialized.\n";
         return -1;
     }
     
@@ -28,7 +29,12 @@ int releaseRenderer(Context &ctx) {
 
 int initScreen(Context &ctx, int x, int y, int w, int h) {
     SDL_Surface *screen = nullptr;
-    ctx.mWindow = SDL_CreateWindow(ctx.title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN);
+    const char *title = ctx.title;
+    if (ctx.title == nullptr) {
+        title = "untitled";
+    }
+
+    ctx.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN);
     if (ctx.mWindow == nullptr) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return -1;
@@ -48,4 +54,23 @@ int draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, color4 fg, 
 
 int closeScreen(Context &ctx) {
     return 0;
+}
+
+bool run(Context &ctx) {
+    if (!ctx.mCreated) {
+        return false;
+    }
+
+    bool running = true;
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type)
+        {
+            case SDL_QUIT:
+                running = false;
+                break;
+        }
+    }
+
+    return running;
 }
