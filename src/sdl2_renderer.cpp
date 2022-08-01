@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-int initRenderer(Context &ctx) {
+int TinyUi::initRenderer(Context &ctx) {
     if ((SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1)) {
         std::cerr << "Could not initialize SDL: " << SDL_GetError() << "\n";
         ctx.mCreated = false;
@@ -14,7 +14,16 @@ int initRenderer(Context &ctx) {
     return 0;
 }
 
-int releaseRenderer(Context &ctx) {
+
+int TinyUi::create_button(Context &ctx, int x, int y, int w, int h) {
+    if (ctx.mRenderer == nullptr) {
+        return -1;
+    }
+
+    return 0;
+}
+
+int TinyUi::releaseRenderer(Context &ctx) {
     if (!ctx.mCreated) {
         std::cerr << "Not initialized.\n";
         return -1;
@@ -27,19 +36,23 @@ int releaseRenderer(Context &ctx) {
     return 0;
 }
 
-int initScreen(Context &ctx, int x, int y, int w, int h) {
+int TinyUi::initScreen(Context &ctx, int x, int y, int w, int h) {
     SDL_Surface *screen = nullptr;
     const char *title = ctx.title;
     if (ctx.title == nullptr) {
         title = "untitled";
     }
 
-    ctx.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN);
+    ctx.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
     if (ctx.mWindow == nullptr) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return -1;
     }
     ctx.mSurface = SDL_GetWindowSurface(ctx.mWindow);
+    if (ctx.mSurface == nullptr) {
+        return -1;
+    }
+    
     ctx.mRenderer = SDL_CreateRenderer(ctx.mWindow, -1, SDL_RENDERER_ACCELERATED);
     if (nullptr == ctx.mRenderer) {
         return -1;
@@ -48,15 +61,47 @@ int initScreen(Context &ctx, int x, int y, int w, int h) {
     return 0;
 }
 
-int draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, color4 fg, color4 bg){
+int TinyUi::begin(Context &ctx, color4 bg) {
+    SDL_SetRenderDrawColor(ctx.mRenderer, bg.r, bg.g, bg.b, bg.a);
+    SDL_RenderClear(ctx.mRenderer);        
+
     return 0;
 }
 
-int closeScreen(Context &ctx) {
+int TinyUi::draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, color4 fg){
+    SDL_Rect r;
+    r.x = x;
+    r.y = y;
+    r.w = w;
+    r.h = h;
+    SDL_SetRenderDrawColor(ctx.mRenderer, fg.r, fg.g, fg.b, fg.a);
+    if (filled) {
+        SDL_RenderFillRect(ctx.mRenderer, &r);
+    } else {
+        SDL_RenderDrawRect(ctx.mRenderer, &r);
+    }
+
     return 0;
 }
 
-bool run(Context &ctx) {
+int TinyUi::closeScreen(Context &ctx) {
+    if (ctx.mWindow == nullptr) {
+        return -1;
+    }
+
+    SDL_DestroyWindow(ctx.mWindow);
+    ctx.mWindow = nullptr;
+
+    return 0;
+}
+
+int TinyUi::end(Context &ctx) {
+    SDL_RenderPresent(ctx.mRenderer);
+
+    return 0;
+}
+
+bool TinyUi::run(Context &ctx) {
     if (!ctx.mCreated) {
         return false;
     }
@@ -64,13 +109,21 @@ bool run(Context &ctx) {
     bool running = true;
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        switch (event.type)
-        {
+        switch (event.type) {
             case SDL_QUIT:
                 running = false;
+                break;
+
+            case SDL_MOUSEBUTTONDOWN:
+                TinyUi::onMousePress(event.button);
                 break;
         }
     }
 
     return running;
+}
+
+void TinyUi::onMousePress(SDL_MouseButtonEvent& b) {
+    printf("pressed at %d|%d\n", b.x, b.y);
+
 }
