@@ -2,6 +2,32 @@
 
 #include <iostream>
 
+Widget *findWidget(unsigned int id, Widget *root) {
+    if (root == nullptr) {
+        return nullptr;
+    }
+
+    if (root->mId == id) {
+        return root;
+    }
+
+    for (size_t i=0; i<root->mChildren.size(); ++i) {
+        Widget *child = root->mChildren[i];
+        if(child==nullptr) {
+            continue;
+        }
+        if (child->mId==id) {
+            return child;
+        }
+        Widget *found = findWidget(id, child);
+        if(found != nullptr) {
+            return found;
+        }
+    }
+
+    return nullptr;
+}
+
 int TinyUi::initRenderer(Context &ctx) {
     if ((SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1)) {
         std::cerr << "Could not initialize SDL: " << SDL_GetError() << "\n";
@@ -14,10 +40,21 @@ int TinyUi::initRenderer(Context &ctx) {
     return 0;
 }
 
-
-int TinyUi::create_button(Context &ctx, int x, int y, int w, int h) {
+int TinyUi::create_button(Context &ctx, unsigned int id, unsigned int parentId,int x, int y, int w, int h, CallbackI *callback) {
     if (ctx.mRenderer == nullptr) {
         return -1;
+    }
+
+    Widget *child = new Widget;
+    child->mId = id;
+    if (parentId == 0) {
+        ctx.mRoot = child;
+    } else {
+        Widget *parent = findWidget(parentId, ctx.mRoot);
+        if (parent != nullptr) {
+            parent->mChildren.emplace_back(child);
+            child->mParent = parent;
+        }
     }
 
     return 0;
@@ -29,6 +66,8 @@ int TinyUi::releaseRenderer(Context &ctx) {
         return -1;
     }
     
+    SDL_DestroyRenderer(ctx.mRenderer);
+    ctx.mRenderer = nullptr;
     SDL_DestroyWindow(ctx.mWindow);
     ctx.mWindow = nullptr;
     SDL_Quit();
@@ -61,7 +100,7 @@ int TinyUi::initScreen(Context &ctx, int x, int y, int w, int h) {
     return 0;
 }
 
-int TinyUi::begin(Context &ctx, color4 bg) {
+int TinyUi::beginRender(Context &ctx, color4 bg) {
     SDL_SetRenderDrawColor(ctx.mRenderer, bg.r, bg.g, bg.b, bg.a);
     SDL_RenderClear(ctx.mRenderer);        
 
@@ -95,7 +134,7 @@ int TinyUi::closeScreen(Context &ctx) {
     return 0;
 }
 
-int TinyUi::end(Context &ctx) {
+int TinyUi::endRender(Context &ctx) {
     SDL_RenderPresent(ctx.mRenderer);
 
     return 0;

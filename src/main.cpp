@@ -13,10 +13,10 @@ int main(int argc, char *argv[]) {
     color4 fg = {125, 125, 125, 0};
     color4 bg = {0, 0, 0, 0};
     while (TinyUi::run(ctx)) {
-        TinyUi::begin(ctx, bg);
+        TinyUi::beginRender(ctx, bg);
         TinyUi::draw_rect(ctx, 10, 10, 20, 20, true, fg);
         TinyUi::draw_rect(ctx, 10, 40, 20, 20, false, fg);
-        TinyUi::end(ctx);
+        TinyUi::endRender(ctx);
     }
     TinyUi::releaseRenderer(ctx);
     
