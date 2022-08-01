@@ -34,12 +34,16 @@ int initScreen(Context &ctx, int x, int y, int w, int h) {
         title = "untitled";
     }
 
-    ctx.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN);
+    ctx.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
     if (ctx.mWindow == nullptr) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return -1;
     }
     ctx.mSurface = SDL_GetWindowSurface(ctx.mWindow);
+    if (ctx.mSurface == nullptr) {
+        return -1;
+    }
+    
     ctx.mRenderer = SDL_CreateRenderer(ctx.mWindow, -1, SDL_RENDERER_ACCELERATED);
     if (nullptr == ctx.mRenderer) {
         return -1;
@@ -53,6 +57,13 @@ int draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, color4 fg, 
 }
 
 int closeScreen(Context &ctx) {
+    if (ctx.mWindow == nullptr) {
+        return -1;
+    }
+    
+    SDL_DestroyWindow(ctx.mWindow);
+    ctx.mWindow = nullptr;
+
     return 0;
 }
 
