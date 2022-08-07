@@ -7,8 +7,16 @@
 int main(int argc, char *argv[]) {
     Context ctx;
     ctx.title = "Sample-Screen";
-    TinyUi::initRenderer(ctx);
-    TinyUi::initScreen(ctx, 20, 20, 1024, 768);
+    if (TinyUi::initRenderer(ctx)==-1) {
+        printf("Error: Cannot init renderer\n");
+        return -1;
+    }
+
+    if (TinyUi::initScreen(ctx, 20, 20, 1024, 768) == -1) {
+        printf("Error: Cannot init screen\n");
+        return -1;
+
+    };
     std::cout << "Test\n";
     color4 fg = {125, 125, 125, 0};
     color4 bg = {0, 0, 0, 0};

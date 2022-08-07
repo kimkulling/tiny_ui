@@ -1,5 +1,6 @@
 #include "sdl2_renderer.h"
 
+#include <cassert>
 #include <iostream>
 
 Widget *findWidget(unsigned int id, Widget *root) {
@@ -28,9 +29,15 @@ Widget *findWidget(unsigned int id, Widget *root) {
     return nullptr;
 }
 
+void logError(const char *message) {
+    assert(message != nullptr);
+
+    std::cerr << message <<", error " << SDL_GetError() << "\n";
+}
+
 int TinyUi::initRenderer(Context &ctx) {
-    if ((SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1)) {
-        std::cerr << "Could not initialize SDL: " << SDL_GetError() << "\n";
+    if ((SDL_Init(SDL_INIT_VIDEO ) == -1)) {
+        logError("Error while SDL_Init.");
         ctx.mCreated = false;
         return -1;
     }
@@ -84,16 +91,18 @@ int TinyUi::initScreen(Context &ctx, int x, int y, int w, int h) {
 
     ctx.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
     if (ctx.mWindow == nullptr) {
-        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        logError("Error while SDL_CreateWindow.");
         return -1;
     }
-    ctx.mSurface = SDL_GetWindowSurface(ctx.mWindow);
-    if (ctx.mSurface == nullptr) {
-        return -1;
-    }
+    //ctx.mSurface = SDL_GetWindowSurface(ctx.mWindow);
+    //if (ctx.mSurface == nullptr) {
+    //    logError();
+    //    return -1;
+    //}
     
     ctx.mRenderer = SDL_CreateRenderer(ctx.mWindow, -1, SDL_RENDERER_ACCELERATED);
     if (nullptr == ctx.mRenderer) {
+        logError("Eror while SDL_CreateRenderer.");
         return -1;
     }
 
