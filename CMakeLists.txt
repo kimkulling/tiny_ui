@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 include("cmake/HunterGate.cmake")
 
-include("cmake/HunterGate.cmake")
-
 # Todo: we need to solve this more cleaner
 IF (WIN32)
     HunterGate(
@@ -20,7 +18,6 @@ PROJECT(tiny_ui)
 
 hunter_add_package(SDL2)
 find_package(SDL2 CONFIG REQUIRED)
-include_directories(./ ${SDL2_INCLUDE_DIRS})
 
 ADD_EXECUTABLE( tiny_ui
     src/main.cpp
@@ -28,4 +25,4 @@ ADD_EXECUTABLE( tiny_ui
     src/sdl2_renderer.h
 )
 
-target_link_libraries(tiny_ui ${SDL2_LIBRARIES})
+target_link_libraries(tiny_ui SDL2::SDL2)
