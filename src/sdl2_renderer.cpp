@@ -94,11 +94,6 @@ int TinyUi::initScreen(Context &ctx, int x, int y, int w, int h) {
         logError("Error while SDL_CreateWindow.");
         return -1;
     }
-    //ctx.mSurface = SDL_GetWindowSurface(ctx.mWindow);
-    //if (ctx.mSurface == nullptr) {
-    //    logError();
-    //    return -1;
-    //}
     
     ctx.mRenderer = SDL_CreateRenderer(ctx.mWindow, -1, SDL_RENDERER_ACCELERATED);
     if (nullptr == ctx.mRenderer) {
@@ -173,5 +168,4 @@ bool TinyUi::run(Context &ctx) {
 
 void TinyUi::onMousePress(SDL_MouseButtonEvent& b) {
     printf("pressed at %d|%d\n", b.x, b.y);
-
 }
