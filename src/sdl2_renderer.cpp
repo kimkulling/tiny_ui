@@ -3,31 +3,8 @@
 #include <cassert>
 #include <iostream>
 
-Widget *findWidget(unsigned int id, Widget *root) {
-    if (root == nullptr) {
-        return nullptr;
-    }
+namespace TinyUi {
 
-    if (root->mId == id) {
-        return root;
-    }
-
-    for (size_t i=0; i<root->mChildren.size(); ++i) {
-        Widget *child = root->mChildren[i];
-        if(child==nullptr) {
-            continue;
-        }
-        if (child->mId==id) {
-            return child;
-        }
-        Widget *found = findWidget(id, child);
-        if(found != nullptr) {
-            return found;
-        }
-    }
-
-    return nullptr;
-}
 
 void logError(const char *message) {
     assert(message != nullptr);
@@ -35,7 +12,7 @@ void logError(const char *message) {
     std::cerr << message <<", error " << SDL_GetError() << "\n";
 }
 
-int TinyUi::initRenderer(Context &ctx) {
+int Renderer::initRenderer(Context &ctx) {
     if ((SDL_Init(SDL_INIT_VIDEO ) == -1)) {
         logError("Error while SDL_Init.");
         ctx.mCreated = false;
@@ -47,27 +24,8 @@ int TinyUi::initRenderer(Context &ctx) {
     return 0;
 }
 
-int TinyUi::create_button(Context &ctx, unsigned int id, unsigned int parentId,int x, int y, int w, int h, CallbackI *callback) {
-    if (ctx.mRenderer == nullptr) {
-        return -1;
-    }
 
-    Widget *child = new Widget;
-    child->mId = id;
-    if (parentId == 0) {
-        ctx.mRoot = child;
-    } else {
-        Widget *parent = findWidget(parentId, ctx.mRoot);
-        if (parent != nullptr) {
-            parent->mChildren.emplace_back(child);
-            child->mParent = parent;
-        }
-    }
-
-    return 0;
-}
-
-int TinyUi::releaseRenderer(Context &ctx) {
+int Renderer::releaseRenderer(Context &ctx) {
     if (!ctx.mCreated) {
         std::cerr << "Not initialized.\n";
         return -1;
@@ -82,7 +40,7 @@ int TinyUi::releaseRenderer(Context &ctx) {
     return 0;
 }
 
-int TinyUi::initScreen(Context &ctx, int x, int y, int w, int h) {
+int Renderer::initScreen(Context &ctx, int x, int y, int w, int h) {
     SDL_Surface *screen = nullptr;
     const char *title = ctx.title;
     if (ctx.title == nullptr) {
@@ -104,14 +62,14 @@ int TinyUi::initScreen(Context &ctx, int x, int y, int w, int h) {
     return 0;
 }
 
-int TinyUi::beginRender(Context &ctx, color4 bg) {
+int Renderer::beginRender(Context &ctx, color4 bg) {
     SDL_SetRenderDrawColor(ctx.mRenderer, bg.r, bg.g, bg.b, bg.a);
     SDL_RenderClear(ctx.mRenderer);        
 
     return 0;
 }
 
-int TinyUi::draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, color4 fg){
+int Renderer::draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, color4 fg){
     SDL_Rect r;
     r.x = x;
     r.y = y;
@@ -127,7 +85,7 @@ int TinyUi::draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, col
     return 0;
 }
 
-int TinyUi::closeScreen(Context &ctx) {
+int Renderer::closeScreen(Context &ctx) {
     if (ctx.mWindow == nullptr) {
         return -1;
     }
@@ -138,19 +96,21 @@ int TinyUi::closeScreen(Context &ctx) {
     return 0;
 }
 
-int TinyUi::endRender(Context &ctx) {
+int Renderer::endRender(Context &ctx) {
     SDL_RenderPresent(ctx.mRenderer);
 
     return 0;
 }
 
-bool TinyUi::run(Context &ctx) {
+bool Renderer::run(Context &ctx) {
     if (!ctx.mCreated) {
         return false;
     }
 
     bool running = true;
     SDL_Event event;
+
+
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_QUIT:
@@ -158,7 +118,7 @@ bool TinyUi::run(Context &ctx) {
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                TinyUi::onMousePress(event.button);
+                Renderer::onMousePress(event.button);
                 break;
         }
     }
@@ -166,6 +126,8 @@ bool TinyUi::run(Context &ctx) {
     return running;
 }
 
-void TinyUi::onMousePress(SDL_MouseButtonEvent& b) {
+void Renderer::onMousePress(SDL_MouseButtonEvent& b) {
     printf("pressed at %d|%d\n", b.x, b.y);
+}
+
 }

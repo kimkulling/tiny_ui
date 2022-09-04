@@ -21,6 +21,8 @@ find_package(SDL2 CONFIG REQUIRED)
 
 ADD_EXECUTABLE( tiny_ui
     src/main.cpp
+    src/widgets.cpp
+    src/widgets.h
     src/sdl2_renderer.cpp
     src/sdl2_renderer.h
 )
