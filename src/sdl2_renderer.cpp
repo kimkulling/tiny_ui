@@ -127,6 +127,7 @@ bool Renderer::run(Context &ctx) {
 }
 
 void Renderer::onMousePress(SDL_MouseButtonEvent& b) {
+    Widgets::onMouseButton(event.button.x, event.button.y, event.button.);
     printf("pressed at %d|%d\n", b.x, b.y);
 }
 

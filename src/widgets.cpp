@@ -36,6 +36,7 @@ int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId,
 
     Widget *child = new Widget;
     child->mId = id;
+    child->mType = WidgetType::ButtonType;
     child->mRect.x = x;
     child->mRect.y = y;
     child->mRect.width = w;

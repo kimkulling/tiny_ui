@@ -24,9 +24,16 @@ struct Widget {
     CallbackI mCallback;
 };
 
+enum class MouseState {
+    LeftButton,
+    MiddleButton,
+    RghtButton
+};
+
 struct Widgets {
     static int create_button(Context &ctx, unsigned int id, unsigned int parentId,int x, int y, int w, int h, CallbackI *callback);
     static void render_widgets(Context &ctx);
+    static void onMouseButton(int x, int y , MouseState state, Context &ctx);
 };
 
 } // namespace TinyUi
