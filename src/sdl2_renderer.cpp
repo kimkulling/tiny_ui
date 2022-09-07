@@ -1,5 +1,5 @@
 #include "sdl2_renderer.h"
-
+#include "widgets.h"
 #include <cassert>
 #include <iostream>
 
