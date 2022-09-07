@@ -77,4 +77,8 @@ void Widgets::render_widgets(Context &ctx) {
     render(ctx, ctx.mRoot);
 }
 
+void Widgets::onMouseButton(int x, int y , MouseState state, Context &ctx) {
+    printf("Clicked\n");
+}
+    
 } // namespace TinyUi
