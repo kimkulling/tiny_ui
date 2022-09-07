@@ -118,7 +118,7 @@ bool Renderer::run(Context &ctx) {
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                Renderer::onMousePress(event.button);
+                Renderer::onMousePress(ctx, event.button);
                 break;
         }
     }
@@ -126,8 +126,8 @@ bool Renderer::run(Context &ctx) {
     return running;
 }
 
-void Renderer::onMousePress(SDL_MouseButtonEvent& b) {
-    Widgets::onMouseButton(event.button.x, event.button.y, event.button.);
+void Renderer::onMousePress(Context &ctx, SDL_MouseButtonEvent& b) {
+    Widgets::onMouseButton(b.x, b.y, MouseState::LeftButton, ctx);
     printf("pressed at %d|%d\n", b.x, b.y);
 }
 
