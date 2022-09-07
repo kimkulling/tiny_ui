@@ -17,7 +17,7 @@ struct Renderer {
     static int endRender(Context &ctx);
     static int closeScreen(Context &ctx);
     static bool run(Context &ctx);
-    static void onMousePress(SDL_MouseButtonEvent& b);
+    static void onMousePress(Context &ctx, SDL_MouseButtonEvent& b);
 };
 
 } //  namespace TinyUi
