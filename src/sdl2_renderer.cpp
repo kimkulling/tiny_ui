@@ -5,15 +5,19 @@
 
 namespace TinyUi {
 
-
 void logError(const char *message) {
     assert(message != nullptr);
 
-    std::cerr << message <<", error " << SDL_GetError() << "\n";
+    std::cerr << "*ERR* " << message <<", error " << SDL_GetError() << "\n";
 }
-
+    
 int Renderer::initRenderer(Context &ctx) {
-    if ((SDL_Init(SDL_INIT_VIDEO ) == -1)) {
+    if (ctx.mCreated) {
+        logError("Renderer already initialized.");
+        return -1;
+    }
+
+    if (SDL_Init(SDL_INIT_VIDEO ) == -1) {
         logError("Error while SDL_Init.");
         ctx.mCreated = false;
         return -1;
@@ -24,10 +28,9 @@ int Renderer::initRenderer(Context &ctx) {
     return 0;
 }
 
-
 int Renderer::releaseRenderer(Context &ctx) {
     if (!ctx.mCreated) {
-        std::cerr << "Not initialized.\n";
+        logError("Not initialized.");
         return -1;
     }
     
@@ -41,6 +44,11 @@ int Renderer::releaseRenderer(Context &ctx) {
 }
 
 int Renderer::initScreen(Context &ctx, int x, int y, int w, int h) {
+    if (!ctx.mCreated) {
+        logError("Not initialized.");
+        return -1;
+    }
+
     SDL_Surface *screen = nullptr;
     const char *title = ctx.title;
     if (ctx.title == nullptr) {
@@ -63,6 +71,11 @@ int Renderer::initScreen(Context &ctx, int x, int y, int w, int h) {
 }
 
 int Renderer::beginRender(Context &ctx, color4 bg) {
+    if (!ctx.mCreated) {
+        logError("Not initialized.");
+        return -1;
+    }
+
     SDL_SetRenderDrawColor(ctx.mRenderer, bg.r, bg.g, bg.b, bg.a);
     SDL_RenderClear(ctx.mRenderer);        
 
