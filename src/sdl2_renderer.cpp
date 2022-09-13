@@ -131,7 +131,7 @@ bool Renderer::run(Context &ctx) {
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                Renderer::onMousePress(ctx, event.button);
+                Widgets::onMousePress(ctx, event.button);
                 break;
         }
     }
