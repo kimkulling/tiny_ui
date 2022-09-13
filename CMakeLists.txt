@@ -16,15 +16,23 @@ ENDIF()
 
 PROJECT(tiny_ui)
 
+INCLUDE_DIRECTORIES( BEFORE
+    ${CMAKE_HOME_DIRECTORY}/src
+)
+
 hunter_add_package(SDL2)
 find_package(SDL2 CONFIG REQUIRED)
 
-ADD_EXECUTABLE( tiny_ui
-    src/main.cpp
+ADD_LIBRARY(tiny_ui
     src/widgets.cpp
     src/widgets.h
     src/sdl2_renderer.cpp
     src/sdl2_renderer.h
 )
-
 target_link_libraries(tiny_ui SDL2::SDL2)
+
+ADD_EXECUTABLE(tiny_ui_sample
+    samples/main.cpp
+)
+
+target_link_libraries(tiny_ui_sample tiny_ui SDL2::SDL2)
