@@ -23,10 +23,13 @@ int main(int argc, char *argv[]) {
     std::cout << "Test\n";
     color4 fg = {125, 125, 125, 0};
     color4 bg = {0, 0, 0, 0};
+    color4 tc = {0, 0, 200, 0};
     style currentStyle;
     currentStyle.mFg = fg;
     currentStyle.mBg = bg;
-    Widgets::create_button(ctx, 1, 0, 100, 10, 100, 20, nullptr);
+    currentStyle.mTextColor = tc;
+    ctx.mStyle = currentStyle;
+    Widgets::create_button(ctx, 1, 0, "test", 100, 10, 100, 20, nullptr);
     while (Renderer::run(ctx)) {
         Renderer::beginRender(ctx, bg);
         Widgets::render_widgets(ctx);

@@ -20,6 +20,15 @@ struct rect {
 struct style {
     color4 mFg;
     color4 mBg;
+    color4 mTextColor;
+};
+
+enum class MouseState {
+    Unknown = -1,
+    LeftButton = 0,
+    MiddleButton,
+    RightButton,
+    NumStates
 };
 
 struct CallbackI {
@@ -36,6 +45,7 @@ struct Context {
     Widget *mRoot;
 
     Context() : mCreated(false), title(nullptr), mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), mRoot(nullptr) {}
+    ~Context() = default;
 };
 
 } // Namespace TinyUi

@@ -23,16 +23,19 @@ INCLUDE_DIRECTORIES( BEFORE
 hunter_add_package(SDL2)
 find_package(SDL2 CONFIG REQUIRED)
 
+hunter_add_package(SDL_ttf)
+find_package(SDL_ttf CONFIG REQUIRED)
+
 ADD_LIBRARY(tiny_ui
     src/widgets.cpp
     src/widgets.h
     src/sdl2_renderer.cpp
     src/sdl2_renderer.h
 )
-target_link_libraries(tiny_ui SDL2::SDL2)
+target_link_libraries(tiny_ui SDL2::SDL2 SDL_ttf::SDL_ttf)
 
 ADD_EXECUTABLE(tiny_ui_sample
     samples/main.cpp
 )
 
-target_link_libraries(tiny_ui_sample tiny_ui SDL2::SDL2)
+target_link_libraries(tiny_ui_sample tiny_ui SDL2::SDL2 SDL_ttf::SDL_ttf)

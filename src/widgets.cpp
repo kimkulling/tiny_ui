@@ -3,7 +3,7 @@
 
 namespace TinyUi {
 
-Widget *findWidget(unsigned int id, Widget *root) {
+static Widget *findWidget(unsigned int id, Widget *root) {
     if (root == nullptr) {
         return nullptr;
     }
@@ -29,7 +29,7 @@ Widget *findWidget(unsigned int id, Widget *root) {
     return nullptr;
 }
 
-int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId,int x, int y, int w, int h, CallbackI *callback) {
+int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h, CallbackI *callback) {
     if (ctx.mRenderer == nullptr) {
         return -1;
     }
@@ -41,6 +41,10 @@ int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId,
     child->mRect.y = y;
     child->mRect.width = w;
     child->mRect.height  = h;
+    if (text != nullptr) {
+        child->mText.assign(text);
+    }
+
     if (parentId == 0) {
         ctx.mRoot = child;
     } else {
@@ -58,7 +62,14 @@ static void render(Context &ctx, Widget *currentWidget){
     const rect &r = currentWidget->mRect;
     switch( currentWidget->mType) {
         case WidgetType::ButtonType:
-            Renderer::draw_rect(ctx, r.x, r.y, r.width, r.height, true, ctx.mStyle.mFg);
+            {
+                Renderer::draw_rect(ctx, r.x, r.y, r.width, r.height, true, ctx.mStyle.mFg);
+                if (!currentWidget->mText.empty()) {
+                    SDL_Color fg = { 0xff,0xff,0xff }, bg = {0x00,0x00,0x00};
+                    
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height-2, currentWidget->mRect, fg, bg);                
+                }
+            }
             break;
 
         case WidgetType::PanelType:

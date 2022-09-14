@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include "tinyui.h"
 
 namespace TinyUi {
@@ -20,18 +21,14 @@ struct Widget {
     WidgetType mType;
     Widget *mParent;
     rect mRect;
+    std::string mText;
     std::vector<Widget*> mChildren;
     CallbackI mCallback;
 };
 
-enum class MouseState {
-    LeftButton,
-    MiddleButton,
-    RghtButton
-};
-
 struct Widgets {
-    static int create_button(Context &ctx, unsigned int id, unsigned int parentId,int x, int y, int w, int h, CallbackI *callback);
+    static int create_button(Context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h, CallbackI *callback);
+    static int create_panel(Context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, CallbackI *callback);
     static void render_widgets(Context &ctx);
     static void onMouseButton(int x, int y , MouseState state, Context &ctx);
 };
