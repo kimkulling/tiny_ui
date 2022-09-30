@@ -24,6 +24,9 @@ struct Widget {
     std::string mText;
     std::vector<Widget*> mChildren;
     CallbackI mCallback;
+
+    Widget() : mId(0), mType(WidgetType::UnknownType), mParent(nullptr), mRect(), mText(), mChildren() {}
+    ~Widget() = default;
 };
 
 struct Widgets {

@@ -15,6 +15,13 @@ struct color4 {
 
 struct rect {
     int x, y, width, height;
+
+    bool isIn(int x_, int y_) const {
+        if (x_ >= x && y_ >= y && x_ <=(x+width) && y_ <= (y+height)) {
+            return true;
+        }
+        return false;
+    }
 };
 
 struct style {

@@ -45,15 +45,18 @@ int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId,
         child->mText.assign(text);
     }
 
+    Widget *parent = nullptr;
     if (parentId == 0) {
-        ctx.mRoot = child;
+        if (ctx.mRoot = nullptr) {
+            ctx.mRoot = new Widget;
+            ctx.mRoot->mType = WidgetType::PanelType;
+        }
+        parent = ctx.mRoot;
     } else {
         Widget *parent = findWidget(parentId, ctx.mRoot);
-        if (parent != nullptr) {
-            parent->mChildren.emplace_back(child);
-            child->mParent = parent;
-        }
     }
+    parent->mChildren.emplace_back(child);
+    child->mParent = parent;
 
     return 0;
 }
@@ -78,6 +81,9 @@ static void render(Context &ctx, Widget *currentWidget){
         default:
             break;
     }
+    for (auto child : currentWidget->mChildren) {
+        render(ctx, child);
+    }
 }
 
 void Widgets::render_widgets(Context &ctx) {
@@ -88,8 +94,35 @@ void Widgets::render_widgets(Context &ctx) {
     render(ctx, ctx.mRoot);
 }
 
-void Widgets::onMouseButton(int x, int y , MouseState state, Context &ctx) {
-    printf("Clicked\n");
+void findSelectedWidget(int x, int y , Widget *currentChild, Widget **found) {
+    if (currentChild == nullptr) {
+        return;
+    }
+
+    if (currentChild->mRect.isIn(x, y)) {
+        *found = currentChild;
+        for ( auto &child : currentChild->mChildren) {
+            if (child->mRect.isIn(x, y)){
+                findSelectedWidget(x, y, child, found);
+            }
+        }
+    }
 }
-    
+
+void Widgets::onMouseButton(int x, int y , MouseState state, Context &ctx) {
+    if (ctx.mRoot == nullptr) {
+        return;
+    }
+
+    unsigned int id = 0;
+    Widget *root = ctx.mRoot;
+    Widget *found = nullptr;
+    findSelectedWidget(x, y, root, &found);
+    if (found != nullptr) {
+        printf("Clicked %d\n", found->mId);
+    } else {
+        printf("Clicked, but not found\n");
+    }
+}
+
 } // namespace TinyUi
