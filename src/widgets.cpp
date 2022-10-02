@@ -47,13 +47,13 @@ int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId,
 
     Widget *parent = nullptr;
     if (parentId == 0) {
-        if (ctx.mRoot = nullptr) {
+        if (ctx.mRoot == nullptr) {
             ctx.mRoot = new Widget;
             ctx.mRoot->mType = WidgetType::PanelType;
         }
         parent = ctx.mRoot;
     } else {
-        Widget *parent = findWidget(parentId, ctx.mRoot);
+        parent = findWidget(parentId, ctx.mRoot);
     }
     parent->mChildren.emplace_back(child);
     child->mParent = parent;
