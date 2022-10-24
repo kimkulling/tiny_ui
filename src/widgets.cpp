@@ -37,10 +37,7 @@ int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId,
     Widget *child = new Widget;
     child->mId = id;
     child->mType = WidgetType::ButtonType;
-    child->mRect.x = x;
-    child->mRect.y = y;
-    child->mRect.width = w;
-    child->mRect.height  = h;
+    child->mRect.set(x, y, w, h);
     if (text != nullptr) {
         child->mText.assign(text);
     }
@@ -56,6 +53,7 @@ int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId,
         parent = findWidget(parentId, ctx.mRoot);
     }
     parent->mChildren.emplace_back(child);
+    parent->mergeWithRect(child->mRect);
     child->mParent = parent;
 
     return 0;
@@ -66,7 +64,7 @@ static void render(Context &ctx, Widget *currentWidget){
     switch( currentWidget->mType) {
         case WidgetType::ButtonType:
             {
-                Renderer::draw_rect(ctx, r.x, r.y, r.width, r.height, true, ctx.mStyle.mFg);
+                Renderer::draw_rect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
                 if (!currentWidget->mText.empty()) {
                     SDL_Color fg = { 0xff,0xff,0xff }, bg = {0x00,0x00,0x00};
                     

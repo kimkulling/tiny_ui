@@ -26,7 +26,20 @@ struct Widget {
     CallbackI mCallback;
 
     Widget() : mId(0), mType(WidgetType::UnknownType), mParent(nullptr), mRect(), mText(), mChildren() {}
+    
     ~Widget() = default;
+    
+    void mergeWithRect( const rect &r ) {
+        if (r.x1 < mRect.x1 || mRect.x1 == -1)
+            mRect.x1 = r.x1;
+        if (r.y1 < mRect.y1 || mRect.y1 == -1)
+            mRect.y1 = r.y1;
+        if (mRect.width > r.width || mRect.width == -1)
+            mRect.width = r.width;
+        if (mRect.height > r.height || mRect.height == -1)
+            mRect.height = r.height;
+        mRect.set(mRect.x1, mRect.y1, mRect.width, mRect.height);
+    }
 };
 
 struct Widgets {
