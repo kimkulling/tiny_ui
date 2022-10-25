@@ -30,7 +30,7 @@ static Widget *findWidget(unsigned int id, Widget *root) {
 }
 
 int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h, CallbackI *callback) {
-    if (ctx.mRenderer == nullptr) {
+    if (ctx.mSDLContext.mRenderer == nullptr) {
         return -1;
     }
 

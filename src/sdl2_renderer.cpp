@@ -5,6 +5,8 @@
 
 namespace TinyUi {
 
+static constexpr int ErrorCode = -1;
+
 void logError(const char *message) {
     assert(message != nullptr);
 
@@ -18,19 +20,19 @@ void printDriverInfo(SDL_RendererInfo &info) {
 int Renderer::initRenderer(Context &ctx) {
     if (ctx.mCreated) {
         logError("Renderer already initialized.");
-        return -1;
+        return ErrorCode;
     }
 
-    if (SDL_Init(SDL_INIT_VIDEO ) == -1) {
+    if (SDL_Init(SDL_INIT_VIDEO) == -1) {
         logError("Error while SDL_Init.");
         ctx.mCreated = false;
-        return -1;
+        return ErrorCode;
     }
     TTF_Init();
 
     ctx.mCreated = true;
 
-    int numRenderDrivers = SDL_GetNumRenderDrivers();
+    const int numRenderDrivers = SDL_GetNumRenderDrivers();
     printf("Available drivers:\n");
     for (int i=0; i<numRenderDrivers; ++i) {
         SDL_RendererInfo info;
@@ -44,14 +46,14 @@ int Renderer::initRenderer(Context &ctx) {
 int Renderer::releaseRenderer(Context &ctx) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
-        return -1;
+        return ErrorCode;
     }
 
     TTF_Quit();
-    SDL_DestroyRenderer(ctx.mRenderer);
-    ctx.mRenderer = nullptr;
-    SDL_DestroyWindow(ctx.mWindow);
-    ctx.mWindow = nullptr;
+    SDL_DestroyRenderer(ctx.mSDLContext.mRenderer);
+    ctx.mSDLContext.mRenderer = nullptr;
+    SDL_DestroyWindow(ctx.mSDLContext.mWindow);
+    ctx.mSDLContext.mWindow = nullptr;
     SDL_Quit();
 
     return 0;
@@ -61,7 +63,7 @@ int Renderer::drawText(Context &ctx, const char* string, int size, const rect &r
     TTF_Font *font = TTF_OpenFont("Arial.ttf", 24);
     if (font == nullptr) {
         printf("[ERROR] TTF_OpenFont() Failed with: %s\n", TTF_GetError());
-        return -1;
+        return ErrorCode;
     }
 
     SDL_Color white;
@@ -73,10 +75,10 @@ int Renderer::drawText(Context &ctx, const char* string, int size, const rect &r
     SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, string, white); 
     if (surfaceMessage == nullptr) {
         printf("[ERROR] Cannot create message surface..\n");
-        return -1;
+        return ErrorCode;
     }
     
-    SDL_Texture* Message = SDL_CreateTextureFromSurface(ctx.mRenderer, surfaceMessage);
+    SDL_Texture* Message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
     if (Message == nullptr) {
         printf("[ERROR] Cannot create texture.\n");
         return -1;
@@ -87,7 +89,7 @@ int Renderer::drawText(Context &ctx, const char* string, int size, const rect &r
     Message_rect.w = r.width;
     Message_rect.h = r.height;
 
-    SDL_RenderCopy(ctx.mRenderer, Message, NULL, &Message_rect);
+    SDL_RenderCopy(ctx.mSDLContext.mRenderer, Message, NULL, &Message_rect);
 
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(Message);
@@ -99,7 +101,12 @@ int Renderer::drawText(Context &ctx, const char* string, int size, const rect &r
 int Renderer::initScreen(Context &ctx, int x, int y, int w, int h) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
-        return -1;
+        return ErrorCode;
+    }
+
+    if (ctx.mSDLContext.mWindow != nullptr ) {
+        logError("Already created.");
+        return ErrorCode;
     }
 
     const char *title = ctx.title;
@@ -107,27 +114,47 @@ int Renderer::initScreen(Context &ctx, int x, int y, int w, int h) {
         title = "untitled";
     }
 
-    ctx.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
-    if (ctx.mWindow == nullptr) {
+    ctx.mSDLContext.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
+    if (ctx.mSDLContext.mWindow == nullptr) {
         logError("Error while SDL_CreateWindow.");
-        return -1;
+        return ErrorCode;
     }
     
-    ctx.mRenderer = SDL_CreateRenderer(ctx.mWindow, -1, SDL_RENDERER_ACCELERATED);
-    if (nullptr == ctx.mRenderer) {
+    ctx.mSDLContext.mRenderer = SDL_CreateRenderer(ctx.mSDLContext.mWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (nullptr == ctx.mSDLContext.mRenderer) {
         logError("Eror while SDL_CreateRenderer.");
-        return -1;
+        return ErrorCode;
     }
     printf("Driver in use:\n");
     SDL_RendererInfo info;
-    SDL_GetRendererInfo(ctx.mRenderer, &info);
+    SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
     printDriverInfo(info);
 
-    ctx.mSurface = SDL_GetWindowSurface(ctx.mWindow);
-    if (ctx.mSurface == nullptr) {
+    ctx.mSDLContext.mSurface = SDL_GetWindowSurface(ctx.mSDLContext.mWindow);
+    if (ctx.mSDLContext.mSurface == nullptr) {
         logError("Surface pointer from window is nullptr.");
-        return -1;
+        return ErrorCode;
     }
+
+    return 0;
+}
+
+int Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
+    if (ctx.mCreated) {
+        logError("Renderer already initialized.");
+        return ErrorCode;
+    }
+
+    if (window == nullptr || renderer == nullptr) {
+        logError("Invalid render pointer detected.");
+        return ErrorCode;
+    }
+
+    ctx.mSDLContext.mRenderer = renderer;
+    ctx.mSDLContext.mWindow = window;
+    ctx.mSDLContext.mSurface = SDL_GetWindowSurface(ctx.mSDLContext.mWindow);
+    ctx.mSDLContext.mOwner = false;
+    ctx.mCreated = true;
 
     return 0;
 }
@@ -135,11 +162,11 @@ int Renderer::initScreen(Context &ctx, int x, int y, int w, int h) {
 int Renderer::beginRender(Context &ctx, color4 bg) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
-        return -1;
+        return ErrorCode;
     }
 
-    SDL_SetRenderDrawColor(ctx.mRenderer, bg.r, bg.g, bg.b, bg.a);
-    SDL_RenderClear(ctx.mRenderer);        
+    SDL_SetRenderDrawColor(ctx.mSDLContext.mRenderer, bg.r, bg.g, bg.b, bg.a);
+    SDL_RenderClear(ctx.mSDLContext.mRenderer);        
 
     return 0;
 }
@@ -150,29 +177,29 @@ int Renderer::draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, c
     r.y = y;
     r.w = w;
     r.h = h;
-    SDL_SetRenderDrawColor(ctx.mRenderer, fg.r, fg.g, fg.b, fg.a);
+    SDL_SetRenderDrawColor(ctx.mSDLContext.mRenderer, fg.r, fg.g, fg.b, fg.a);
     if (filled) {
-        SDL_RenderFillRect(ctx.mRenderer, &r);
+        SDL_RenderFillRect(ctx.mSDLContext.mRenderer, &r);
     } else {
-        SDL_RenderDrawRect(ctx.mRenderer, &r);
+        SDL_RenderDrawRect(ctx.mSDLContext.mRenderer, &r);
     }
 
     return 0;
 }
 
 int Renderer::closeScreen(Context &ctx) {
-    if (ctx.mWindow == nullptr) {
-        return -1;
+    if (ctx.mSDLContext.mWindow == nullptr) {
+        return ErrorCode;
     }
 
-    SDL_DestroyWindow(ctx.mWindow);
-    ctx.mWindow = nullptr;
+    SDL_DestroyWindow(ctx.mSDLContext.mWindow);
+    ctx.mSDLContext.mWindow = nullptr;
 
     return 0;
 }
 
 int Renderer::endRender(Context &ctx) {
-    SDL_RenderPresent(ctx.mRenderer);
+    SDL_RenderPresent(ctx.mSDLContext.mRenderer);
 
     return 0;
 }
@@ -227,4 +254,4 @@ bool Renderer::run(Context &ctx) {
     return running;
 }
 
-}
+} // namespace tinyui

@@ -31,20 +31,30 @@ enum class MouseState {
     NumStates
 };
 
+struct LoggerBackend {
+    void (*logMessage) (const char *message);
+};
+
 struct CallbackI {
     int (*funcCallback) (unsigned int id, void *data);
 };
 
-struct Context {
-    bool mCreated;
-    const char *title;
+struct SDLContext {
     SDL_Window *mWindow;
     SDL_Surface *mSurface;
     SDL_Renderer *mRenderer;
+    bool mOwner;
+
+    SDLContext() : mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), mOwner(true) {}
+};
+struct Context {
+    bool mCreated;
+    const char *title;
+    SDLContext mSDLContext;
     style mStyle;
     Widget *mRoot;
 
-    Context() : mCreated(false), title(nullptr), mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), mRoot(nullptr) {}
+    Context() : mCreated(false), title(nullptr), mSDLContext(), mRoot(nullptr) {}
     ~Context() = default;
 };
 

@@ -27,6 +27,8 @@ hunter_add_package(SDL_ttf)
 find_package(SDL_ttf CONFIG REQUIRED)
 
 ADD_LIBRARY(tiny_ui
+    src/tinyui.h
+    src/tinyui.cpp
     src/widgets.cpp
     src/widgets.h
     src/sdl2_renderer.cpp

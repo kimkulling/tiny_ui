@@ -10,7 +10,7 @@ using namespace TinyUi;
 int main(int argc, char *argv[]) {
     Context ctx;
     ctx.title = "Sample-Screen";
-    if (Renderer::initRenderer(ctx)==-1) {
+    if (Renderer::initRenderer(ctx) == -1) {
         printf("Error: Cannot init renderer\n");
         return -1;
     }
