@@ -29,12 +29,14 @@ int main(int argc, char *argv[]) {
     currentStyle.mBg = bg;
     currentStyle.mTextColor = tc;
     ctx.mStyle = currentStyle;
-    Widgets::create_button(ctx, 1, 0, "test", 100, 10, 100, 20, nullptr);
+    Widgets::create_button(ctx, 1, 0, "Test 1", 100, 10, 100, 20, nullptr);
+    Widgets::create_button(ctx, 2, 0, "Test 2", 100, 50, 100, 20, nullptr);
+    Widgets::create_button(ctx, 2, 0, "Test 3", 100, 90, 100, 20, nullptr);
     while (Renderer::run(ctx)) {
         Renderer::beginRender(ctx, bg);
         Widgets::render_widgets(ctx);
-        Renderer::draw_rect(ctx, 10, 10, 20, 20, true, fg);
-        Renderer::draw_rect(ctx, 10, 40, 20, 20, false, fg);
+        //Renderer::draw_rect(ctx, 10, 10, 20, 20, true, fg);
+        //Renderer::draw_rect(ctx, 10, 40, 20, 20, false, fg);
         Renderer::endRender(ctx);
     }
     Renderer::releaseRenderer(ctx);

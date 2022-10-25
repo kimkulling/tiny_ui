@@ -84,8 +84,8 @@ int Renderer::drawText(Context &ctx, const char* string, int size, const rect &r
         return -1;
     }
     SDL_Rect Message_rect; 
-    Message_rect.x = r.x;  
-    Message_rect.y = r.y; 
+    Message_rect.x = r.x1;  
+    Message_rect.y = r.y1; 
     Message_rect.w = r.width;
     Message_rect.h = r.height;
 

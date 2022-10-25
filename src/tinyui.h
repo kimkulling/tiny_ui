@@ -14,7 +14,28 @@ struct color4 {
 };
 
 struct rect {
-    int x, y, width, height;
+    int x1, y1, width, height, x2, y2;
+
+    rect() : x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
+    rect(int x, int y, int w, int h) :
+            x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {
+        set(x, y, w, h);
+    }
+    bool isIn(int x_, int y_) const {
+        if (x_ >= x1 && y_ >= y1 && x_ <=(x2) && y_ <= y2) {
+            return true;
+        }
+        return false;
+    }
+    
+    void set( int x, int y, int w, int h ) {
+        x1 = x;
+        y1 = y;
+        width = w;
+        height = h;
+        x2 = x + w;
+        y2 = y + h;
+    }
 };
 
 struct style {
