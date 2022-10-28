@@ -5,10 +5,10 @@
 
 #define main main
 
-using namespace TinyUi;
+using namespace tinyui;
 
 int main(int argc, char *argv[]) {
-    Context ctx;
+    tui_context ctx;
     ctx.title = "Sample-Screen";
     if (Renderer::initRenderer(ctx) == -1) {
         printf("Error: Cannot init renderer\n");
@@ -21,10 +21,10 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Test\n";
-    color4 fg = {125, 125, 125, 0};
-    color4 bg = {0, 0, 0, 0};
-    color4 tc = {0, 0, 200, 0};
-    style currentStyle;
+    tui_color4 fg = {125, 125, 125, 0};
+    tui_color4 bg = { 0, 0, 0, 0 };
+    tui_color4 tc = { 0, 0, 200, 0 };
+    tui_style currentStyle;
     currentStyle.mFg = fg;
     currentStyle.mBg = bg;
     currentStyle.mTextColor = tc;

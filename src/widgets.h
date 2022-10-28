@@ -4,9 +4,9 @@
 #include <string>
 #include "tinyui.h"
 
-namespace TinyUi {
+namespace tinyui {
 
-struct Context;
+struct tui_context;
 
 enum class WidgetType {
     UnknownType = -1,
@@ -16,20 +16,21 @@ enum class WidgetType {
     NumTypes
 };
 
-struct Widget {
+struct tui_widget {
     unsigned int mId;
     WidgetType mType;
-    Widget *mParent;
-    rect mRect;
+    tui_widget *mParent;
+    tui_rect mRect;
     std::string mText;
-    std::vector<Widget*> mChildren;
-    CallbackI mCallback;
+    std::vector<tui_widget*> mChildren;
+    tui_callbackI mCallback;
 
-    Widget() : mId(0), mType(WidgetType::UnknownType), mParent(nullptr), mRect(), mText(), mChildren() {}
+    tui_widget() :
+            mId(0), mType(WidgetType::UnknownType), mParent(nullptr), mRect(), mText(), mChildren() {}
     
-    ~Widget() = default;
+    ~tui_widget() = default;
     
-    void mergeWithRect( const rect &r ) {
+    void mergeWithRect( const tui_rect &r ) {
         if (r.x1 < mRect.x1 || mRect.x1 == -1)
             mRect.x1 = r.x1;
         if (r.y1 < mRect.y1 || mRect.y1 == -1)
@@ -43,10 +44,10 @@ struct Widget {
 };
 
 struct Widgets {
-    static int create_button(Context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h, CallbackI *callback);
-    static int create_panel(Context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, CallbackI *callback);
-    static void render_widgets(Context &ctx);
-    static void onMouseButton(int x, int y , MouseState state, Context &ctx);
+    static int create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h, tui_callbackI *callback);
+    static int create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback);
+    static void render_widgets(tui_context &ctx);
+    static void onMouseButton(int x, int y , tui_mouseState state, tui_context &ctx);
 };
 
-} // namespace TinyUi
+} // namespace tinyui

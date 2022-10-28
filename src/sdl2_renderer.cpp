@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-namespace TinyUi {
+namespace tinyui {
 
 static constexpr int ErrorCode = -1;
 
@@ -17,7 +17,7 @@ void printDriverInfo(SDL_RendererInfo &info) {
     printf("Driver : %s\n", info.name);
 }
 
-int Renderer::initRenderer(Context &ctx) {
+int Renderer::initRenderer(tui_context &ctx) {
     if (ctx.mCreated) {
         logError("Renderer already initialized.");
         return ErrorCode;
@@ -43,7 +43,7 @@ int Renderer::initRenderer(Context &ctx) {
     return 0;
 }
 
-int Renderer::releaseRenderer(Context &ctx) {
+int Renderer::releaseRenderer(tui_context &ctx) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
         return ErrorCode;
@@ -59,7 +59,7 @@ int Renderer::releaseRenderer(Context &ctx) {
     return 0;
 }
 
-int Renderer::drawText(Context &ctx, const char* string, int size, const rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
+int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
     TTF_Font *font = TTF_OpenFont("Arial.ttf", 24);
     if (font == nullptr) {
         printf("[ERROR] TTF_OpenFont() Failed with: %s\n", TTF_GetError());
@@ -98,7 +98,7 @@ int Renderer::drawText(Context &ctx, const char* string, int size, const rect &r
     return 0;
 }
 
-int Renderer::initScreen(Context &ctx, int x, int y, int w, int h) {
+int Renderer::initScreen(tui_context &ctx, int x, int y, int w, int h) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
         return ErrorCode;
@@ -122,7 +122,7 @@ int Renderer::initScreen(Context &ctx, int x, int y, int w, int h) {
     
     ctx.mSDLContext.mRenderer = SDL_CreateRenderer(ctx.mSDLContext.mWindow, -1, SDL_RENDERER_ACCELERATED);
     if (nullptr == ctx.mSDLContext.mRenderer) {
-        logError("Eror while SDL_CreateRenderer.");
+        logError("Error while SDL_CreateRenderer.");
         return ErrorCode;
     }
     printf("Driver in use:\n");
@@ -139,7 +139,7 @@ int Renderer::initScreen(Context &ctx, int x, int y, int w, int h) {
     return 0;
 }
 
-int Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
+int Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
     if (ctx.mCreated) {
         logError("Renderer already initialized.");
         return ErrorCode;
@@ -159,7 +159,7 @@ int Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *rendere
     return 0;
 }
 
-int Renderer::beginRender(Context &ctx, color4 bg) {
+int Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
         return ErrorCode;
@@ -171,7 +171,7 @@ int Renderer::beginRender(Context &ctx, color4 bg) {
     return 0;
 }
 
-int Renderer::draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, color4 fg){
+int Renderer::draw_rect(tui_context &ctx, int x, int y, int w, int h, bool filled, tui_color4 fg) {
     SDL_Rect r;
     r.x = x;
     r.y = y;
@@ -187,7 +187,7 @@ int Renderer::draw_rect(Context &ctx, int x, int y, int w, int h, bool filled, c
     return 0;
 }
 
-int Renderer::closeScreen(Context &ctx) {
+int Renderer::closeScreen(tui_context &ctx) {
     if (ctx.mSDLContext.mWindow == nullptr) {
         return ErrorCode;
     }
@@ -198,23 +198,23 @@ int Renderer::closeScreen(Context &ctx) {
     return 0;
 }
 
-int Renderer::endRender(Context &ctx) {
+int Renderer::endRender(tui_context &ctx) {
     SDL_RenderPresent(ctx.mSDLContext.mRenderer);
 
     return 0;
 }
 
-static MouseState getButtonState(const SDL_MouseButtonEvent &b) {
-    MouseState state = MouseState::Unknown;
+static tui_mouseState getButtonState(const SDL_MouseButtonEvent &b) {
+    tui_mouseState state = tui_mouseState::Unknown;
     switch (b.button) {
         case SDL_BUTTON_LEFT:
-            state = MouseState::LeftButton;
+            state = tui_mouseState::LeftButton;
             break;
         case SDL_BUTTON_MIDDLE:
-            state = MouseState::MiddleButton;
+            state = tui_mouseState::MiddleButton;
             break;
         case SDL_BUTTON_RIGHT:
-            state = MouseState::RightButton;
+            state = tui_mouseState::RightButton;
             break;
         case SDL_BUTTON_X1:
         case SDL_BUTTON_X2:
@@ -224,7 +224,7 @@ static MouseState getButtonState(const SDL_MouseButtonEvent &b) {
     return state;
 }
 
-bool Renderer::run(Context &ctx) {
+bool Renderer::run(tui_context &ctx) {
     if (!ctx.mCreated) {
         return false;
     }

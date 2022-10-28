@@ -1,9 +1,9 @@
 #include "widgets.h"
 #include "sdl2_renderer.h"
 
-namespace TinyUi {
+namespace tinyui {
 
-static Widget *findWidget(unsigned int id, Widget *root) {
+static tui_widget *findWidget(unsigned int id, tui_widget *root) {
     if (root == nullptr) {
         return nullptr;
     }
@@ -13,14 +13,14 @@ static Widget *findWidget(unsigned int id, Widget *root) {
     }
 
     for (size_t i=0; i<root->mChildren.size(); ++i) {
-        Widget *child = root->mChildren[i];
+        tui_widget *child = root->mChildren[i];
         if(child==nullptr) {
             continue;
         }
         if (child->mId==id) {
             return child;
         }
-        Widget *found = findWidget(id, child);
+        tui_widget *found = findWidget(id, child);
         if(found != nullptr) {
             return found;
         }
@@ -29,12 +29,12 @@ static Widget *findWidget(unsigned int id, Widget *root) {
     return nullptr;
 }
 
-int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h, CallbackI *callback) {
+int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return -1;
     }
 
-    Widget *child = new Widget;
+    tui_widget *child = new tui_widget;
     child->mId = id;
     child->mType = WidgetType::ButtonType;
     child->mRect.set(x, y, w, h);
@@ -42,10 +42,10 @@ int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId,
         child->mText.assign(text);
     }
 
-    Widget *parent = nullptr;
+    tui_widget *parent = nullptr;
     if (parentId == 0) {
         if (ctx.mRoot == nullptr) {
-            ctx.mRoot = new Widget;
+            ctx.mRoot = new tui_widget;
             ctx.mRoot->mType = WidgetType::PanelType;
         }
         parent = ctx.mRoot;
@@ -59,8 +59,8 @@ int Widgets::create_button(Context &ctx, unsigned int id, unsigned int parentId,
     return 0;
 }
 
-static void render(Context &ctx, Widget *currentWidget){
-    const rect &r = currentWidget->mRect;
+static void render(tui_context &ctx, tui_widget *currentWidget) {
+    const tui_rect &r = currentWidget->mRect;
     switch( currentWidget->mType) {
         case WidgetType::ButtonType:
             {
@@ -84,7 +84,7 @@ static void render(Context &ctx, Widget *currentWidget){
     }
 }
 
-void Widgets::render_widgets(Context &ctx) {
+void Widgets::render_widgets(tui_context &ctx) {
     if (ctx.mRoot == nullptr) {
         return;
     }
@@ -92,7 +92,7 @@ void Widgets::render_widgets(Context &ctx) {
     render(ctx, ctx.mRoot);
 }
 
-void findSelectedWidget(int x, int y , Widget *currentChild, Widget **found) {
+void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found) {
     if (currentChild == nullptr) {
         return;
     }
@@ -107,14 +107,14 @@ void findSelectedWidget(int x, int y , Widget *currentChild, Widget **found) {
     }
 }
 
-void Widgets::onMouseButton(int x, int y , MouseState state, Context &ctx) {
+void Widgets::onMouseButton(int x, int y, tui_mouseState state, tui_context &ctx) {
     if (ctx.mRoot == nullptr) {
         return;
     }
 
     unsigned int id = 0;
-    Widget *root = ctx.mRoot;
-    Widget *found = nullptr;
+    tui_widget *root = ctx.mRoot;
+    tui_widget *found = nullptr;
     findSelectedWidget(x, y, root, &found);
     if (found != nullptr) {
         printf("Clicked %d\n", found->mId);
@@ -123,4 +123,4 @@ void Widgets::onMouseButton(int x, int y , MouseState state, Context &ctx) {
     }
 }
 
-} // namespace TinyUi
+} // namespace tinyui

@@ -5,19 +5,20 @@ struct SDL_Surface;
 struct SDL_Renderer;
 struct SDL_MouseButtonEvent;
 
-namespace TinyUi {
+namespace tinyui {
 
-struct Widget;
+struct tui_widget;
 
-struct color4 {
+struct tui_color4 {
     int r,g,b,a;
 };
 
-struct rect {
+struct tui_rect {
     int x1, y1, width, height, x2, y2;
 
-    rect() : x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
-    rect(int x, int y, int w, int h) :
+    tui_rect() :
+            x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
+    tui_rect(int x, int y, int w, int h) :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {
         set(x, y, w, h);
     }
@@ -38,13 +39,13 @@ struct rect {
     }
 };
 
-struct style {
-    color4 mFg;
-    color4 mBg;
-    color4 mTextColor;
+struct tui_style {
+    tui_color4 mFg;
+    tui_color4 mBg;
+    tui_color4 mTextColor;
 };
 
-enum class MouseState {
+enum class tui_mouseState {
     Unknown = -1,
     LeftButton = 0,
     MiddleButton,
@@ -52,31 +53,37 @@ enum class MouseState {
     NumStates
 };
 
-struct LoggerBackend {
+struct tui_loggerBackend {
     void (*logMessage) (const char *message);
 };
 
-struct CallbackI {
+struct tui_callbackI {
     int (*funcCallback) (unsigned int id, void *data);
 };
 
-struct SDLContext {
+struct tui_sdlContext {
     SDL_Window *mWindow;
     SDL_Surface *mSurface;
     SDL_Renderer *mRenderer;
     bool mOwner;
 
-    SDLContext() : mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), mOwner(true) {}
+    tui_sdlContext() :
+            mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), mOwner(true) {}
 };
-struct Context {
+
+struct tui_context {
     bool mCreated;
     const char *title;
-    SDLContext mSDLContext;
-    style mStyle;
-    Widget *mRoot;
+    tui_sdlContext mSDLContext;
+    tui_style mStyle;
+    tui_widget *mRoot;
 
-    Context() : mCreated(false), title(nullptr), mSDLContext(), mRoot(nullptr) {}
-    ~Context() = default;
+    tui_context() :
+            mCreated(false), title(nullptr), mSDLContext(), mRoot(nullptr) {}
+    ~tui_context() = default;
 };
 
-} // Namespace TinyUi
+int tui_init(tui_context &ctx);
+int tui_release(tui_context &ctx);
+
+    } // Namespace TinyUi
