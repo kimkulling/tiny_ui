@@ -73,13 +73,13 @@ int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui
         return ErrorCode;
     }
 
-    SDL_Color white = {};
-    white.r = ctx.mStyle.mTextColor.r;
-    white.g = ctx.mStyle.mTextColor.g;
-    white.b = ctx.mStyle.mTextColor.b;
-    white.a = ctx.mStyle.mTextColor.a;
+    SDL_Color text_color = {};
+    text_color.r = ctx.mStyle.mTextColor.r;
+    text_color.g = ctx.mStyle.mTextColor.g;
+    text_color.b = ctx.mStyle.mTextColor.b;
+    text_color.a = ctx.mStyle.mTextColor.a;
     
-    SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, string, white); 
+    SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, string, text_color); 
     if (surfaceMessage == nullptr) {
         printf("[ERROR] Cannot create message surface..\n");
         return ErrorCode;

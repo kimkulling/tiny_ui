@@ -29,33 +29,76 @@ static tui_widget *findWidget(unsigned int id, tui_widget *root) {
     return nullptr;
 }
 
+static tui_widget *create_widget(tui_context &ctx, unsigned int id) {
+    tui_widget *widget = new tui_widget;
+    widget->mId = id;
+
+    return widget;
+}
+
+tui_widget *set_parent(tui_context &ctx, tui_widget *child, unsigned int parentId) {
+    tui_widget *parent = nullptr;
+    if (parentId == 0) {
+        if (ctx.mRoot == nullptr) {
+            ctx.mRoot = new tui_widget;
+            ctx.mRoot->mType = WidgetType::ContainerType;
+        }
+        parent = ctx.mRoot;
+    } else {
+        parent = findWidget(parentId, ctx.mRoot);
+    }
+
+    parent->mChildren.emplace_back(child);
+    parent->mRect.mergeWithRect(child->mRect);
+
+
+    return parent;
+}
+
+int Widgets::create_container(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
+        int x, int y, int w, int h) {
+    if (ctx.mRoot != nullptr) {
+        return -1;
+    }
+
+    tui_widget *widget = create_widget(ctx, id);
+    ctx.mRoot = widget;
+    widget->mRect.set(x, y, w, h);
+    if (text != nullptr) {
+        widget->mText.assign(text);
+    }
+    widget->mParent = set_parent(ctx, widget, parentId);
+
+    return 0;
+}
+
 int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
         int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return -1;
     }
 
-    tui_widget *child = new tui_widget;
-    child->mId = id;
+    tui_widget *child = create_widget(ctx, id);
     child->mType = WidgetType::ButtonType;
     child->mRect.set(x, y, w, h);
     if (text != nullptr) {
         child->mText.assign(text);
     }
 
-    tui_widget *parent = nullptr;
-    if (parentId == 0) {
-        if (ctx.mRoot == nullptr) {
-            ctx.mRoot = new tui_widget;
-            ctx.mRoot->mType = WidgetType::PanelType;
-        }
-        parent = ctx.mRoot;
-    } else {
-        parent = findWidget(parentId, ctx.mRoot);
+    child->mParent = set_parent(ctx, child, parentId);
+
+    return 0;
+}
+
+int Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback) {
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        return -1;
     }
-    parent->mChildren.emplace_back(child);
-    parent->mRect.mergeWithRect(child->mRect);
-    child->mParent = parent;
+    tui_widget *child = create_widget(ctx, id);
+    child->mType = WidgetType::PanelType;
+    child->mRect.set(x, y, w, h);
+
+    child->mParent = set_parent(ctx, child, parentId);
 
     return 0;
 }

@@ -10,6 +10,7 @@ struct tui_context;
 
 enum class WidgetType {
     UnknownType = -1,
+    ContainerType = 0,
     ButtonType,
     PanelType,
 
@@ -32,6 +33,7 @@ struct tui_widget {
 };
 
 struct Widgets {
+    static int create_container(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h);
     static int create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h, tui_callbackI *callback);
     static int create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback);
     static void render_widgets(tui_context &ctx);
