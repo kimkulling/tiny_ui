@@ -48,6 +48,10 @@ int Renderer::releaseRenderer(tui_context &ctx) {
         logError("Not initialized.");
         return ErrorCode;
     }
+    if (ctx.mSDLContext.mDefaultFont != nullptr) {
+        TTF_CloseFont(ctx.mSDLContext.mDefaultFont);
+        ctx.mSDLContext.mDefaultFont = nullptr;
+    }
 
     TTF_Quit();
     SDL_DestroyRenderer(ctx.mSDLContext.mRenderer);
@@ -60,13 +64,16 @@ int Renderer::releaseRenderer(tui_context &ctx) {
 }
 
 int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
-    TTF_Font *font = TTF_OpenFont("Arial.ttf", 24);
+    if (ctx.mSDLContext.mDefaultFont == nullptr) {
+        ctx.mSDLContext.mDefaultFont = TTF_OpenFont("Arial.ttf", 24);
+    }
+    TTF_Font *font = ctx.mSDLContext.mDefaultFont;
     if (font == nullptr) {
         printf("[ERROR] TTF_OpenFont() Failed with: %s\n", TTF_GetError());
         return ErrorCode;
     }
 
-    SDL_Color white;
+    SDL_Color white = {};
     white.r = ctx.mStyle.mTextColor.r;
     white.g = ctx.mStyle.mTextColor.g;
     white.b = ctx.mStyle.mTextColor.b;
@@ -83,17 +90,15 @@ int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui
         printf("[ERROR] Cannot create texture.\n");
         return -1;
     }
-    SDL_Rect Message_rect; 
+    SDL_Rect Message_rect = {}; 
     Message_rect.x = r.x1;  
     Message_rect.y = r.y1; 
     Message_rect.w = r.width;
     Message_rect.h = r.height;
 
     SDL_RenderCopy(ctx.mSDLContext.mRenderer, Message, NULL, &Message_rect);
-
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(Message);
-    TTF_CloseFont(font);
 
     return 0;
 }
@@ -172,7 +177,7 @@ int Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
 }
 
 int Renderer::draw_rect(tui_context &ctx, int x, int y, int w, int h, bool filled, tui_color4 fg) {
-    SDL_Rect r;
+    SDL_Rect r = {};
     r.x = x;
     r.y = y;
     r.w = w;

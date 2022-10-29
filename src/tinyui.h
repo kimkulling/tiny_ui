@@ -1,9 +1,12 @@
 #pragma once
 
+#include <SDL_ttf/SDL_ttf.h>
+
 struct SDL_Window;
 struct SDL_Surface;
 struct SDL_Renderer;
 struct SDL_MouseButtonEvent;
+
 
 namespace tinyui {
 
@@ -65,6 +68,8 @@ struct tui_style {
     tui_color4 mFg;
     tui_color4 mBg;
     tui_color4 mTextColor;
+    tui_color4 mBorder;
+    int mMargin;
 };
 
 enum class tui_mouseState {
@@ -90,10 +95,11 @@ struct tui_sdlContext {
     SDL_Window *mWindow;
     SDL_Surface *mSurface;
     SDL_Renderer *mRenderer;
+    TTF_Font *mDefaultFont;
     bool mOwner;
 
     tui_sdlContext() :
-            mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), mOwner(true) {}
+            mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), mDefaultFont(nullptr), mOwner(true) {}
 };
 
 struct tui_context {

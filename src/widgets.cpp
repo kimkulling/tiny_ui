@@ -74,7 +74,10 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
             }
             break;
 
-        case WidgetType::PanelType:
+        case WidgetType::PanelType: 
+            {
+                Renderer::draw_rect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
+            }
             break;
 
         default:
@@ -93,7 +96,7 @@ void Widgets::render_widgets(tui_context &ctx) {
     render(ctx, ctx.mRoot);
 }
 
-void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found) {
+static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found) {
     if (currentChild == nullptr) {
         return;
     }

@@ -20,14 +20,18 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    std::cout << "Test\n";
-    tui_color4 fg = {125, 125, 125, 0};
-    tui_color4 bg = { 0, 0, 0, 0 };
-    tui_color4 tc = { 0, 0, 200, 0 };
+    const tui_color4 fg = {125, 125, 125, 0};
+    const tui_color4 bg = { 0, 0, 0, 0 };
+    const tui_color4 tc = { 0, 0, 200, 0 };
+    const tui_color4 border = {200, 200, 200,0};
+    
     tui_style currentStyle;
     currentStyle.mFg = fg;
     currentStyle.mBg = bg;
     currentStyle.mTextColor = tc;
+    currentStyle.mBorder = border;
+    currentStyle.mMargin = 2;
+
     ctx.mStyle = currentStyle;
     Widgets::create_button(ctx, 1, 0, "Test 1", 100, 10, 100, 20, nullptr);
     Widgets::create_button(ctx, 2, 0, "Test 2", 100, 50, 100, 20, nullptr);
@@ -35,8 +39,6 @@ int main(int argc, char *argv[]) {
     while (Renderer::run(ctx)) {
         Renderer::beginRender(ctx, bg);
         Widgets::render_widgets(ctx);
-        //Renderer::draw_rect(ctx, 10, 10, 20, 20, true, fg);
-        //Renderer::draw_rect(ctx, 10, 40, 20, 20, false, fg);
         Renderer::endRender(ctx);
     }
     Renderer::releaseRenderer(ctx);
