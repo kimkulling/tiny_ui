@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
 include("cmake/HunterGate.cmake")
 
+option(TINY_UI_SAMPLES "The build will create the samples." ON)
+
 # Todo: we need to solve this more cleaner
 IF (WIN32)
     HunterGate(
@@ -36,8 +38,9 @@ ADD_LIBRARY(tiny_ui
 )
 target_link_libraries(tiny_ui SDL2::SDL2 SDL_ttf::SDL_ttf)
 
-ADD_EXECUTABLE(tiny_ui_sample
-    samples/main.cpp
-)
-
-target_link_libraries(tiny_ui_sample tiny_ui SDL2::SDL2 SDL_ttf::SDL_ttf)
+if( TINY_UI_SAMPLES)
+    ADD_EXECUTABLE(tiny_ui_sample
+        samples/main.cpp
+    )
+    target_link_libraries(tiny_ui_sample tiny_ui SDL2::SDL2 SDL_ttf::SDL_ttf)
+endif()
