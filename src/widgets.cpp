@@ -29,7 +29,8 @@ static tui_widget *findWidget(unsigned int id, tui_widget *root) {
     return nullptr;
 }
 
-int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h, tui_callbackI *callback) {
+int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
+        int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return -1;
     }
