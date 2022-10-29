@@ -23,7 +23,7 @@ struct tui_rect {
         set(x, y, w, h);
     }
     bool isIn(int x_, int y_) const {
-        if (x_ >= x1 && y_ >= y1 && x_ <=(x2) && y_ <= y2) {
+        if (x_ >= x1 && y_ >= y1 && x_ <=x2 && y_ <= y2) {
             return true;
         }
         return false;
@@ -36,6 +36,28 @@ struct tui_rect {
         height = h;
         x2 = x + w;
         y2 = y + h;
+    }
+
+    void mergeWithRect(const tui_rect &r) {
+        if (x1 > r.x1 || x1 == -1) {
+            x1 = r.x1;
+        }
+        
+        if (y1 > r.y1 || y1 == -1) {
+            y1 = r.y1;
+        }
+        
+        const int x2_ = r.x1 + r.width;
+        if (x2 < x2_) {
+            x2 = x2_;
+            width = r.width;
+        }
+
+        const int y2_ = r.y1 + r.height;
+        if (y2 < y2_) {
+            y2 = y2_;
+            height = r.height;
+        }
     }
 };
 
@@ -58,7 +80,10 @@ struct tui_loggerBackend {
 };
 
 struct tui_callbackI {
-    int (*funcCallback) (unsigned int id, void *data);
+    typedef int (*funcCallback) (unsigned int id, void *data);
+    funcCallback mfuncCallback;
+    
+    tui_callbackI() : mfuncCallback(nullptr) {}
 };
 
 struct tui_sdlContext {

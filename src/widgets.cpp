@@ -53,7 +53,7 @@ int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int paren
         parent = findWidget(parentId, ctx.mRoot);
     }
     parent->mChildren.emplace_back(child);
-    parent->mergeWithRect(child->mRect);
+    parent->mRect.mergeWithRect(child->mRect);
     child->mParent = parent;
 
     return 0;
@@ -118,6 +118,9 @@ void Widgets::onMouseButton(int x, int y, tui_mouseState state, tui_context &ctx
     findSelectedWidget(x, y, root, &found);
     if (found != nullptr) {
         printf("Clicked %d\n", found->mId);
+        if (found->mCallback.mfuncCallback != nullptr) {
+            found->mCallback.mfuncCallback(found->mId, nullptr);
+        }
     } else {
         printf("Clicked, but not found\n");
     }
