@@ -81,6 +81,7 @@ int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int paren
     tui_widget *child = create_widget(ctx, id);
     child->mType = WidgetType::ButtonType;
     child->mRect.set(x, y, w, h);
+    child->mCallback = callback;
     if (text != nullptr) {
         child->mText.assign(text);
     }
@@ -126,6 +127,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
         default:
             break;
     }
+
     for (auto child : currentWidget->mChildren) {
         render(ctx, child);
     }
@@ -165,8 +167,8 @@ void Widgets::onMouseButton(int x, int y, tui_mouseState state, tui_context &ctx
     findSelectedWidget(x, y, root, &found);
     if (found != nullptr) {
         printf("Clicked %d\n", found->mId);
-        if (found->mCallback.mfuncCallback != nullptr) {
-            found->mCallback.mfuncCallback(found->mId, nullptr);
+        if (found->mCallback->mfuncCallback != nullptr) {
+            found->mCallback->mfuncCallback(found->mId, found->mCallback->mInstance);
         }
     } else {
         printf("Clicked, but not found\n");

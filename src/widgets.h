@@ -24,7 +24,7 @@ struct tui_widget {
     tui_rect mRect;
     std::string mText;
     std::vector<tui_widget*> mChildren;
-    tui_callbackI mCallback;
+    tui_callbackI *mCallback;
 
     tui_widget() :
             mId(0), mType(WidgetType::UnknownType), mParent(nullptr), mRect(), mText(), mChildren() {}

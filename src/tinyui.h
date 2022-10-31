@@ -87,8 +87,12 @@ struct tui_loggerBackend {
 struct tui_callbackI {
     typedef int (*funcCallback) (unsigned int id, void *data);
     funcCallback mfuncCallback;
+    void *mInstance;
     
-    tui_callbackI() : mfuncCallback(nullptr) {}
+    tui_callbackI() :
+            mfuncCallback(nullptr), mInstance(nullptr) {}
+    tui_callbackI(funcCallback func, void *instance) :
+            mfuncCallback(func), mInstance(instance) {}
 };
 
 struct tui_sdlContext {
@@ -98,8 +102,8 @@ struct tui_sdlContext {
     TTF_Font *mDefaultFont;
     bool mOwner;
 
-    tui_sdlContext() :
-            mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), mDefaultFont(nullptr), mOwner(true) {}
+    tui_sdlContext() : mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), 
+        mDefaultFont(nullptr), mOwner(true) {}
 };
 
 struct tui_context {
@@ -116,6 +120,7 @@ struct tui_context {
 
 int tui_init(tui_context &ctx);
 int tui_release(tui_context &ctx);
+const tui_style &get_default_style();
 
 
-    } // Namespace TinyUi
+} // Namespace TinyUi

@@ -28,7 +28,6 @@ int Renderer::initRenderer(tui_context &ctx) {
         ctx.mCreated = false;
         return ErrorCode;
     }
-    TTF_Init();
 
     ctx.mCreated = true;
 
@@ -53,7 +52,6 @@ int Renderer::releaseRenderer(tui_context &ctx) {
         ctx.mSDLContext.mDefaultFont = nullptr;
     }
 
-    TTF_Quit();
     SDL_DestroyRenderer(ctx.mSDLContext.mRenderer);
     ctx.mSDLContext.mRenderer = nullptr;
     SDL_DestroyWindow(ctx.mSDLContext.mWindow);
@@ -65,8 +63,9 @@ int Renderer::releaseRenderer(tui_context &ctx) {
 
 int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
     if (ctx.mSDLContext.mDefaultFont == nullptr) {
-        ctx.mSDLContext.mDefaultFont = TTF_OpenFont("Arial.ttf", 24);
+        ctx.mSDLContext.mDefaultFont = TTF_OpenFont("Arial.ttf", 32);
     }
+
     TTF_Font *font = ctx.mSDLContext.mDefaultFont;
     if (font == nullptr) {
         printf("[ERROR] TTF_OpenFont() Failed with: %s\n", TTF_GetError());
@@ -88,7 +87,7 @@ int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui
     SDL_Texture* Message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
     if (Message == nullptr) {
         printf("[ERROR] Cannot create texture.\n");
-        return -1;
+        return ErrorCode;
     }
     SDL_Rect Message_rect = {}; 
     Message_rect.x = r.x1;  
@@ -103,6 +102,23 @@ int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui
     return 0;
 }
 
+static void showDriverInUse(tui_context &ctx) {
+    printf("Driver in use:\n");
+    SDL_RendererInfo info;
+    SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
+    printDriverInfo(info);
+}
+    
+static void listAllRenderDivers(tui_context &ctx) {
+    const int numRenderDrivers = SDL_GetNumRenderDrivers();
+    printf("Available drivers:\n");
+    for (int i = 0; i < numRenderDrivers; ++i) {
+        SDL_RendererInfo info;
+        SDL_GetRenderDriverInfo(i, &info);
+        printDriverInfo(info);
+    }
+}
+
 int Renderer::initScreen(tui_context &ctx, int x, int y, int w, int h) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
@@ -113,6 +129,7 @@ int Renderer::initScreen(tui_context &ctx, int x, int y, int w, int h) {
         logError("Already created.");
         return ErrorCode;
     }
+    TTF_Init();
 
     const char *title = ctx.title;
     if (ctx.title == nullptr) {
@@ -125,15 +142,15 @@ int Renderer::initScreen(tui_context &ctx, int x, int y, int w, int h) {
         return ErrorCode;
     }
     
-    ctx.mSDLContext.mRenderer = SDL_CreateRenderer(ctx.mSDLContext.mWindow, -1, SDL_RENDERER_ACCELERATED);
+    ctx.mSDLContext.mRenderer = SDL_CreateRenderer(ctx.mSDLContext.mWindow, 2, SDL_RENDERER_ACCELERATED);
     if (nullptr == ctx.mSDLContext.mRenderer) {
         logError("Error while SDL_CreateRenderer.");
         return ErrorCode;
     }
-    printf("Driver in use:\n");
-    SDL_RendererInfo info;
-    SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
-    printDriverInfo(info);
+
+    listAllRenderDivers(ctx);
+
+    showDriverInUse(ctx);
 
     ctx.mSDLContext.mSurface = SDL_GetWindowSurface(ctx.mSDLContext.mWindow);
     if (ctx.mSDLContext.mSurface == nullptr) {
@@ -154,9 +171,13 @@ int Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Renderer *ren
         logError("Invalid render pointer detected.");
         return ErrorCode;
     }
+    TTF_Init();
 
     ctx.mSDLContext.mRenderer = renderer;
     ctx.mSDLContext.mWindow = window;
+
+    showDriverInUse(ctx);
+
     ctx.mSDLContext.mSurface = SDL_GetWindowSurface(ctx.mSDLContext.mWindow);
     ctx.mSDLContext.mOwner = false;
     ctx.mCreated = true;
@@ -196,6 +217,7 @@ int Renderer::closeScreen(tui_context &ctx) {
     if (ctx.mSDLContext.mWindow == nullptr) {
         return ErrorCode;
     }
+    TTF_Quit();
 
     SDL_DestroyWindow(ctx.mSDLContext.mWindow);
     ctx.mSDLContext.mWindow = nullptr;
