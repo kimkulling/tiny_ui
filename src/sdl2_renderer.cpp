@@ -251,6 +251,18 @@ static tui_mouseState getButtonState(const SDL_MouseButtonEvent &b) {
     return state;
 }
 
+static int getEventType(Uint32 sdlType) {
+    switch (sdlType) {
+        case SDL_QUIT:
+            return tui_events::QuitEvent;
+        case SDL_MOUSEBUTTONDOWN:
+            return tui_events::MouseButtorDownEvent;
+        case SDL_MOUSEBUTTONUP:
+            return tui_events::MouseButtorUpEvent;
+    }
+    return tui_events::InvalidEvent;
+}
+
 bool Renderer::run(tui_context &ctx) {
     if (!ctx.mCreated) {
         return false;
@@ -265,13 +277,15 @@ bool Renderer::run(tui_context &ctx) {
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
                 {
-                    int x = event.button.x;
-                    int y = event.button.y;
+                    const int x = event.button.x;
+                    const int y = event.button.y;
+                    Widgets::onMouseButton(x, y, getEventType(event.type), getButtonState(event.button), ctx);
+                } break;
 
-                    Widgets::onMouseButton(x, y, getButtonState(event.button), ctx);
-                }
-                break;
+                {
+                } break;
 
             default:
                 break;

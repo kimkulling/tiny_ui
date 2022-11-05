@@ -1,6 +1,8 @@
 #include "widgets.h"
 #include "sdl2_renderer.h"
 
+#include <cassert>
+
 namespace tinyui {
 
 static tui_widget *findWidget(unsigned int id, tui_widget *root) {
@@ -156,19 +158,20 @@ static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widge
     }
 }
 
-void Widgets::onMouseButton(int x, int y, tui_mouseState state, tui_context &ctx) {
+void Widgets::onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx) {
+    assert(eventType >= 0);
+    assert(eventType < tui_events::NumEvents);
+
     if (ctx.mRoot == nullptr) {
         return;
     }
 
-    unsigned int id = 0;
-    tui_widget *root = ctx.mRoot;
     tui_widget *found = nullptr;
-    findSelectedWidget(x, y, root, &found);
+    findSelectedWidget(x, y, ctx.mRoot, &found);
     if (found != nullptr) {
         printf("Clicked %d\n", found->mId);
-        if (found->mCallback->mfuncCallback != nullptr) {
-            found->mCallback->mfuncCallback(found->mId, found->mCallback->mInstance);
+        if (found->mCallback->mfuncCallback[eventType] != nullptr) {
+            found->mCallback->mfuncCallback[eventType](found->mId, found->mCallback->mInstance);
         }
     } else {
         printf("Clicked, but not found\n");

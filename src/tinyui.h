@@ -84,15 +84,26 @@ struct tui_loggerBackend {
     void (*logMessage) (const char *message);
 };
 
+struct tui_events {
+    static constexpr int QuitEvent = 0;
+    static constexpr int MouseButtorDownEvent = 1;
+    static constexpr int MouseButtorUpEvent = 2;
+    static constexpr int NumEvents = MouseButtorUpEvent + 1;
+    static constexpr int InvalidEvent = NumEvents + 1;
+};
+
 struct tui_callbackI {
     typedef int (*funcCallback) (unsigned int id, void *data);
-    funcCallback mfuncCallback;
+    funcCallback mfuncCallback[tui_events::NumEvents];
     void *mInstance;
     
     tui_callbackI() :
-            mfuncCallback(nullptr), mInstance(nullptr) {}
-    tui_callbackI(funcCallback func, void *instance) :
-            mfuncCallback(func), mInstance(instance) {}
+            mfuncCallback{ nullptr }, mInstance(nullptr) {}
+    
+    tui_callbackI(funcCallback mbDownFunc, void *instance) :
+            mfuncCallback{ nullptr }, mInstance(instance) {
+        mfuncCallback[tui_events::MouseButtorDownEvent] = mbDownFunc;
+    }
 };
 
 struct tui_sdlContext {
