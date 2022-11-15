@@ -10,6 +10,8 @@ struct SDL_MouseButtonEvent;
 
 namespace tinyui {
 
+static constexpr int ErrorCode = -1;
+
 struct tui_widget;
 
 struct tui_color4 {

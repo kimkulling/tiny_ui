@@ -60,7 +60,7 @@ tui_widget *set_parent(tui_context &ctx, tui_widget *child, unsigned int parentI
 int Widgets::create_container(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
         int x, int y, int w, int h) {
     if (ctx.mRoot != nullptr) {
-        return -1;
+        return ErrorCode;
     }
 
     tui_widget *widget = create_widget(ctx, id);
@@ -74,10 +74,26 @@ int Widgets::create_container(tui_context &ctx, unsigned int id, unsigned int pa
     return 0;
 }
 
+int Widgets::create_label(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h) {
+    if (ctx.mRoot == nullptr) {
+        return ErrorCode;
+    }
+
+    tui_widget *widget = create_widget(ctx, id);
+    widget->mRect.set(x, y, w, h);
+    widget->mType = WidgetType::LabelType;
+    if (text != nullptr) {
+        widget->mText.assign(text);
+    }
+    widget->mParent = set_parent(ctx, widget, parentId);
+
+    return 0;
+}
+
 int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
         int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
-        return -1;
+        return ErrorCode;
     }
 
     tui_widget *child = create_widget(ctx, id);
@@ -95,7 +111,7 @@ int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int paren
 
 int Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
-        return -1;
+        return ErrorCode;
     }
     tui_widget *child = create_widget(ctx, id);
     child->mType = WidgetType::PanelType;
@@ -114,10 +130,18 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
                 Renderer::draw_rect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
                 if (!currentWidget->mText.empty()) {
                     SDL_Color fg = { 0xff,0xff,0xff }, bg = {0x00,0x00,0x00};
-                    
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height-2, currentWidget->mRect, fg, bg);                
                 }
             }
+            break;
+
+        case WidgetType::LabelType: 
+            {
+                if (!currentWidget->mText.empty()) {
+                    SDL_Color fg = { 0xff,0xff,0xff }, bg = {0x00,0x00,0x00};   
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height-2, currentWidget->mRect, fg, bg);                
+                }
+            } 
             break;
 
         case WidgetType::PanelType: 

@@ -33,10 +33,11 @@ int main(int argc, char *argv[]) {
     currentStyle.mMargin = 2;
 
     ctx.mStyle = currentStyle;
-    Widgets::create_panel(ctx, 1, 0, 90, 5, 120, 120, nullptr);
-    Widgets::create_button(ctx, 2, 1, "Test 1", 100, 10, 100, 20, nullptr);
-    Widgets::create_button(ctx, 3, 1, "Test 2", 100, 50, 100, 20, nullptr);
-    Widgets::create_button(ctx, 4, 1, "Test 3", 100, 90, 100, 20, nullptr);
+    Widgets::create_panel(ctx, 1, 0, 90, 5, 120, 160, nullptr);
+    Widgets::create_label(ctx, 2, 1, "Title", 100, 10, 100, 20);
+    Widgets::create_button(ctx, 3, 1, "Test 1", 100, 50, 100, 20, nullptr);
+    Widgets::create_button(ctx, 4, 1, "Test 2", 100, 90, 100, 20, nullptr);
+    Widgets::create_button(ctx, 5, 1, "Test 3", 100, 130, 100, 20, nullptr);
     while (Renderer::run(ctx)) {
         Renderer::beginRender(ctx, bg);
         Widgets::render_widgets(ctx);

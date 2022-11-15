@@ -5,8 +5,6 @@
 
 namespace tinyui {
 
-static constexpr int ErrorCode = -1;
-
 void logError(const char *message) {
     assert(message != nullptr);
 
@@ -72,11 +70,7 @@ int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui
         return ErrorCode;
     }
 
-    SDL_Color text_color = {};
-    text_color.r = ctx.mStyle.mTextColor.r;
-    text_color.g = ctx.mStyle.mTextColor.g;
-    text_color.b = ctx.mStyle.mTextColor.b;
-    text_color.a = ctx.mStyle.mTextColor.a;
+    SDL_Color text_color = fgC;
     
     SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, string, text_color); 
     if (surfaceMessage == nullptr) {
