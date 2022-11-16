@@ -33,6 +33,7 @@ ADD_LIBRARY(tiny_ui
     src/tinyui.cpp
     src/widgets.cpp
     src/widgets.h
+    src/stb_image.h
     src/sdl2_renderer.cpp
     src/sdl2_renderer.h
 )

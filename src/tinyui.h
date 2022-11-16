@@ -2,11 +2,13 @@
 
 #include <SDL_ttf/SDL_ttf.h>
 
+#include <vector>
+#include <string>
+
 struct SDL_Window;
 struct SDL_Surface;
 struct SDL_Renderer;
 struct SDL_MouseButtonEvent;
-
 
 namespace tinyui {
 

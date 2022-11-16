@@ -61,7 +61,7 @@ int Renderer::releaseRenderer(tui_context &ctx) {
 
 int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
     if (ctx.mSDLContext.mDefaultFont == nullptr) {
-        ctx.mSDLContext.mDefaultFont = TTF_OpenFont("Arial.ttf", 32);
+        ctx.mSDLContext.mDefaultFont = TTF_OpenFont("Arial.ttf", size);
     }
 
     TTF_Font *font = ctx.mSDLContext.mDefaultFont;

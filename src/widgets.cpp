@@ -109,6 +109,14 @@ int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int paren
     return 0;
 }
 
+int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        return ErrorCode;
+    }
+
+    
+}
+
 int Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
