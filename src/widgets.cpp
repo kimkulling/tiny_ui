@@ -129,8 +129,8 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
             {
                 Renderer::draw_rect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
                 if (!currentWidget->mText.empty()) {
-                    SDL_Color fg = { 0xff,0xff,0xff }, bg = {0x00,0x00,0x00};
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height-2, currentWidget->mRect, fg, bg);                
+                    SDL_Color fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height - 2, currentWidget->mRect, fg, bg);                
                 }
             }
             break;
@@ -138,7 +138,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
         case WidgetType::LabelType: 
             {
                 if (!currentWidget->mText.empty()) {
-                    SDL_Color fg = { 0xff,0xff,0xff }, bg = {0x00,0x00,0x00};   
+                    SDL_Color fg = { 0x00,0x00,0xff }, bg = {0xff,0xff,0xff};   
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height-2, currentWidget->mRect, fg, bg);                
                 }
             } 
