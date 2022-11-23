@@ -1,11 +1,10 @@
 #pragma once
 
 #include <SDL_ttf/SDL_ttf.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 #include <vector>
 #include <string>
+#include "stb_image.h"
 
 struct SDL_Window;
 struct SDL_Surface;
