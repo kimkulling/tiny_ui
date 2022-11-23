@@ -1,6 +1,8 @@
 #pragma once
 
 #include <SDL_ttf/SDL_ttf.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include <vector>
 #include <string>
@@ -20,15 +22,32 @@ struct tui_color4 {
     int r,g,b,a;
 };
 
+struct tui_image {
+    unsigned char *mImage;
+
+    tui_image() : mImage(nullptr) {}
+    
+    ~tui_image() {
+        if (mImage != nullptr) {
+            stbi_image_free(mImage);
+            mImage = nullptr;
+        }
+    }
+};
+
 struct tui_rect {
     int x1, y1, width, height, x2, y2;
 
     tui_rect() :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
+    
     tui_rect(int x, int y, int w, int h) :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {
         set(x, y, w, h);
     }
+    
+    ~tui_rect() = default;
+
     bool isIn(int x_, int y_) const {
         if (x_ >= x1 && y_ >= y1 && x_ <=x2 && y_ <= y2) {
             return true;
@@ -108,6 +127,8 @@ struct tui_callbackI {
             mfuncCallback{ nullptr }, mInstance(instance) {
         mfuncCallback[tui_events::MouseButtorDownEvent] = mbDownFunc;
     }
+
+    ~tui_callbackI() = default;
 };
 
 struct tui_sdlContext {
@@ -119,6 +140,8 @@ struct tui_sdlContext {
 
     tui_sdlContext() : mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), 
         mDefaultFont(nullptr), mOwner(true) {}
+
+    ~tui_sdlContext() = default;
 };
 
 struct tui_context {
@@ -130,6 +153,7 @@ struct tui_context {
 
     tui_context() :
             mCreated(false), title(nullptr), mSDLContext(), mRoot(nullptr) {}
+
     ~tui_context() = default;
 };
 

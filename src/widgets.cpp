@@ -1,9 +1,49 @@
 #include "widgets.h"
 #include "sdl2_renderer.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <cassert>
+#include <map>
 
 namespace tinyui {
+
+using ImageCache = std::map<const char*, tui_image*>;
+
+static ImageCache sImageCache;
+
+static tui_image *find_image(const char *filename) {
+    assert(filename != nullptr);
+
+    ImageCache::iterator it = sImageCache.find(filename);
+    if (it == sImageCache.end()) {
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+static tui_image *load_into_cache(const char *filename) {
+    if (filename == nullptr) {
+        return nullptr;
+    }
+
+    tui_image *image = find_image(filename);
+    if (image != nullptr) {
+        return image;
+    }
+
+    int x, y, comp;
+    image->mImage = stbi_load(filename, &x, &y, &comp, 0);
+    if (image == nullptr) {
+        return nullptr;
+    }
+    
+    sImageCache[filename] = image;
+
+    return image;
+}
 
 static tui_widget *findWidget(unsigned int id, tui_widget *root) {
     if (root == nullptr) {
@@ -16,10 +56,10 @@ static tui_widget *findWidget(unsigned int id, tui_widget *root) {
 
     for (size_t i=0; i<root->mChildren.size(); ++i) {
         tui_widget *child = root->mChildren[i];
-        if(child==nullptr) {
+        if (child == nullptr) {
             continue;
         }
-        if (child->mId==id) {
+        if (child->mId == id) {
             return child;
         }
         tui_widget *found = findWidget(id, child);
@@ -29,6 +69,21 @@ static tui_widget *findWidget(unsigned int id, tui_widget *root) {
     }
 
     return nullptr;
+}
+
+static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found) {
+    if (currentChild == nullptr) {
+        return;
+    }
+
+    if (currentChild->mRect.isIn(x, y)) {
+        *found = currentChild;
+        for ( auto &child : currentChild->mChildren) {
+            if (child->mRect.isIn(x, y)){
+                findSelectedWidget(x, y, child, found);
+            }
+        }
+    }
 }
 
 static tui_widget *create_widget(tui_context &ctx, unsigned int id) {
@@ -52,7 +107,6 @@ tui_widget *set_parent(tui_context &ctx, tui_widget *child, unsigned int parentI
 
     parent->mChildren.emplace_back(child);
     parent->mRect.mergeWithRect(child->mRect);
-
 
     return parent;
 }
@@ -90,7 +144,7 @@ int Widgets::create_label(tui_context &ctx, unsigned int id, unsigned int parent
     return 0;
 }
 
-int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
+int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, tui_image *image, 
         int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -103,18 +157,13 @@ int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int paren
     if (text != nullptr) {
         child->mText.assign(text);
     }
+    if (image != nullptr) {
+        child->mImage = image;
+    }
 
     child->mParent = set_parent(ctx, child, parentId);
 
     return 0;
-}
-
-int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
-    if (ctx.mSDLContext.mRenderer == nullptr) {
-        return ErrorCode;
-    }
-
-    
 }
 
 int Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback) {
@@ -173,21 +222,6 @@ void Widgets::render_widgets(tui_context &ctx) {
     }
 
     render(ctx, ctx.mRoot);
-}
-
-static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found) {
-    if (currentChild == nullptr) {
-        return;
-    }
-
-    if (currentChild->mRect.isIn(x, y)) {
-        *found = currentChild;
-        for ( auto &child : currentChild->mChildren) {
-            if (child->mRect.isIn(x, y)){
-                findSelectedWidget(x, y, child, found);
-            }
-        }
-    }
 }
 
 void Widgets::onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx) {
