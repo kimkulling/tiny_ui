@@ -34,6 +34,10 @@ static tui_image *load_into_cache(const char *filename) {
         return image;
     }
 
+    image = new tui_image;
+    if (image == nullptr) {
+        return nullptr;
+    }
     int x, y, comp;
     image->mImage = stbi_load(filename, &x, &y, &comp, 0);
     if (image == nullptr) {
