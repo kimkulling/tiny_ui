@@ -39,6 +39,7 @@ struct Widgets {
     static int create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback);
     static void render_widgets(tui_context &ctx);
     static void onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
+    static void clear(tui_context &ctx);
 };
 
 } // namespace tinyui

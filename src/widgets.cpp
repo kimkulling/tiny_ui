@@ -38,6 +38,7 @@ static tui_image *load_into_cache(const char *filename) {
     if (image == nullptr) {
         return nullptr;
     }
+
     int x, y, comp;
     image->mImage = stbi_load(filename, &x, &y, &comp, 0);
     if (image == nullptr) {
@@ -246,6 +247,29 @@ void Widgets::onMouseButton(int x, int y, int eventType, tui_mouseState state, t
     } else {
         printf("Clicked, but not found\n");
     }
+}
+
+void recursive_clear(tui_widget *current) {
+    if (current == nullptr) {
+        return;
+    }
+    if (current->mChildren.empty()) {
+        return;
+    }
+
+    for (size_t i = 0; i < current->mChildren.size(); ++i) {
+        recursive_clear(current->mChildren[i]);
+        delete current;
+    }
+}
+
+void Widgets::clear(tui_context &ctx) {
+    if (ctx.mRoot == nullptr) {
+        return;
+    }
+
+    tui_widget *current = ctx.mRoot;
+    recursive_clear(current);
 }
 
 } // namespace tinyui
