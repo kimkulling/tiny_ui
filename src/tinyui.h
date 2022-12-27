@@ -159,6 +159,7 @@ struct tui_context {
 int tui_init(tui_context &ctx);
 int tui_release(tui_context &ctx);
 const tui_style &get_default_style();
-
+void set_default_style(const tui_style &style);
+tui_context *create_context();
 
 } // Namespace TinyUi
