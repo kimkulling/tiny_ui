@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+
 #include "stb_image.h"
 
 struct SDL_Window;
@@ -19,6 +20,8 @@ struct tui_widget;
 
 struct tui_color4 {
     int r,g,b,a;
+
+    ~tui_color4() = default;
 };
 
 struct tui_image {
@@ -110,7 +113,8 @@ struct tui_events {
     static constexpr int QuitEvent = 0;
     static constexpr int MouseButtorDownEvent = 1;
     static constexpr int MouseButtorUpEvent = 2;
-    static constexpr int NumEvents = MouseButtorUpEvent + 1;
+    static constexpr int MouseMoveEvent = 3;
+    static constexpr int NumEvents = MouseMoveEvent + 1;
     static constexpr int InvalidEvent = NumEvents + 1;
 };
 

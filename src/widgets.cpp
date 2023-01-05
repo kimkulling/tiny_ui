@@ -149,8 +149,8 @@ int Widgets::create_label(tui_context &ctx, unsigned int id, unsigned int parent
     return 0;
 }
 
-int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, tui_image *image, 
-        int x, int y, int w, int h, tui_callbackI *callback) {
+int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
+        tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
@@ -171,7 +171,8 @@ int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int paren
     return 0;
 }
 
-int Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback) {
+int Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, 
+        tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
@@ -192,7 +193,8 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
                 Renderer::draw_rect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
                 if (!currentWidget->mText.empty()) {
                     SDL_Color fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height - 2, currentWidget->mRect, fg, bg);                
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height - 2, 
+                        currentWidget->mRect, fg, bg);                
                 }
             }
             break;
@@ -240,12 +242,36 @@ void Widgets::onMouseButton(int x, int y, int eventType, tui_mouseState state, t
     tui_widget *found = nullptr;
     findSelectedWidget(x, y, ctx.mRoot, &found);
     if (found != nullptr) {
+#ifdef _DEBUG
         printf("Clicked %d\n", found->mId);
-        if (found->mCallback->mfuncCallback[eventType] != nullptr) {
-            found->mCallback->mfuncCallback[eventType](found->mId, found->mCallback->mInstance);
+#endif // _DEBUG
+        if (found->mCallback != nullptr) {
+            if (found->mCallback->mfuncCallback[eventType] != nullptr) {
+                found->mCallback->mfuncCallback[eventType](found->mId, found->mCallback->mInstance);
+            }
         }
-    } else {
-        printf("Clicked, but not found\n");
+    } 
+}
+
+void Widgets::onMouseMove(int x, int y, int eventType, tui_mouseState state, tui_context &ctx) {
+    assert(eventType >= 0);
+    assert(eventType < tui_events::NumEvents);
+
+    if (ctx.mRoot == nullptr) {
+        return;
+    }
+
+    tui_widget *found = nullptr;
+    findSelectedWidget(x, y, ctx.mRoot, &found);
+    if (found != nullptr) {
+#ifdef _DEBUG
+        printf("Moved %d\n", found->mId);
+#endif // _DEBUG
+        if (found->mCallback != nullptr) {
+            if (found->mCallback->mfuncCallback[eventType] != nullptr) {
+                found->mCallback->mfuncCallback[eventType](found->mId, found->mCallback->mInstance);
+            }
+        }
     }
 }
 
