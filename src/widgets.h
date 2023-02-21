@@ -20,6 +20,7 @@ struct tui_widget {
     unsigned int mId;
     WidgetType mType;
     tui_widget *mParent;
+    bool mEnabled;
     tui_rect mRect;
     std::string mText;
     tui_image *mImage;
@@ -27,7 +28,7 @@ struct tui_widget {
     tui_callbackI *mCallback;
 
     tui_widget() :
-            mId(0), mType(WidgetType::UnknownType), mParent(nullptr), mRect(), mText(), mImage(nullptr), mChildren() {}
+            mId(0), mType(WidgetType::UnknownType), mParent(nullptr), mEnabled(true), mRect(), mText(), mImage(nullptr), mChildren() {}
     
     ~tui_widget() = default;
 };
@@ -40,6 +41,8 @@ struct Widgets {
     static void render_widgets(tui_context &ctx);
     static void onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
     static void clear(tui_context &ctx);
+    static void setEnableState(tui_context &ctx, unsigned int id, bool enabled);
+    static bool isEnabled(tui_context &ctx, unsigned int id);
 };
 
 } // namespace tinyui

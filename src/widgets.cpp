@@ -1,3 +1,4 @@
+
 #include "widgets.h"
 #include "sdl2_renderer.h"
 
@@ -185,6 +186,10 @@ int Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parent
 }
 
 static void render(tui_context &ctx, tui_widget *currentWidget) {
+    if (!currentWidget->mEnabled) {
+        return;
+    }
+
     const tui_rect &r = currentWidget->mRect;
     switch( currentWidget->mType) {
         case WidgetType::ButtonType:
@@ -216,7 +221,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
             break;
     }
 
-    for (auto child : currentWidget->mChildren) {
+    for (auto &child : currentWidget->mChildren) {
         render(ctx, child);
     }
 }
@@ -270,6 +275,23 @@ void Widgets::clear(tui_context &ctx) {
 
     tui_widget *current = ctx.mRoot;
     recursive_clear(current);
+}
+
+
+void Widgets::setEnableState(tui_context &ctx, unsigned int id, bool enabled) {
+    tui_widget *widget = findWidget(id, ctx.mRoot);
+    if (widget != nullptr) {
+        widget->mEnabled = enabled;
+    }
+}
+
+bool Widgets::isEnabled(tui_context &ctx, unsigned int id) {
+    tui_widget *widget = findWidget(id, ctx.mRoot);
+    if (widget != nullptr) {
+        return widget->mEnabled;
+    }
+
+    return false;
 }
 
 } // namespace tinyui
