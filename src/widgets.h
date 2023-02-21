@@ -36,10 +36,12 @@ struct tui_widget {
 struct Widgets {
     static int create_container(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h);
     static int create_label(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h);
-    static int create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, tui_image *image, int x, int y, int w, int h, tui_callbackI *callback);
+    static int create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, tui_image *image, int x, int y, 
+        int w, int h, tui_callbackI *callback);
     static int create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback);
     static void render_widgets(tui_context &ctx);
     static void onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
+    static void onMouseMove(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
     static void clear(tui_context &ctx);
     static void setEnableState(tui_context &ctx, unsigned int id, bool enabled);
     static bool isEnabled(tui_context &ctx, unsigned int id);
