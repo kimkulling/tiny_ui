@@ -15,7 +15,7 @@ void printDriverInfo(SDL_RendererInfo &info) {
     printf("Driver : %s\n", info.name);
 }
 
-int Renderer::initRenderer(tui_context &ctx) {
+tui_ret_code Renderer::initRenderer(tui_context &ctx) {
     if (ctx.mCreated) {
         logError("Renderer already initialized.");
         return ErrorCode;
@@ -40,7 +40,7 @@ int Renderer::initRenderer(tui_context &ctx) {
     return 0;
 }
 
-int Renderer::releaseRenderer(tui_context &ctx) {
+tui_ret_code Renderer::releaseRenderer(tui_context &ctx) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
         return ErrorCode;
@@ -59,14 +59,14 @@ int Renderer::releaseRenderer(tui_context &ctx) {
     return 0;
 }
 
-int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
+tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t size, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
     if (ctx.mSDLContext.mDefaultFont == nullptr) {
         ctx.mSDLContext.mDefaultFont = TTF_OpenFont("Arial.ttf", size);
     }
 
     TTF_Font *font = ctx.mSDLContext.mDefaultFont;
     if (font == nullptr) {
-        printf("[ERROR] TTF_OpenFont() Failed with: %s\n", TTF_GetError());
+        printf("[ERROR] TTF_OpenFont() Failed with: %s\n.", TTF_GetError());
         return ErrorCode;
     }
 
@@ -74,7 +74,7 @@ int Renderer::drawText(tui_context &ctx, const char *string, int size, const tui
     
     SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, string, text_color); 
     if (surfaceMessage == nullptr) {
-        printf("[ERROR] Cannot create message surface..\n");
+        printf("[ERROR] Cannot create message surface.\n");
         return ErrorCode;
     }
     
@@ -113,7 +113,7 @@ static void listAllRenderDivers(tui_context &ctx) {
     }
 }
 
-int Renderer::initScreen(tui_context &ctx, int x, int y, int w, int h) {
+tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
         return ErrorCode;
@@ -155,7 +155,7 @@ int Renderer::initScreen(tui_context &ctx, int x, int y, int w, int h) {
     return 0;
 }
 
-int Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
+tui_ret_code Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
     if (ctx.mCreated) {
         logError("Renderer already initialized.");
         return ErrorCode;
@@ -179,7 +179,7 @@ int Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Renderer *ren
     return 0;
 }
 
-int Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
+tui_ret_code Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
     if (!ctx.mCreated) {
         logError("Not initialized.");
         return ErrorCode;
@@ -191,7 +191,7 @@ int Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
     return 0;
 }
 
-int Renderer::draw_rect(tui_context &ctx, int x, int y, int w, int h, bool filled, tui_color4 fg) {
+tui_ret_code Renderer::draw_rect(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, tui_color4 fg) {
     SDL_Rect r = {};
     r.x = x;
     r.y = y;
@@ -207,7 +207,20 @@ int Renderer::draw_rect(tui_context &ctx, int x, int y, int w, int h, bool fille
     return 0;
 }
 
-int Renderer::closeScreen(tui_context &ctx) {
+tui_ret_code Renderer::draw_image(tui_context &ctx, tui_image *image) {
+    if (image == nullptr) {
+        return ErrorCode;
+    }
+    SDL_Texture *tex = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, image->mSurface);
+    
+    SDL_RenderCopy(ctx.mSDLContext.mRenderer, tex, nullptr, nullptr);
+
+    SDL_DestroyTexture(tex);
+
+    return 0;
+}
+
+tui_ret_code Renderer::closeScreen(tui_context &ctx) {
     if (ctx.mSDLContext.mWindow == nullptr) {
         return ErrorCode;
     }
@@ -219,7 +232,7 @@ int Renderer::closeScreen(tui_context &ctx) {
     return 0;
 }
 
-int Renderer::endRender(tui_context &ctx) {
+tui_ret_code Renderer::endRender(tui_context &ctx) {
     SDL_RenderPresent(ctx.mSDLContext.mRenderer);
 
     return 0;
@@ -245,7 +258,7 @@ static tui_mouseState getButtonState(const SDL_MouseButtonEvent &b) {
     return state;
 }
 
-static int getEventType(Uint32 sdlType) {
+static int32_t getEventType(Uint32 sdlType) {
     switch (sdlType) {
         case SDL_QUIT:
             return tui_events::QuitEvent;
@@ -273,12 +286,15 @@ bool Renderer::run(tui_context &ctx) {
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
                 {
-                    const int x = event.button.x;
-                    const int y = event.button.y;
+                    const int32_t x = event.button.x;
+                    const int32_t y = event.button.y;
                     Widgets::onMouseButton(x, y, getEventType(event.type), getButtonState(event.button), ctx);
                 } break;
 
+            case SDL_MOUSEMOTION:
                 {
+                    const int32_t x = event.button.x;
+                    const int32_t y = event.button.y;
                 } break;
 
             default:

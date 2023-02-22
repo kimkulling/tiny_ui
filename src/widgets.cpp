@@ -25,7 +25,7 @@ static tui_image *find_image(const char *filename) {
     return it->second;
 }
 
-static tui_image *load_into_cache(const char *filename) {
+static tui_image *load_into_image_cache(const char *filename) {
     if (filename == nullptr) {
         return nullptr;
     }
@@ -40,12 +40,17 @@ static tui_image *load_into_cache(const char *filename) {
         return nullptr;
     }
 
-    int x, y, comp;
-    image->mImage = stbi_load(filename, &x, &y, &comp, 0);
-    if (image == nullptr) {
+    int32_t x, y, comp;
+    unsigned char *data = stbi_load(filename, &x, &y, &comp, 4);
+    if (data == nullptr) {
         return nullptr;
     }
-    
+    int32_t format = SDL_PIXELFORMAT_RGBA32;
+    image->mSurface = SDL_CreateRGBSurfaceWithFormatFrom(data, x, y, comp, 1, format);
+    image->mX = x;
+    image->mY = y;
+    image->mComp = comp;
+
     sImageCache[filename] = image;
 
     return image;
@@ -117,7 +122,7 @@ tui_widget *set_parent(tui_context &ctx, tui_widget *child, unsigned int parentI
     return parent;
 }
 
-int Widgets::create_container(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
+tui_ret_code Widgets::create_container(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
         int x, int y, int w, int h) {
     if (ctx.mRoot != nullptr) {
         return ErrorCode;
@@ -134,7 +139,7 @@ int Widgets::create_container(tui_context &ctx, unsigned int id, unsigned int pa
     return 0;
 }
 
-int Widgets::create_label(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h) {
+tui_ret_code Widgets::create_label(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h) {
     if (ctx.mRoot == nullptr) {
         return ErrorCode;
     }
@@ -150,7 +155,7 @@ int Widgets::create_label(tui_context &ctx, unsigned int id, unsigned int parent
     return 0;
 }
 
-int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
+tui_ret_code Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
         tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -172,7 +177,7 @@ int Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int paren
     return 0;
 }
 
-int Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, 
+tui_ret_code Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, 
         tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -196,6 +201,9 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
         case WidgetType::ButtonType:
             {
                 Renderer::draw_rect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
+                if (currentWidget->mImage != nullptr) {
+                    Renderer::draw_image(ctx, currentWidget->mImage);
+                }
                 if (!currentWidget->mText.empty()) {
                     SDL_Color fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height - 2, 

@@ -11,11 +11,19 @@ static tui_style DefaultStyle = {
     2
 };
 
-int tui_init(tui_context &ctx) {
+tui_ret_code tui_init(tui_context &ctx) {
+    if (ctx.mCreated) {
+        return -1;
+    }
+
     return 0;
 }
 
-int tui_release(tui_context &ctx) {
+tui_ret_code tui_release(tui_context &ctx) {
+    if (!ctx.mCreated) {
+        return -1;
+    }
+
     return 0;
 }
 

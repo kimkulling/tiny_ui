@@ -28,6 +28,7 @@ find_package(SDL2 CONFIG REQUIRED)
 hunter_add_package(SDL_ttf)
 find_package(SDL_ttf CONFIG REQUIRED)
 
+SET(CMAKE_CXX_FLAGS "${}")
 ADD_LIBRARY(tiny_ui
     src/tinyui.h
     src/tinyui.cpp

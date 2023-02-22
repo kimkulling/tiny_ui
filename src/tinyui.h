@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL_ttf/SDL_ttf.h>
-
+#include <cstdint>
 #include <vector>
 #include <string>
 
@@ -14,36 +14,39 @@ struct SDL_MouseButtonEvent;
 
 namespace tinyui {
 
-static constexpr int ErrorCode = -1;
+using tui_ret_code = int32_t;
+
+static constexpr tui_ret_code ErrorCode = -1;
 
 struct tui_widget;
 
 struct tui_color4 {
-    int r,g,b,a;
+    int32_t r,g,b,a;
 
     ~tui_color4() = default;
 };
 
-struct tui_image {
-    unsigned char *mImage;
 
-    tui_image() : mImage(nullptr) {}
+struct tui_image {
+    SDL_Surface *mSurface;
+    int32_t mX, mY, mComp;
+    
+    tui_image() : mSurface(nullptr), mX(0), mY(0), mComp(0) {}
     
     ~tui_image() {
-        if (mImage != nullptr) {
-            stbi_image_free(mImage);
-            mImage = nullptr;
+        if (mSurface != nullptr) {
+            SDL_FreeSurface(mSurface);
         }
     }
 };
 
 struct tui_rect {
-    int x1, y1, width, height, x2, y2;
+    int32_t x1, y1, width, height, x2, y2;
 
     tui_rect() :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
     
-    tui_rect(int x, int y, int w, int h) :
+    tui_rect(int32_t x, int32_t y, int32_t w, int32_t h) :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {
         set(x, y, w, h);
     }
@@ -57,7 +60,7 @@ struct tui_rect {
         return false;
     }
     
-    void set( int x, int y, int w, int h ) {
+    void set( int32_t x, int32_t y, int32_t w, int32_t h ) {
         x1 = x;
         y1 = y;
         width = w;
@@ -94,7 +97,7 @@ struct tui_style {
     tui_color4 mBg;
     tui_color4 mTextColor;
     tui_color4 mBorder;
-    int mMargin;
+    int32_t mMargin;
 };
 
 enum class tui_mouseState {
@@ -110,16 +113,16 @@ struct tui_loggerBackend {
 };
 
 struct tui_events {
-    static constexpr int QuitEvent = 0;
-    static constexpr int MouseButtorDownEvent = 1;
-    static constexpr int MouseButtorUpEvent = 2;
-    static constexpr int MouseMoveEvent = 3;
-    static constexpr int NumEvents = MouseMoveEvent + 1;
-    static constexpr int InvalidEvent = NumEvents + 1;
+    static constexpr int32_t QuitEvent = 0;
+    static constexpr int32_t MouseButtorDownEvent = 1;
+    static constexpr int32_t MouseButtorUpEvent = 2;
+    static constexpr int32_t MouseMoveEvent = 3;
+    static constexpr int32_t NumEvents = MouseMoveEvent + 1;
+    static constexpr int32_t InvalidEvent = NumEvents + 1;
 };
 
 struct tui_callbackI {
-    typedef int (*funcCallback) (unsigned int id, void *data);
+    typedef int (*funcCallback) (uint32_t id, void *data);
     funcCallback mfuncCallback[tui_events::NumEvents];
     void *mInstance;
     
@@ -155,13 +158,15 @@ struct tui_context {
     tui_widget *mRoot;
 
     tui_context() :
-            mCreated(false), title(nullptr), mSDLContext(), mRoot(nullptr) {}
+            mCreated(false), title(nullptr), mSDLContext(), mRoot(nullptr) {
+        // empty
+    }
 
     ~tui_context() = default;
 };
 
-int tui_init(tui_context &ctx);
-int tui_release(tui_context &ctx);
+tui_ret_code tui_init(tui_context &ctx);
+tui_ret_code tui_release(tui_context &ctx);
 const tui_style &get_default_style();
 void set_default_style(const tui_style &style);
 tui_context *create_context();
