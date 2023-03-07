@@ -270,6 +270,10 @@ static int32_t getEventType(Uint32 sdlType) {
     return tui_events::InvalidEvent;
 }
 
+bool IODevice::update(SDL_Event &event) {
+    return SDL_PollEvent(&event);
+};
+
 bool Renderer::run(tui_context &ctx) {
     if (!ctx.mCreated) {
         return false;
@@ -277,7 +281,7 @@ bool Renderer::run(tui_context &ctx) {
 
     bool running = true;
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {
+    while (IODevice::update(event)) {
         switch (event.type) {
             case SDL_QUIT:
                 running = false;

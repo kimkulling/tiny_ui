@@ -7,6 +7,10 @@
 
 namespace tinyui {
 
+struct IODevice {
+    static bool update(SDL_Event &event);
+};
+
 struct Renderer {
     static tui_ret_code initRenderer(tui_context &ctx);
     static tui_ret_code releaseRenderer(tui_context &ctx);
