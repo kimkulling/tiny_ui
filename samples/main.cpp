@@ -8,14 +8,14 @@
 using namespace tinyui;
 
 int main(int argc, char *argv[]) {
-    tui_context ctx;
-    ctx.title = "Sample-Screen";
-    if (Renderer::initRenderer(ctx) == -1) {
+    tui_context *ctx = tui_context::create();
+    ctx->title = "Sample-Screen";
+    if (Renderer::initRenderer(*ctx) == -1) {
         printf("Error: Cannot init renderer\n");
         return -1;
     }
 
-    if (Renderer::initScreen(ctx, 20, 20, 1024, 768) == -1) {
+    if (Renderer::initScreen(*ctx, 20, 20, 1024, 768) == -1) {
         printf("Error: Cannot init screen\n");
         return -1;
     }
@@ -32,19 +32,19 @@ int main(int argc, char *argv[]) {
     currentStyle.mBorder = border;
     currentStyle.mMargin = 2;
 
-    ctx.mStyle = currentStyle;
-    Widgets::create_panel(ctx, 1, 0, 90, 5, 120, 200, nullptr);
-    Widgets::create_label(ctx, 2, 1, "Title", 100, 10, 100, 20);
-    Widgets::create_button(ctx, 3, 1, "Test 1", nullptr, 100, 50, 100, 20, nullptr);
-    Widgets::create_button(ctx, 4, 1, "Test 2", nullptr, 100, 90, 100, 20, nullptr);
-    Widgets::create_button(ctx, 5, 1, "Test 3", nullptr, 100, 130, 100, 20, nullptr);
-    Widgets::create_button(ctx, 6, 1, nullptr, nullptr, 100, 170, 100, 20, nullptr);
-    while (Renderer::run(ctx)) {
-        Renderer::beginRender(ctx, bg);
-        Widgets::render_widgets(ctx);
-        Renderer::endRender(ctx);
+    ctx->mStyle = currentStyle;
+    Widgets::create_panel(*ctx, 1, 0, 90, 5, 120, 200, nullptr);
+    Widgets::create_label(*ctx, 2, 1, "Title", 100, 10, 100, 20);
+    Widgets::create_button(*ctx, 3, 1, "Test 1", nullptr, 100, 50, 100, 20, nullptr);
+    Widgets::create_button(*ctx, 4, 1, "Test 2", nullptr, 100, 90, 100, 20, nullptr);
+    Widgets::create_button(*ctx, 5, 1, "Test 3", nullptr, 100, 130, 100, 20, nullptr);
+    Widgets::create_button(*ctx, 6, 1, nullptr, nullptr, 100, 170, 100, 20, nullptr);
+    while (Renderer::run(*ctx)) {
+        Renderer::beginRender(*ctx, bg);
+        Widgets::render_widgets(*ctx);
+        Renderer::endRender(*ctx);
     }
-    Renderer::releaseRenderer(ctx);
+    Renderer::releaseRenderer(*ctx);
     
     return 0;
 }

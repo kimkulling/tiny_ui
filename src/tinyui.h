@@ -26,7 +26,6 @@ struct tui_color4 {
     ~tui_color4() = default;
 };
 
-
 struct tui_image {
     SDL_Surface *mSurface;
     int32_t mX, mY, mComp;
@@ -108,8 +107,13 @@ enum class tui_mouseState {
     NumStates
 };
 
-struct tui_loggerBackend {
-    void (*logMessage) (const char *message);
+enum class tui_log_severity {
+    Message = 0,
+    Trace,
+    Debug,
+    Info,
+    Warn,
+    Error
 };
 
 struct tui_events {
@@ -150,19 +154,24 @@ struct tui_sdlContext {
     ~tui_sdlContext() = default;
 };
 
+typedef void (*tui_log_func) (tui_log_severity severity, const char *message);
+
 struct tui_context {
     bool mCreated;
     const char *title;
     tui_sdlContext mSDLContext;
     tui_style mStyle;
     tui_widget *mRoot;
+    tui_log_func mLogger;
 
+    static tui_context *create();
+    ~tui_context() = default;
+
+private:
     tui_context() :
-            mCreated(false), title(nullptr), mSDLContext(), mRoot(nullptr) {
+            mCreated(false), title(nullptr), mSDLContext(), mRoot(nullptr), mLogger(nullptr) {
         // empty
     }
-
-    ~tui_context() = default;
 };
 
 tui_ret_code tui_init(tui_context &ctx);

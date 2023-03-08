@@ -1,6 +1,9 @@
 #include "tinyui.h"
 #include "widgets.h"
 
+#include <cassert>
+#include <iostream>
+
 namespace tinyui {
 
 static tui_style DefaultStyle = {
@@ -10,6 +13,20 @@ static tui_style DefaultStyle = {
     tui_color4{ 200, 200, 200, 0 }, 
     2
 };
+
+static constexpr char *SeverityToken[] = {
+    "",
+    "*TRACE*",
+    "*DEBUG*",
+    "*INFO* ",
+    "*WARN* ",
+    "*ERROR*"
+};
+
+void log_message(tui_log_severity severity, const char *message) {
+    assert(message != nullptr);
+    std::cout << SeverityToken[static_cast<size_t>(severity)] << message <<"\n.";
+}
 
 tui_ret_code tui_init(tui_context &ctx) {
     if (ctx.mCreated) {
@@ -27,8 +44,10 @@ tui_ret_code tui_release(tui_context &ctx) {
     return 0;
 }
 
-tui_context *create_context() {
+tui_context *tui_context::create() {
     tui_context *ctx = new tui_context;
+    ctx->mLogger = log_message;
+    
     return ctx;
 }
 

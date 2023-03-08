@@ -4,12 +4,6 @@
 #include <iostream>
 
 namespace tinyui {
-
-void logError(const char *message) {
-    assert(message != nullptr);
-
-    std::cerr << "*ERR* " << message <<", error " << SDL_GetError() << "\n";
-}
     
 void printDriverInfo(SDL_RendererInfo &info) {
     printf("Driver : %s\n", info.name);
@@ -17,12 +11,12 @@ void printDriverInfo(SDL_RendererInfo &info) {
 
 tui_ret_code Renderer::initRenderer(tui_context &ctx) {
     if (ctx.mCreated) {
-        logError("Renderer already initialized.");
+        ctx.mLogger(tui_log_severity::Error, "Renderer already initialized.");
         return ErrorCode;
     }
 
     if (SDL_Init(SDL_INIT_VIDEO) == -1) {
-        logError("Error while SDL_Init.");
+        ctx.mLogger(tui_log_severity::Error, "Error while SDL_Init.");
         ctx.mCreated = false;
         return ErrorCode;
     }
@@ -30,7 +24,7 @@ tui_ret_code Renderer::initRenderer(tui_context &ctx) {
     ctx.mCreated = true;
 
     const int numRenderDrivers = SDL_GetNumRenderDrivers();
-    printf("Available drivers:\n");
+    ctx.mLogger(tui_log_severity::Message, "Available drivers:");
     for (int i=0; i<numRenderDrivers; ++i) {
         SDL_RendererInfo info;
         SDL_GetRenderDriverInfo(i, &info);
@@ -42,7 +36,7 @@ tui_ret_code Renderer::initRenderer(tui_context &ctx) {
 
 tui_ret_code Renderer::releaseRenderer(tui_context &ctx) {
     if (!ctx.mCreated) {
-        logError("Not initialized.");
+        ctx.mLogger(tui_log_severity::Error, "Not initialized.");
         return ErrorCode;
     }
     if (ctx.mSDLContext.mDefaultFont != nullptr) {
@@ -66,7 +60,8 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t si
 
     TTF_Font *font = ctx.mSDLContext.mDefaultFont;
     if (font == nullptr) {
-        printf("[ERROR] TTF_OpenFont() Failed with: %s\n.", TTF_GetError());
+        const std::string msg = "TTF_OpenFont() Failed with: " + std::string(TTF_GetError()) + ".";
+        ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
 
@@ -74,13 +69,15 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t si
     
     SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, string, text_color); 
     if (surfaceMessage == nullptr) {
-        printf("[ERROR] Cannot create message surface.\n");
+        const std::string msg = "Cannot create message surface." + std::string(SDL_GetError()) + ".";
+        ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
     
     SDL_Texture* Message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
     if (Message == nullptr) {
-        printf("[ERROR] Cannot create texture.\n");
+        const std::string msg = "Cannot create texture: " + std::string(SDL_GetError()) + ".";
+        ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
     SDL_Rect Message_rect = {}; 
@@ -97,7 +94,7 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t si
 }
 
 static void showDriverInUse(tui_context &ctx) {
-    printf("Driver in use:\n");
+    ctx.mLogger(tui_log_severity::Message, "Driver in use:");
     SDL_RendererInfo info;
     SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
     printDriverInfo(info);
@@ -105,7 +102,7 @@ static void showDriverInUse(tui_context &ctx) {
     
 static void listAllRenderDivers(tui_context &ctx) {
     const int numRenderDrivers = SDL_GetNumRenderDrivers();
-    printf("Available drivers:\n");
+    ctx.mLogger(tui_log_severity::Message, "Available drivers:");
     for (int i = 0; i < numRenderDrivers; ++i) {
         SDL_RendererInfo info;
         SDL_GetRenderDriverInfo(i, &info);
@@ -115,12 +112,12 @@ static void listAllRenderDivers(tui_context &ctx) {
 
 tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
     if (!ctx.mCreated) {
-        logError("Not initialized.");
+        ctx.mLogger(tui_log_severity::Error, "Not initialzed.");
         return ErrorCode;
     }
 
     if (ctx.mSDLContext.mWindow != nullptr ) {
-        logError("Already created.");
+        ctx.mLogger(tui_log_severity::Error, "Already created.");
         return ErrorCode;
     }
     TTF_Init();
@@ -132,13 +129,15 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_
 
     ctx.mSDLContext.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
     if (ctx.mSDLContext.mWindow == nullptr) {
-        logError("Error while SDL_CreateWindow.");
+        const std::string msg = "Error while SDL_CreateWindow: " + std::string(SDL_GetError()) + ".";
+        ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
     
     ctx.mSDLContext.mRenderer = SDL_CreateRenderer(ctx.mSDLContext.mWindow, 2, SDL_RENDERER_ACCELERATED);
     if (nullptr == ctx.mSDLContext.mRenderer) {
-        logError("Error while SDL_CreateRenderer.");
+        const std::string msg = "Error while SDL_CreateRenderer: " + std::string(SDL_GetError()) + ".";
+        ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
 
@@ -148,7 +147,7 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_
 
     ctx.mSDLContext.mSurface = SDL_GetWindowSurface(ctx.mSDLContext.mWindow);
     if (ctx.mSDLContext.mSurface == nullptr) {
-        logError("Surface pointer from window is nullptr.");
+        ctx.mLogger(tui_log_severity::Error, "Surface pointer from window is nullptr.");
         return ErrorCode;
     }
 
@@ -157,14 +156,15 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_
 
 tui_ret_code Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
     if (ctx.mCreated) {
-        logError("Renderer already initialized.");
+        ctx.mLogger(tui_log_severity::Error, "Renderer already initialized.");
         return ErrorCode;
     }
 
     if (window == nullptr || renderer == nullptr) {
-        logError("Invalid render pointer detected.");
+        ctx.mLogger(tui_log_severity::Error, "Invalid render pointer detected.");
         return ErrorCode;
     }
+
     TTF_Init();
 
     ctx.mSDLContext.mRenderer = renderer;
@@ -181,7 +181,7 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Rend
 
 tui_ret_code Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
     if (!ctx.mCreated) {
-        logError("Not initialized.");
+        ctx.mLogger(tui_log_severity::Error, "Not initialized.");
         return ErrorCode;
     }
 
