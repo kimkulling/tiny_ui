@@ -164,7 +164,8 @@ struct tui_context {
     tui_widget *mRoot;
     tui_log_func mLogger;
 
-    static tui_context *create();
+    static tui_context &create();
+    static void destroy(tui_context &ctx);
     ~tui_context() = default;
 
 private:

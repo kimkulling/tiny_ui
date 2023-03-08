@@ -44,13 +44,17 @@ tui_ret_code tui_release(tui_context &ctx) {
     return 0;
 }
 
-tui_context *tui_context::create() {
+tui_context &tui_context::create() {
     tui_context *ctx = new tui_context;
     ctx->mLogger = log_message;
     
-    return ctx;
+    return *ctx;
 }
 
+void tui_context::destroy(tui_context &ctx) {
+    tui_context *ptr = &ctx;
+    delete ptr;
+}
 
 const tui_style &get_default_style() {
     return DefaultStyle;

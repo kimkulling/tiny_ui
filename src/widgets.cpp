@@ -14,7 +14,7 @@ using ImageCache = std::map<const char*, tui_image*>;
 
 static ImageCache sImageCache;
 
-static tui_image *find_image(const char *filename) {
+static tui_image *findImage(const char *filename) {
     assert(filename != nullptr);
 
     ImageCache::iterator it = sImageCache.find(filename);
@@ -25,12 +25,12 @@ static tui_image *find_image(const char *filename) {
     return it->second;
 }
 
-static tui_image *load_into_image_cache(const char *filename) {
+static tui_image *loadIntoImageCache(const char *filename) {
     if (filename == nullptr) {
         return nullptr;
     }
 
-    tui_image *image = find_image(filename);
+    tui_image *image = findImage(filename);
     if (image != nullptr) {
         return image;
     }
@@ -56,7 +56,50 @@ static tui_image *load_into_image_cache(const char *filename) {
     return image;
 }
 
-static tui_widget *findWidget(unsigned int id, tui_widget *root) {
+
+static tui_widget *createWidget(tui_context &ctx, unsigned int id) {
+    tui_widget *widget = new tui_widget;
+    widget->mId = id;
+
+    return widget;
+}
+
+tui_widget *setParent(tui_context &ctx, tui_widget *child, unsigned int parentId) {
+    tui_widget *parent = nullptr;
+    if (parentId == 0) {
+        if (ctx.mRoot == nullptr) {
+            ctx.mRoot = new tui_widget;
+            ctx.mRoot->mType = WidgetType::ContainerType;
+        }
+        parent = ctx.mRoot;
+    } else {
+        parent = Widgets::findWidget(parentId, ctx.mRoot);
+    }
+
+    parent->mChildren.emplace_back(child);
+    parent->mRect.mergeWithRect(child->mRect);
+
+    return parent;
+}
+
+tui_ret_code Widgets::createContainer(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
+        int x, int y, int w, int h) {
+    if (ctx.mRoot != nullptr) {
+        return ErrorCode;
+    }
+
+    tui_widget *widget = createWidget(ctx, id);
+    ctx.mRoot = widget;
+    widget->mRect.set(x, y, w, h);
+    if (text != nullptr) {
+        widget->mText.assign(text);
+    }
+    widget->mParent = setParent(ctx, widget, parentId);
+
+    return 0;
+}
+
+tui_widget *Widgets::findWidget(unsigned int id, tui_widget *root) {
     if (root == nullptr) {
         return nullptr;
     }
@@ -82,7 +125,7 @@ static tui_widget *findWidget(unsigned int id, tui_widget *root) {
     return nullptr;
 }
 
-static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found) {
+void Widgets::findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found) {
     if (currentChild == nullptr) {
         return;
     }
@@ -97,71 +140,29 @@ static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widge
     }
 }
 
-static tui_widget *create_widget(tui_context &ctx, unsigned int id) {
-    tui_widget *widget = new tui_widget;
-    widget->mId = id;
-
-    return widget;
-}
-
-tui_widget *set_parent(tui_context &ctx, tui_widget *child, unsigned int parentId) {
-    tui_widget *parent = nullptr;
-    if (parentId == 0) {
-        if (ctx.mRoot == nullptr) {
-            ctx.mRoot = new tui_widget;
-            ctx.mRoot->mType = WidgetType::ContainerType;
-        }
-        parent = ctx.mRoot;
-    } else {
-        parent = findWidget(parentId, ctx.mRoot);
-    }
-
-    parent->mChildren.emplace_back(child);
-    parent->mRect.mergeWithRect(child->mRect);
-
-    return parent;
-}
-
-tui_ret_code Widgets::create_container(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
-        int x, int y, int w, int h) {
-    if (ctx.mRoot != nullptr) {
-        return ErrorCode;
-    }
-
-    tui_widget *widget = create_widget(ctx, id);
-    ctx.mRoot = widget;
-    widget->mRect.set(x, y, w, h);
-    if (text != nullptr) {
-        widget->mText.assign(text);
-    }
-    widget->mParent = set_parent(ctx, widget, parentId);
-
-    return 0;
-}
-
-tui_ret_code Widgets::create_label(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h) {
+tui_ret_code Widgets::createLabel(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h) {
     if (ctx.mRoot == nullptr) {
         return ErrorCode;
     }
 
-    tui_widget *widget = create_widget(ctx, id);
+    tui_widget *widget = createWidget(ctx, id);
     widget->mRect.set(x, y, w, h);
     widget->mType = WidgetType::LabelType;
     if (text != nullptr) {
         widget->mText.assign(text);
     }
-    widget->mParent = set_parent(ctx, widget, parentId);
+    widget->mParent = setParent(ctx, widget, parentId);
 
     return 0;
 }
 
-tui_ret_code Widgets::create_button(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
+tui_ret_code Widgets::createButton(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
         tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
 
-    tui_widget *child = create_widget(ctx, id);
+    tui_widget *child = createWidget(ctx, id);
     child->mType = WidgetType::ButtonType;
     child->mRect.set(x, y, w, h);
     child->mCallback = callback;
@@ -172,21 +173,21 @@ tui_ret_code Widgets::create_button(tui_context &ctx, unsigned int id, unsigned 
         child->mImage = image;
     }
 
-    child->mParent = set_parent(ctx, child, parentId);
+    child->mParent = setParent(ctx, child, parentId);
 
     return 0;
 }
 
-tui_ret_code Widgets::create_panel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, 
+tui_ret_code Widgets::createPanel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, 
         tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
-    tui_widget *child = create_widget(ctx, id);
+    tui_widget *child = createWidget(ctx, id);
     child->mType = WidgetType::PanelType;
     child->mRect.set(x, y, w, h);
 
-    child->mParent = set_parent(ctx, child, parentId);
+    child->mParent = setParent(ctx, child, parentId);
 
     return 0;
 }
@@ -236,7 +237,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
     }
 }
 
-void Widgets::render_widgets(tui_context &ctx) {
+void Widgets::renderWidgets(tui_context &ctx) {
     if (ctx.mRoot == nullptr) {
         return;
     }
@@ -288,7 +289,7 @@ void Widgets::onMouseMove(int x, int y, int eventType, tui_mouseState state, tui
     }
 }
 
-void recursive_clear(tui_widget *current) {
+void recursiveClear(tui_widget *current) {
     if (current == nullptr) {
         return;
     }
@@ -297,7 +298,7 @@ void recursive_clear(tui_widget *current) {
     }
 
     for (size_t i = 0; i < current->mChildren.size(); ++i) {
-        recursive_clear(current->mChildren[i]);
+        recursiveClear(current->mChildren[i]);
         delete current;
     }
 }
@@ -308,7 +309,7 @@ void Widgets::clear(tui_context &ctx) {
     }
 
     tui_widget *current = ctx.mRoot;
-    recursive_clear(current);
+    recursiveClear(current);
 }
 
 
