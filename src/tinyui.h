@@ -131,10 +131,17 @@ struct tui_callbackI {
     void *mInstance;
     
     tui_callbackI() :
-            mfuncCallback{ nullptr }, mInstance(nullptr) {}
+            mfuncCallback{ nullptr }, mInstance(nullptr) {
+        for (size_t i=0; i<tui_events::NumEvents; ++i) {
+            mfuncCallback[i] = nullptr;
+        }
+    }
     
     tui_callbackI(funcCallback mbDownFunc, void *instance) :
             mfuncCallback{ nullptr }, mInstance(instance) {
+        for (size_t i=0; i<tui_events::NumEvents; ++i) {
+            mfuncCallback[i] = nullptr;
+        }
         mfuncCallback[tui_events::MouseButtorDownEvent] = mbDownFunc;
     }
 

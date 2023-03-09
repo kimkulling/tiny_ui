@@ -67,14 +67,14 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t si
 
     SDL_Color text_color = fgC;
     
-    SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, string, text_color); 
+    SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font, string, text_color); 
     if (surfaceMessage == nullptr) {
         const std::string msg = "Cannot create message surface." + std::string(SDL_GetError()) + ".";
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
     
-    SDL_Texture* Message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
+    SDL_Texture *Message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
     if (Message == nullptr) {
         const std::string msg = "Cannot create texture: " + std::string(SDL_GetError()) + ".";
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
@@ -191,7 +191,7 @@ tui_ret_code Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
     return 0;
 }
 
-tui_ret_code Renderer::draw_rect(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, tui_color4 fg) {
+tui_ret_code Renderer::drawRect(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, tui_color4 fg) {
     SDL_Rect r = {};
     r.x = x;
     r.y = y;
@@ -207,7 +207,7 @@ tui_ret_code Renderer::draw_rect(tui_context &ctx, int32_t x, int32_t y, int32_t
     return 0;
 }
 
-tui_ret_code Renderer::draw_image(tui_context &ctx, tui_image *image) {
+tui_ret_code Renderer::drawImage(tui_context &ctx, tui_image *image) {
     if (image == nullptr) {
         return ErrorCode;
     }

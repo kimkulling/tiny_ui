@@ -28,7 +28,16 @@ struct tui_widget {
     tui_callbackI *mCallback;
 
     tui_widget() :
-            mId(0), mType(WidgetType::UnknownType), mParent(nullptr), mEnabled(true), mRect(), mText(), mImage(nullptr), mChildren() {}
+            mId(0),
+            mType(WidgetType::UnknownType), 
+            mParent(nullptr), 
+            mEnabled(true), 
+            mRect(), mText(), 
+            mImage(nullptr), 
+            mChildren(), 
+            mCallback(nullptr) {
+        // empty
+    }
     
     ~tui_widget() = default;
 };

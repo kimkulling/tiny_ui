@@ -56,7 +56,6 @@ static tui_image *loadIntoImageCache(const char *filename) {
     return image;
 }
 
-
 static tui_widget *createWidget(tui_context &ctx, unsigned int id) {
     tui_widget *widget = new tui_widget;
     widget->mId = id;
@@ -169,6 +168,7 @@ tui_ret_code Widgets::createButton(tui_context &ctx, unsigned int id, unsigned i
     if (text != nullptr) {
         child->mText.assign(text);
     }
+    
     if (image != nullptr) {
         child->mImage = image;
     }
@@ -201,9 +201,9 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
     switch( currentWidget->mType) {
         case WidgetType::ButtonType:
             {
-                Renderer::draw_rect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
+                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
                 if (currentWidget->mImage != nullptr) {
-                    Renderer::draw_image(ctx, currentWidget->mImage);
+                    Renderer::drawImage(ctx, currentWidget->mImage);
                 }
                 if (!currentWidget->mText.empty()) {
                     SDL_Color fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
@@ -224,7 +224,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
 
         case WidgetType::PanelType: 
             {
-                Renderer::draw_rect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
+                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
             }
             break;
 
