@@ -50,6 +50,6 @@ int main(int argc, char *argv[]) {
 ```
 results to
 
-![Sample screen](assets/images/sample.png "The sample screen").
+![Sample screen](assets/images/sample1.png "The sample screen").
 
 Build Status: [![CMake](https://github.com/kimkulling/tiny_ui/actions/workflows/cmake.yml/badge.svg)](https://github.com/kimkulling/tiny_ui/actions/workflows/cmake.yml)
