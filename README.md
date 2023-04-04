@@ -28,17 +28,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    const tui_color4 fg = {125, 125, 125, 0};
-    const tui_color4 bg = { 0, 0, 0, 0 };
-    const tui_color4 tc = { 0, 0, 200, 0 };
-    const tui_color4 border = {200, 200, 200,0};
-    
-    tui_style currentStyle;
-    currentStyle.mFg = fg;
-    currentStyle.mBg = bg;
-    currentStyle.mTextColor = tc;
-    currentStyle.mBorder = border;
-    currentStyle.mMargin = 2;
+    tui_style currentStyle = get_default_style();
 
     ctx.mStyle = currentStyle;
     Widgets::createPanel(ctx, 1, 0, 90, 5, 120, 200, nullptr);
