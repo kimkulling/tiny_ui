@@ -66,7 +66,6 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t si
     }
 
     SDL_Color text_color = fgC;
-    
     SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font, string, text_color); 
     if (surfaceMessage == nullptr) {
         const std::string msg = "Cannot create message surface." + std::string(SDL_GetError()) + ".";
