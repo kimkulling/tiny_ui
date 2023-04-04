@@ -183,10 +183,10 @@ tui_ret_code Widgets::createPanel(tui_context &ctx, unsigned int id, unsigned in
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
+
     tui_widget *child = createWidget(ctx, id);
     child->mType = WidgetType::PanelType;
     child->mRect.set(x, y, w, h);
-
     child->mParent = setParent(ctx, child, parentId);
 
     return 0;

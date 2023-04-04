@@ -19,18 +19,8 @@ int main(int argc, char *argv[]) {
         printf("Error: Cannot init screen\n");
         return -1;
     }
-
-    const tui_color4 fg = {125, 125, 125, 0};
-    const tui_color4 bg = { 0, 0, 0, 0 };
-    const tui_color4 tc = { 0, 0, 200, 0 };
-    const tui_color4 border = {200, 200, 200,0};
     
-    tui_style currentStyle;
-    currentStyle.mFg = fg;
-    currentStyle.mBg = bg;
-    currentStyle.mTextColor = tc;
-    currentStyle.mBorder = border;
-    currentStyle.mMargin = 2;
+    tui_style currentStyle = get_default_style();
 
     ctx.mStyle = currentStyle;
     Widgets::createPanel(ctx, 1, 0, 90, 5, 120, 200, nullptr);
@@ -40,7 +30,7 @@ int main(int argc, char *argv[]) {
     Widgets::createButton(ctx, 5, 1, "Test 3", nullptr, 100, 130, 100, 20, nullptr);
     Widgets::createButton(ctx, 6, 1, nullptr, nullptr, 100, 170, 100, 20, nullptr);
     while (Renderer::run(ctx)) {
-        Renderer::beginRender(ctx, bg);
+        Renderer::beginRender(ctx, currentStyle.mClearColor);
         Widgets::renderWidgets(ctx);
         Renderer::endRender(ctx);
     }

@@ -92,6 +92,7 @@ struct tui_rect {
 };
 
 struct tui_style {
+    tui_color4 mClearColor;
     tui_color4 mFg;
     tui_color4 mBg;
     tui_color4 mTextColor;
