@@ -91,6 +91,11 @@ struct tui_rect {
     }
 };
 
+struct tui_font {
+    const char *mName;
+    uint32_t mSize;
+};
+
 struct tui_style {
     tui_color4 mClearColor;
     tui_color4 mFg;
@@ -98,6 +103,7 @@ struct tui_style {
     tui_color4 mTextColor;
     tui_color4 mBorder;
     int32_t mMargin;
+    tui_font mFont;
 };
 
 enum class tui_mouseState {
@@ -115,6 +121,12 @@ enum class tui_log_severity {
     Info,
     Warn,
     Error
+};
+
+enum class tui_extensions {
+    InvalidExtension = -1,
+    VerboseMode,
+    NumExtensions
 };
 
 struct tui_events {
@@ -174,6 +186,7 @@ struct tui_context {
 
     static tui_context &create();
     static void destroy(tui_context &ctx);
+    static void enableExtensions(tui_context &ctx, const std::vector<tui_extensions> &extensions);
     ~tui_context() = default;
 
 private:
@@ -187,6 +200,7 @@ tui_ret_code tui_init(tui_context &ctx);
 tui_ret_code tui_release(tui_context &ctx);
 const tui_style &get_default_style();
 void set_default_style(const tui_style &style);
+void set_default_font(tui_context &ctx, const char *defaultFont);
 tui_context *create_context();
 
 } // Namespace TinyUi

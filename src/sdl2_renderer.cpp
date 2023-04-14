@@ -55,7 +55,9 @@ tui_ret_code Renderer::releaseRenderer(tui_context &ctx) {
 
 tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t size, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
     if (ctx.mSDLContext.mDefaultFont == nullptr) {
-        ctx.mSDLContext.mDefaultFont = TTF_OpenFont("Arial.ttf", size);
+        if (ctx.mStyle.mFont.mName != nullptr) {
+            ctx.mSDLContext.mDefaultFont = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
+        }
     }
 
     TTF_Font *font = ctx.mSDLContext.mDefaultFont;
