@@ -56,14 +56,14 @@ static tui_image *loadIntoImageCache(const char *filename) {
     return image;
 }
 
-static tui_widget *createWidget(tui_context &ctx, unsigned int id) {
+static tui_widget *createWidget(tui_context &ctx, Id id) {
     tui_widget *widget = new tui_widget;
     widget->mId = id;
 
     return widget;
 }
 
-tui_widget *setParent(tui_context &ctx, tui_widget *child, unsigned int parentId) {
+tui_widget *setParent(tui_context &ctx, tui_widget *child, Id parentId) {
     tui_widget *parent = nullptr;
     if (parentId == 0) {
         if (ctx.mRoot == nullptr) {
@@ -81,8 +81,7 @@ tui_widget *setParent(tui_context &ctx, tui_widget *child, unsigned int parentId
     return parent;
 }
 
-tui_ret_code Widgets::createContainer(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
-        int x, int y, int w, int h) {
+tui_ret_code Widgets::createContainer(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h) {
     if (ctx.mRoot != nullptr) {
         return ErrorCode;
     }
@@ -98,7 +97,7 @@ tui_ret_code Widgets::createContainer(tui_context &ctx, unsigned int id, unsigne
     return 0;
 }
 
-tui_widget *Widgets::findWidget(unsigned int id, tui_widget *root) {
+tui_widget *Widgets::findWidget(Id id, tui_widget *root) {
     if (root == nullptr) {
         return nullptr;
     }
@@ -139,7 +138,7 @@ void Widgets::findSelectedWidget(int x, int y, tui_widget *currentChild, tui_wid
     }
 }
 
-tui_ret_code Widgets::createLabel(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h) {
+tui_ret_code Widgets::createLabel(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h) {
     if (ctx.mRoot == nullptr) {
         return ErrorCode;
     }
@@ -155,7 +154,7 @@ tui_ret_code Widgets::createLabel(tui_context &ctx, unsigned int id, unsigned in
     return 0;
 }
 
-tui_ret_code Widgets::createButton(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, 
+tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const char *text, 
         tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -178,7 +177,7 @@ tui_ret_code Widgets::createButton(tui_context &ctx, unsigned int id, unsigned i
     return 0;
 }
 
-tui_ret_code Widgets::createPanel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, 
+tui_ret_code Widgets::createPanel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, 
         tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -313,14 +312,14 @@ void Widgets::clear(tui_context &ctx) {
 }
 
 
-void Widgets::setEnableState(tui_context &ctx, unsigned int id, bool enabled) {
+void Widgets::setEnableState(tui_context &ctx, Id id, bool enabled) {
     tui_widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
         widget->mEnabled = enabled;
     }
 }
 
-bool Widgets::isEnabled(tui_context &ctx, unsigned int id) {
+bool Widgets::isEnabled(tui_context &ctx, Id id) {
     tui_widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
         return widget->mEnabled;

@@ -16,8 +16,24 @@ enum class WidgetType {
     NumTypes
 };
 
+enum class LayoutType {
+    InvalidLayout = -1,
+    HorizontalLayout,
+    VerticalLayout,
+    NumLayoutPolicies
+};
+
+enum class LayoutPolicy {
+    InvalidLayoutPolicy,
+    AbsolutePolicy,
+    RelativePolicy,
+    NumPolicies
+};
+
+using Id = uint32_t;
+
 struct tui_widget {
-    unsigned int mId;
+    Id mId;
     WidgetType mType;
     tui_widget *mParent;
     bool mEnabled;
@@ -43,19 +59,19 @@ struct tui_widget {
 };
 
 struct Widgets {
-    static tui_ret_code createContainer(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h);
-    static tui_widget *findWidget(unsigned int id, tui_widget *root);
+    static tui_ret_code createContainer(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+    static tui_widget *findWidget(Id id, tui_widget *root);
     static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found);
-    static tui_ret_code createLabel(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, int x, int y, int w, int h);
-    static tui_ret_code createButton(tui_context &ctx, unsigned int id, unsigned int parentId, const char *text, tui_image *image, int x, int y, 
+    static tui_ret_code createLabel(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+    static tui_ret_code createButton(tui_context &ctx, Id id, Id parentId, const char *text, tui_image *image, int x, int y, 
         int w, int h, tui_callbackI *callback);
-    static tui_ret_code createPanel(tui_context &ctx, unsigned int id, unsigned int parentId, int x, int y, int w, int h, tui_callbackI *callback);
+    static tui_ret_code createPanel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, tui_callbackI *callback);
     static void renderWidgets(tui_context &ctx);
     static void onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
     static void onMouseMove(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
     static void clear(tui_context &ctx);
-    static void setEnableState(tui_context &ctx, unsigned int id, bool enabled);
-    static bool isEnabled(tui_context &ctx, unsigned int id);
+    static void setEnableState(tui_context &ctx, Id id, bool enabled);
+    static bool isEnabled(tui_context &ctx, Id id);
 };
 
 } // namespace tinyui

@@ -75,8 +75,8 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t si
         return ErrorCode;
     }
     
-    SDL_Texture *Message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
-    if (Message == nullptr) {
+    SDL_Texture *message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
+    if (message == nullptr) {
         const std::string msg = "Cannot create texture: " + std::string(SDL_GetError()) + ".";
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
@@ -87,9 +87,9 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t si
     Message_rect.w = r.width;
     Message_rect.h = r.height;
 
-    SDL_RenderCopy(ctx.mSDLContext.mRenderer, Message, NULL, &Message_rect);
+    SDL_RenderCopy(ctx.mSDLContext.mRenderer, message, NULL, &Message_rect);
     SDL_FreeSurface(surfaceMessage);
-    SDL_DestroyTexture(Message);
+    SDL_DestroyTexture(message);
 
     return 0;
 }
