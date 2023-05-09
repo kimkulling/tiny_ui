@@ -17,7 +17,7 @@ static tui_style DefaultStyle = {
     { "Arial.ttf", 10 }
 };
 
-static constexpr char *SeverityToken[] = {
+static const char *SeverityToken[] = {
     "",
     "*TRACE*",
     "*DEBUG*",
