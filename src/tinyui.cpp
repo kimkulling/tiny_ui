@@ -8,10 +8,10 @@
 namespace tinyui {
 
 static tui_style DefaultStyle = {
-    tui_color4{ 80, 80, 80, 0 }, 
-    tui_color4{ 255, 255, 255, 0 }, 
-    tui_color4{ 0, 0, 0, 0 }, 
-    tui_color4{ 0, 0, 255, 0 }, 
+    tui_color4{ 120, 120, 120, 0 }, 
+    tui_color4{ 50,  50,  50,  0 }, 
+    tui_color4{ 230, 230, 230, 0 }, 
+    tui_color4{ 0,   0,   255, 0 }, 
     tui_color4{ 200, 200, 200, 0 }, 
     2,
     { "Arial.ttf", 10 }
