@@ -25,6 +25,10 @@ static tui_image *findImage(const char *filename) {
     return it->second;
 }
 
+using FontCache = std::map<const char*, tui_font*>;
+
+static FontCache sFontCache;
+
 static tui_image *loadIntoImageCache(const char *filename) {
     if (filename == nullptr) {
         return nullptr;
@@ -214,17 +218,16 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
                 }
                 if (!currentWidget->mText.empty()) {
                     SDL_Color fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height - 2, 
-                        currentWidget->mRect, fg, bg);                
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);
                 }
             }
             break;
 
-        case WidgetType::LabelType: 
+        case WidgetType::LabelType:
             {
                 if (!currentWidget->mText.empty()) {
-                    SDL_Color fg = { 0x00,0x00,0xff }, bg = {0xff,0xff,0xff};   
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mRect.height-2, currentWidget->mRect, fg, bg);                
+                    SDL_Color fg = { 0x00,0x00,0xff }, bg = {0xff,0xff,0xff};
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);                
                 }
             } 
             break;

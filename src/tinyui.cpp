@@ -1,5 +1,6 @@
 #include "tinyui.h"
 #include "widgets.h"
+#include "sdl2_renderer.h"
 
 #include <cassert>
 #include <iostream>
@@ -8,16 +9,16 @@
 namespace tinyui {
 
 static tui_style DefaultStyle = {
-    tui_color4{ 80, 80, 80, 0 }, 
-    tui_color4{ 255, 255, 255, 0 }, 
-    tui_color4{ 0, 0, 0, 0 }, 
-    tui_color4{ 0, 0, 255, 0 }, 
+    tui_color4{  0,  100,  100, 0 }, 
+    tui_color4{ 220, 220, 220,  0 }, 
+    tui_color4{ 20, 20, 20, 0 }, 
+    tui_color4{ 0,   255,   255, 0 }, 
     tui_color4{ 200, 200, 200, 0 }, 
     2,
-    { "Arial.ttf", 10 }
+    { "Arial.ttf", 20, nullptr }
 };
 
-static constexpr char *SeverityToken[] = {
+static const char *SeverityToken[] = {
     "",
     "*TRACE*",
     "*DEBUG*",
@@ -35,21 +36,48 @@ tui_ret_code tui_init(tui_context &ctx) {
     if (ctx.mCreated) {
         return -1;
     }
+    ctx.mCreated = true;
 
     return 0;
+}
+
+tui_ret_code tui_init_screen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
+    if (Renderer::initRenderer(ctx) == -1) {
+        printf("Error: Cannot init renderer\n");
+        return -1;
+    }
+
+    return Renderer::initScreen(ctx, x, y, w, h);
+}
+
+bool tui_run(tui_context &ctx) {
+    return Renderer::run(ctx);
+}
+
+tui_ret_code tui_begin_render(tui_context &ctx, tui_color4 bg) {
+    return Renderer::beginRender(ctx, bg);
+}
+
+
+tui_ret_code tui_end_render(tui_context &ctx) {
+    return Renderer::endRender(ctx);
 }
 
 tui_ret_code tui_release(tui_context &ctx) {
     if (!ctx.mCreated) {
         return -1;
     }
+    Renderer::releaseRenderer(ctx);
+    ctx.mCreated = false;
 
     return 0;
 }
 
-tui_context &tui_context::create() {
+tui_context &tui_context::create(const char *title, tui_style &style) {
     tui_context *ctx = new tui_context;
     ctx->mLogger = log_message;
+    ctx->title = title;
+    ctx->mStyle = style;
     
     return *ctx;
 }
@@ -74,8 +102,8 @@ void set_default_style(const tui_style &style) {
     DefaultStyle.mMargin = style.mMargin;
 }
 
-tui_context *create_context() {
-    tui_context *ctx = &tui_context::create();
+tui_context *create_context(const char *title, tui_style &style) {
+    tui_context *ctx = &tui_context::create(title, style);
     
     return ctx;
 }
@@ -91,5 +119,7 @@ void set_default_font(tui_context &ctx, const char *defaultFont) {
 
     ctx.mStyle.mFont.mName = defaultFont;
 }
+
+
 
 } // namespace tinyui

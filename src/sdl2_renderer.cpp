@@ -4,7 +4,7 @@
 #include <iostream>
 
 namespace tinyui {
-    
+
 void printDriverInfo(SDL_RendererInfo &info) {
     printf("Driver : %s\n", info.name);
 }
@@ -39,8 +39,9 @@ tui_ret_code Renderer::releaseRenderer(tui_context &ctx) {
         ctx.mLogger(tui_log_severity::Error, "Not initialized.");
         return ErrorCode;
     }
+
     if (ctx.mSDLContext.mDefaultFont != nullptr) {
-        TTF_CloseFont(ctx.mSDLContext.mDefaultFont);
+        delete ctx.mSDLContext.mDefaultFont;
         ctx.mSDLContext.mDefaultFont = nullptr;
     }
 
@@ -53,14 +54,20 @@ tui_ret_code Renderer::releaseRenderer(tui_context &ctx) {
     return 0;
 }
 
-tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t size, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
+tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *font, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
     if (ctx.mSDLContext.mDefaultFont == nullptr) {
         if (ctx.mStyle.mFont.mName != nullptr) {
-            ctx.mSDLContext.mDefaultFont = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
+            ctx.mStyle.mFont.mSize = 20;
+            ctx.mSDLContext.mDefaultFont = new tui_font;
+            ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
+            ctx.mSDLContext.mDefaultFont->mFont = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
         }
     }
 
-    TTF_Font *font = ctx.mSDLContext.mDefaultFont;
+    if (font == nullptr) {
+        font = ctx.mSDLContext.mDefaultFont;
+    }
+
     if (font == nullptr) {
         const std::string msg = "TTF_OpenFont() Failed with: " + std::string(TTF_GetError()) + ".";
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
@@ -68,13 +75,13 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, int32_t si
     }
 
     SDL_Color text_color = fgC;
-    SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font, string, text_color); 
+    SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font->mFont, string, text_color); 
     if (surfaceMessage == nullptr) {
         const std::string msg = "Cannot create message surface." + std::string(SDL_GetError()) + ".";
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
-    
+
     SDL_Texture *message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
     if (message == nullptr) {
         const std::string msg = "Cannot create texture: " + std::string(SDL_GetError()) + ".";
@@ -187,7 +194,7 @@ tui_ret_code Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
     }
 
     SDL_SetRenderDrawColor(ctx.mSDLContext.mRenderer, bg.r, bg.g, bg.b, bg.a);
-    SDL_RenderClear(ctx.mSDLContext.mRenderer);        
+    SDL_RenderClear(ctx.mSDLContext.mRenderer);
 
     return 0;
 }
@@ -213,7 +220,7 @@ tui_ret_code Renderer::drawImage(tui_context &ctx, tui_image *image) {
         return ErrorCode;
     }
     SDL_Texture *tex = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, image->mSurface);
-    
+
     SDL_RenderCopy(ctx.mSDLContext.mRenderer, tex, nullptr, nullptr);
 
     SDL_DestroyTexture(tex);

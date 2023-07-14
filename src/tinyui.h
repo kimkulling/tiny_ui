@@ -22,7 +22,7 @@ struct tui_widget;
 
 struct tui_color4 {
     int32_t r,g,b,a;
-
+    
     ~tui_color4() = default;
 };
 
@@ -94,6 +94,13 @@ struct tui_rect {
 struct tui_font {
     const char *mName;
     uint32_t mSize;
+    TTF_Font *mFont;
+
+    ~tui_font() {
+        if (mFont != nullptr) {
+            TTF_CloseFont(mFont);
+        }
+    }
 };
 
 struct tui_style {
@@ -142,14 +149,14 @@ struct tui_callbackI {
     typedef int (*funcCallback) (uint32_t id, void *data);
     funcCallback mfuncCallback[tui_events::NumEvents];
     void *mInstance;
-    
+
     tui_callbackI() :
             mfuncCallback{ nullptr }, mInstance(nullptr) {
         for (size_t i=0; i<tui_events::NumEvents; ++i) {
             mfuncCallback[i] = nullptr;
         }
     }
-    
+
     tui_callbackI(funcCallback mbDownFunc, void *instance) :
             mfuncCallback{ nullptr }, mInstance(instance) {
         for (size_t i=0; i<tui_events::NumEvents; ++i) {
@@ -162,14 +169,15 @@ struct tui_callbackI {
 };
 
 struct tui_sdlContext {
-    SDL_Window *mWindow;
-    SDL_Surface *mSurface;
+    SDL_Window   *mWindow;
+    SDL_Surface  *mSurface;
     SDL_Renderer *mRenderer;
-    TTF_Font *mDefaultFont;
-    bool mOwner;
+    tui_font     *mDefaultFont;
+    tui_font     *mSelectedFont;
+    bool          mOwner;
 
-    tui_sdlContext() : mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr), 
-        mDefaultFont(nullptr), mOwner(true) {}
+    tui_sdlContext() : mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr),
+        mDefaultFont(nullptr), mSelectedFont(nullptr), mOwner(true) {}
 
     ~tui_sdlContext() = default;
 };
@@ -184,7 +192,7 @@ struct tui_context {
     tui_widget *mRoot;
     tui_log_func mLogger;
 
-    static tui_context &create();
+    static tui_context &create(const char *title, tui_style &style);
     static void destroy(tui_context &ctx);
     static void enableExtensions(tui_context &ctx, const std::vector<tui_extensions> &extensions);
     ~tui_context() = default;
@@ -197,10 +205,14 @@ private:
 };
 
 tui_ret_code tui_init(tui_context &ctx);
+tui_ret_code tui_init_screen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
+bool tui_run(tui_context &ctx);
+tui_ret_code tui_begin_render(tui_context &ctx, tui_color4 bg);
+tui_ret_code tui_end_render(tui_context &ctx);
 tui_ret_code tui_release(tui_context &ctx);
 const tui_style &get_default_style();
 void set_default_style(const tui_style &style);
 void set_default_font(tui_context &ctx, const char *defaultFont);
-tui_context *create_context();
+tui_context *create_context(const char *title, tui_style &style);
 
 } // Namespace TinyUi
