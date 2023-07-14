@@ -22,7 +22,7 @@ struct Renderer {
     static tui_ret_code beginRender(tui_context &ctx, tui_color4 bg);
     static tui_ret_code endRender(tui_context &ctx);
     static tui_ret_code closeScreen(tui_context &ctx);
-    static bool run(tui_context &ctx);
+    static bool update(tui_context &ctx);
 };
 
 } //  namespace tinyui

@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     Widgets::createButton(ctx, 4, 1, "Test 2", nullptr, 100, 90, 100, 20, nullptr);
     Widgets::createButton(ctx, 5, 1, "Test 3", nullptr, 100, 130, 100, 20, nullptr);
     Widgets::createButton(ctx, 6, 1, nullptr, nullptr, 100, 170, 100, 20, nullptr);
-    while (Renderer::run(ctx)) {
+    while (Renderer::update(ctx)) {
         Renderer::beginRender(ctx, currentStyle.mClearColor);
         Widgets::renderWidgets(ctx);
         Renderer::endRender(ctx);

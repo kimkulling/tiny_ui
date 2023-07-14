@@ -275,7 +275,7 @@ bool IODevice::update(SDL_Event &event) {
     return SDL_PollEvent(&event);
 };
 
-bool Renderer::run(tui_context &ctx) {
+bool Renderer::update(tui_context &ctx) {
     if (!ctx.mCreated) {
         return false;
     }

@@ -161,6 +161,10 @@ tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const c
     }
 
     tui_widget *child = createWidget(ctx, id);
+    if (child == nullptr) {
+        return ErrorCode;
+    }
+
     child->mType = WidgetType::ButtonType;
     child->mRect.set(x, y, w, h);
     child->mCallback = callback;
@@ -184,6 +188,10 @@ tui_ret_code Widgets::createPanel(tui_context &ctx, Id id, Id parentId, int x, i
     }
 
     tui_widget *child = createWidget(ctx, id);
+    if (child == nullptr) {
+        return ErrorCode;
+    }
+
     child->mType = WidgetType::PanelType;
     child->mRect.set(x, y, w, h);
     child->mParent = setParent(ctx, child, parentId);
