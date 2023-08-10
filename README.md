@@ -15,7 +15,6 @@ A small example:
 using namespace tinyui;
 
 int main(int argc, char *argv[]) {
-    tui_style style = get_default_style();
     tui_context &ctx = tui_context::create("Sample-Screen",  style);
 
     if (tui_init_screen(ctx, 20, 20, 1024, 768) == -1) {
@@ -23,6 +22,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    tui_style style = get_default_style();
     Widgets::createPanel(ctx, 1, 0, 90, 5, 120, 200, nullptr);
     Widgets::createLabel(ctx, 2, 1, "Title", 100, 10, 100, 20);
     Widgets::createButton(ctx, 3, 1, "Test 1", nullptr, 100, 50, 100, 20, nullptr);
