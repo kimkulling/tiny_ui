@@ -88,6 +88,7 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
+
     SDL_Rect Message_rect = {}; 
     Message_rect.x = r.x1;  
     Message_rect.y = r.y1; 
@@ -107,7 +108,7 @@ static void showDriverInUse(tui_context &ctx) {
     SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
     printDriverInfo(info);
 }
-    
+
 static void listAllRenderDivers(tui_context &ctx) {
     const int numRenderDrivers = SDL_GetNumRenderDrivers();
     ctx.mLogger(tui_log_severity::Message, "Available drivers:");
@@ -141,7 +142,7 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
-    
+
     ctx.mSDLContext.mRenderer = SDL_CreateRenderer(ctx.mSDLContext.mWindow, 2, SDL_RENDERER_ACCELERATED);
     if (nullptr == ctx.mSDLContext.mRenderer) {
         const std::string msg = "Error while SDL_CreateRenderer: " + std::string(SDL_GetError()) + ".";

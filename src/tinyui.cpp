@@ -8,7 +8,7 @@
 
 namespace tinyui {
 
-static tui_style DefaultStyle = {
+static  tui_style DefaultStyle = {
     tui_color4{  0,  100,  100, 0 }, 
     tui_color4{ 220, 220, 220,  0 }, 
     tui_color4{ 20, 20, 20, 0 }, 
@@ -78,7 +78,7 @@ tui_context &tui_context::create(const char *title, tui_style &style) {
     ctx->mLogger = log_message;
     ctx->title = title;
     ctx->mStyle = style;
-    
+
     return *ctx;
 }
 
@@ -119,7 +119,5 @@ void set_default_font(tui_context &ctx, const char *defaultFont) {
 
     ctx.mStyle.mFont.mName = defaultFont;
 }
-
-
 
 } // namespace tinyui

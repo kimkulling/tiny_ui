@@ -22,16 +22,16 @@ struct tui_widget;
 
 struct tui_color4 {
     int32_t r,g,b,a;
-    
+
     ~tui_color4() = default;
 };
 
 struct tui_image {
     SDL_Surface *mSurface;
     int32_t mX, mY, mComp;
-    
+
     tui_image() : mSurface(nullptr), mX(0), mY(0), mComp(0) {}
-    
+
     ~tui_image() {
         if (mSurface != nullptr) {
             SDL_FreeSurface(mSurface);
@@ -44,12 +44,12 @@ struct tui_rect {
 
     tui_rect() :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
-    
+
     tui_rect(int32_t x, int32_t y, int32_t w, int32_t h) :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {
         set(x, y, w, h);
     }
-    
+
     ~tui_rect() = default;
 
     bool isIn(int x_, int y_) const {
@@ -58,7 +58,7 @@ struct tui_rect {
         }
         return false;
     }
-    
+
     void set( int32_t x, int32_t y, int32_t w, int32_t h ) {
         x1 = x;
         y1 = y;
@@ -72,11 +72,11 @@ struct tui_rect {
         if (x1 > r.x1 || x1 == -1) {
             x1 = r.x1;
         }
-        
+
         if (y1 > r.y1 || y1 == -1) {
             y1 = r.y1;
         }
-        
+
         const int x2_ = r.x1 + r.width;
         if (x2 < x2_) {
             x2 = x2_;
