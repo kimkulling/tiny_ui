@@ -1,4 +1,3 @@
-
 #include "widgets.h"
 #include "sdl2_renderer.h"
 
@@ -6,11 +5,8 @@
 #include "stb_image.h"
 
 #include <cassert>
-#include <map>
 
 namespace tinyui {
-
-using ImageCache = std::map<const char*, tui_image*>;
 
 static ImageCache sImageCache;
 
@@ -24,8 +20,6 @@ static tui_image *findImage(const char *filename) {
 
     return it->second;
 }
-
-using FontCache = std::map<const char*, tui_font*>;
 
 static FontCache sFontCache;
 
@@ -197,6 +191,10 @@ tui_ret_code Widgets::createPanel(tui_context &ctx, Id id, Id parentId, int x, i
 
 static void render(tui_context &ctx, tui_widget *currentWidget) {
     if (!currentWidget->mEnabled) {
+        return;
+    }
+
+    if (currentWidget == nullptr) {
         return;
     }
 

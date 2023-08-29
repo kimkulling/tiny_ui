@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 
     if (tui_init_screen(ctx, 20, 20, 1024, 768) == -1) {
         printf("Error: Cannot init screen\n");
-        return -1;
+        return ErrorCode;
     }
 
     Widgets::createPanel(ctx, 1, 0, 90, 5, 120, 200, nullptr);
