@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <map>
 
 #include "stb_image.h"
 
@@ -17,6 +18,7 @@ namespace tinyui {
 using tui_ret_code = int32_t;
 
 static constexpr tui_ret_code ErrorCode = -1;
+static constexpr tui_ret_code ResultOk = 0;
 
 struct tui_widget;
 
@@ -38,6 +40,8 @@ struct tui_image {
         }
     }
 };
+
+using ImageCache = std::map<const char*, tui_image*>;
 
 struct tui_rect {
     int32_t x1, y1, width, height, x2, y2;
@@ -103,6 +107,8 @@ struct tui_font {
     }
 };
 
+using FontCache = std::map<const char*, tui_font*>;
+
 struct tui_style {
     tui_color4 mClearColor;
     tui_color4 mFg;
@@ -138,9 +144,11 @@ enum class tui_extensions {
 
 struct tui_events {
     static constexpr int32_t QuitEvent = 0;
-    static constexpr int32_t MouseButtorDownEvent = 1;
-    static constexpr int32_t MouseButtorUpEvent = 2;
+    static constexpr int32_t MouseButtonDownEvent = 1;
+    static constexpr int32_t MouseButtonUpEvent = 2;
     static constexpr int32_t MouseMoveEvent = 3;
+    static constexpr int32_t MouseHoverEvent = 4;
+    
     static constexpr int32_t NumEvents = MouseMoveEvent + 1;
     static constexpr int32_t InvalidEvent = NumEvents + 1;
 };
@@ -162,7 +170,7 @@ struct tui_callbackI {
         for (size_t i=0; i<tui_events::NumEvents; ++i) {
             mfuncCallback[i] = nullptr;
         }
-        mfuncCallback[tui_events::MouseButtorDownEvent] = mbDownFunc;
+        mfuncCallback[tui_events::MouseButtonDownEvent] = mbDownFunc;
     }
 
     ~tui_callbackI() = default;
@@ -206,6 +214,7 @@ private:
 
 tui_ret_code tui_init(tui_context &ctx);
 tui_ret_code tui_init_screen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
+tui_ret_code tui_get_surface_info(tui_context &ctx, int32_t &w, int32_t &h);
 bool tui_run(tui_context &ctx);
 tui_ret_code tui_begin_render(tui_context &ctx, tui_color4 bg);
 tui_ret_code tui_end_render(tui_context &ctx);

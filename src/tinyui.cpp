@@ -29,25 +29,42 @@ static const char *SeverityToken[] = {
 
 void log_message(tui_log_severity severity, const char *message) {
     assert(message != nullptr);
-    std::cout << SeverityToken[static_cast<size_t>(severity)] << message <<"\n.";
+    std::cout << SeverityToken[static_cast<size_t>(severity)] << " " << message <<"\n.";
 }
 
 tui_ret_code tui_init(tui_context &ctx) {
     if (ctx.mCreated) {
-        return -1;
+        return ErrorCode;
     }
+
     ctx.mCreated = true;
 
-    return 0;
+    return ResultOk;
 }
 
 tui_ret_code tui_init_screen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
-    if (Renderer::initRenderer(ctx) == -1) {
+    if (Renderer::initRenderer(ctx) == ErrorCode) {
         printf("Error: Cannot init renderer\n");
-        return -1;
+        return ErrorCode;
     }
 
     return Renderer::initScreen(ctx, x, y, w, h);
+}
+
+tui_ret_code tui_get_surface_info(tui_context &ctx, int32_t &w, int32_t &h) {
+    w = h = -1;
+    if (!ctx.mCreated) {
+        return ErrorCode;
+    }
+
+    if (ctx.mSDLContext.mSurface == nullptr) {
+        return ErrorCode;
+    }
+
+    w = ctx.mSDLContext.mSurface->w;
+    h = ctx.mSDLContext.mSurface->h;
+    
+    return ResultOk;
 }
 
 bool tui_run(tui_context &ctx) {
@@ -65,12 +82,12 @@ tui_ret_code tui_end_render(tui_context &ctx) {
 
 tui_ret_code tui_release(tui_context &ctx) {
     if (!ctx.mCreated) {
-        return -1;
+        return ErrorCode;
     }
     Renderer::releaseRenderer(ctx);
     ctx.mCreated = false;
 
-    return 0;
+    return ResultOk;
 }
 
 tui_context &tui_context::create(const char *title, tui_style &style) {
@@ -113,7 +130,7 @@ void set_default_font(tui_context &ctx, const char *defaultFont) {
         return;
     }
 
-    if (0 == strncmp( ctx.mStyle.mFont.mName, defaultFont, std::strlen( defaultFont ))) {
+    if (strncmp( ctx.mStyle.mFont.mName, defaultFont, std::strlen(defaultFont)) == 0) {
         return;
     }
 
