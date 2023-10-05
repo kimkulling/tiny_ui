@@ -51,7 +51,7 @@ tui_ret_code tui_init_screen(tui_context &ctx, int32_t x, int32_t y, int32_t w, 
 }
 
 bool tui_run(tui_context &ctx) {
-    return Renderer::run(ctx);
+    return Renderer::update(ctx);
 }
 
 tui_ret_code tui_begin_render(tui_context &ctx, tui_color4 bg) {

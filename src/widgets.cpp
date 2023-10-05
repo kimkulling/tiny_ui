@@ -188,11 +188,13 @@ tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const c
 tui_ret_code Widgets::createPanel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, 
         tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
+        ctx.mLogger(tui_log_severity::Error, "TUI-Renderer is nullptr.");
         return ErrorCode;
     }
 
     tui_widget *child = createWidget(ctx, id);
     if (child == nullptr) {
+        ctx.mLogger(tui_log_severity::Error, "TUI-Widget cannot be created.");
         return ErrorCode;
     }
 
@@ -288,9 +290,6 @@ void Widgets::onMouseMove(int x, int y, int eventType, tui_mouseState state, tui
     tui_widget *found = nullptr;
     findSelectedWidget(x, y, ctx.mRoot, &found);
     if (found != nullptr) {
-#ifdef _DEBUG
-        printf("Moved %d\n", found->mId);
-#endif // _DEBUG
         if (found->mCallback != nullptr) {
             if (found->mCallback->mfuncCallback[eventType] != nullptr) {
                 found->mCallback->mfuncCallback[eventType](found->mId, found->mCallback->mInstance);

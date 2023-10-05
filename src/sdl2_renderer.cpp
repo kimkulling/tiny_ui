@@ -163,7 +163,7 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_
 }
 
 tui_ret_code Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
-    if (ctx.mCreated) {
+    if (!ctx.mCreated) {
         ctx.mLogger(tui_log_severity::Error, "Renderer already initialized.");
         return ErrorCode;
     }
