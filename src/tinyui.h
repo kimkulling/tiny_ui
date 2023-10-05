@@ -15,12 +15,13 @@ struct SDL_MouseButtonEvent;
 
 namespace tinyui {
 
+struct tui_widget;
+
 using tui_ret_code = int32_t;
 
 static constexpr tui_ret_code ErrorCode = -1;
 static constexpr tui_ret_code ResultOk = 0;
 
-struct tui_widget;
 
 struct tui_color4 {
     int32_t r,g,b,a;
@@ -149,7 +150,7 @@ struct tui_events {
     static constexpr int32_t MouseMoveEvent = 3;
     static constexpr int32_t MouseHoverEvent = 4;
     
-    static constexpr int32_t NumEvents = MouseMoveEvent + 1;
+    static constexpr int32_t NumEvents = MouseHoverEvent + 1;
     static constexpr int32_t InvalidEvent = NumEvents + 1;
 };
 
@@ -207,7 +208,7 @@ struct tui_context {
 
 private:
     tui_context() :
-            mCreated(false), title(nullptr), mSDLContext(), mRoot(nullptr), mLogger(nullptr) {
+            mCreated(false), title(nullptr), mSDLContext(), mStyle(), mRoot(nullptr), mLogger(nullptr) {
         // empty
     }
 };
