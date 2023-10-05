@@ -5,8 +5,44 @@
 
 namespace tinyui {
 
-void printDriverInfo(SDL_RendererInfo &info) {
+static void printDriverInfo(SDL_RendererInfo &info) {
     printf("Driver : %s\n", info.name);
+}
+
+static void listAllRenderDivers(tui_context &ctx) {
+    const int numRenderDrivers = SDL_GetNumRenderDrivers();
+    ctx.mLogger(tui_log_severity::Message, "Available drivers:");
+    for (int i = 0; i < numRenderDrivers; ++i) {
+        SDL_RendererInfo info;
+        SDL_GetRenderDriverInfo(i, &info);
+        printDriverInfo(info);
+    }
+}
+
+static void showDriverInUse(tui_context &ctx) {
+    ctx.mLogger(tui_log_severity::Message, "Driver in use:");
+    SDL_RendererInfo info;
+    SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
+    printDriverInfo(info);
+}
+
+static int queryDriver(tui_context &ctx, const char *type) {
+    if (type == nullptr) {
+        return -1;
+    }
+    
+    const int numRenderDrivers = SDL_GetNumRenderDrivers();
+    int found = -1;
+    for (int i = 0; i < numRenderDrivers; ++i) {
+        SDL_RendererInfo info;
+        SDL_GetRenderDriverInfo(i, &info);
+        if (strncmp(type, info.name, strlen(type)) == 0) {
+            found = i;
+            break;
+        }
+    }
+
+    return found;
 }
 
 tui_ret_code Renderer::initRenderer(tui_context &ctx) {
@@ -16,7 +52,7 @@ tui_ret_code Renderer::initRenderer(tui_context &ctx) {
     }
 
     if (SDL_Init(SDL_INIT_VIDEO) == -1) {
-        ctx.mLogger(tui_log_severity::Error, "Error while SDL_Init.");
+        ctx.mLogger(tui_log_severity::Error, "Error while SDL_Init for video subsystem.");
         ctx.mCreated = false;
         return ErrorCode;
     }
@@ -31,7 +67,7 @@ tui_ret_code Renderer::initRenderer(tui_context &ctx) {
         printDriverInfo(info);
     }
 
-    return 0;
+    return ResultOk;
 }
 
 tui_ret_code Renderer::releaseRenderer(tui_context &ctx) {
@@ -51,7 +87,7 @@ tui_ret_code Renderer::releaseRenderer(tui_context &ctx) {
     ctx.mSDLContext.mWindow = nullptr;
     SDL_Quit();
 
-    return 0;
+    return ResultOk;
 }
 
 tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *font, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
@@ -88,6 +124,7 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
+
     SDL_Rect Message_rect = {}; 
     Message_rect.x = r.x1;  
     Message_rect.y = r.y1; 
@@ -98,24 +135,7 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(message);
 
-    return 0;
-}
-
-static void showDriverInUse(tui_context &ctx) {
-    ctx.mLogger(tui_log_severity::Message, "Driver in use:");
-    SDL_RendererInfo info;
-    SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
-    printDriverInfo(info);
-}
-    
-static void listAllRenderDivers(tui_context &ctx) {
-    const int numRenderDrivers = SDL_GetNumRenderDrivers();
-    ctx.mLogger(tui_log_severity::Message, "Available drivers:");
-    for (int i = 0; i < numRenderDrivers; ++i) {
-        SDL_RendererInfo info;
-        SDL_GetRenderDriverInfo(i, &info);
-        printDriverInfo(info);
-    }
+    return ResultOk;
 }
 
 tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
@@ -142,7 +162,13 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_
         return ErrorCode;
     }
     
-    ctx.mSDLContext.mRenderer = SDL_CreateRenderer(ctx.mSDLContext.mWindow, 2, SDL_RENDERER_ACCELERATED);
+    const int driverIndex = queryDriver(ctx, "opengl");
+    if (driverIndex == -1) {
+        ctx.mLogger(tui_log_severity::Error, "Cannot open opengl driver");
+        return ErrorCode;
+    }
+
+    ctx.mSDLContext.mRenderer = SDL_CreateRenderer(ctx.mSDLContext.mWindow, driverIndex, SDL_RENDERER_ACCELERATED);
     if (nullptr == ctx.mSDLContext.mRenderer) {
         const std::string msg = "Error while SDL_CreateRenderer: " + std::string(SDL_GetError()) + ".";
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
@@ -159,7 +185,7 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_
         return ErrorCode;
     }
 
-    return 0;
+    return ResultOk;
 }
 
 tui_ret_code Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
@@ -184,7 +210,7 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, SDL_Window *window, SDL_Rend
     ctx.mSDLContext.mOwner = false;
     ctx.mCreated = true;
 
-    return 0;
+    return ResultOk;
 }
 
 tui_ret_code Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
@@ -212,38 +238,38 @@ tui_ret_code Renderer::drawRect(tui_context &ctx, int32_t x, int32_t y, int32_t 
         SDL_RenderDrawRect(ctx.mSDLContext.mRenderer, &r);
     }
 
-    return 0;
+    return ResultOk;
 }
 
 tui_ret_code Renderer::drawImage(tui_context &ctx, tui_image *image) {
     if (image == nullptr) {
         return ErrorCode;
     }
+
     SDL_Texture *tex = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, image->mSurface);
-
     SDL_RenderCopy(ctx.mSDLContext.mRenderer, tex, nullptr, nullptr);
-
     SDL_DestroyTexture(tex);
 
-    return 0;
+    return ResultOk;
 }
 
 tui_ret_code Renderer::closeScreen(tui_context &ctx) {
     if (ctx.mSDLContext.mWindow == nullptr) {
         return ErrorCode;
     }
+    
     TTF_Quit();
 
     SDL_DestroyWindow(ctx.mSDLContext.mWindow);
     ctx.mSDLContext.mWindow = nullptr;
 
-    return 0;
+    return ResultOk;
 }
 
 tui_ret_code Renderer::endRender(tui_context &ctx) {
     SDL_RenderPresent(ctx.mSDLContext.mRenderer);
 
-    return 0;
+    return ResultOk;
 }
 
 static tui_mouseState getButtonState(const SDL_MouseButtonEvent &b) {
@@ -271,16 +297,16 @@ static int32_t getEventType(Uint32 sdlType) {
         case SDL_QUIT:
             return tui_events::QuitEvent;
         case SDL_MOUSEBUTTONDOWN:
-            return tui_events::MouseButtorDownEvent;
+            return tui_events::MouseButtonDownEvent;
         case SDL_MOUSEBUTTONUP:
-            return tui_events::MouseButtorUpEvent;
+            return tui_events::MouseButtonUpEvent;
     }
     return tui_events::InvalidEvent;
 }
 
 bool IODevice::update(SDL_Event &event) {
     return SDL_PollEvent(&event);
-};
+}
 
 bool Renderer::update(tui_context &ctx) {
     if (!ctx.mCreated) {
@@ -288,7 +314,7 @@ bool Renderer::update(tui_context &ctx) {
     }
 
     bool running = true;
-    SDL_Event event;
+    SDL_Event event = {};
     while (IODevice::update(event)) {
         switch (event.type) {
             case SDL_QUIT:
