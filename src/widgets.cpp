@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2022-2023 Kim Kulling
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include "widgets.h"
 #include "sdl2_renderer.h"
 
@@ -217,7 +240,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
                     Renderer::drawImage(ctx, currentWidget->mImage);
                 }
                 if (!currentWidget->mText.empty()) {
-                    SDL_Color fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
+                    tui_color4 fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);
                 }
             }
@@ -226,13 +249,13 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
         case WidgetType::LabelType:
             {
                 if (!currentWidget->mText.empty()) {
-                    SDL_Color fg = { 0x00,0x00,0xff }, bg = {0xff,0xff,0xff};
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);                
+                    const tui_color4 fg = { 0x00,0x00,0xff,0x00 }, bg = {0xff,0xff,0xff, 0x00};
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);
                 }
             } 
             break;
 
-        case WidgetType::PanelType: 
+        case WidgetType::PanelType:
             {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
             }

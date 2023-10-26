@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2022-2023 Kim Kulling
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #pragma once
 
 #include <SDL_ttf/SDL_ttf.h>
@@ -22,9 +45,8 @@ using tui_ret_code = int32_t;
 static constexpr tui_ret_code ErrorCode = -1;
 static constexpr tui_ret_code ResultOk = 0;
 
-
 struct tui_color4 {
-    int32_t r,g,b,a;
+    uint8_t r,g,b,a;
 
     ~tui_color4() = default;
 };
@@ -144,14 +166,14 @@ enum class tui_extensions {
 };
 
 struct tui_events {
+    static constexpr int32_t InvalidEvent = -1;
     static constexpr int32_t QuitEvent = 0;
     static constexpr int32_t MouseButtonDownEvent = 1;
     static constexpr int32_t MouseButtonUpEvent = 2;
     static constexpr int32_t MouseMoveEvent = 3;
     static constexpr int32_t MouseHoverEvent = 4;
-    
+
     static constexpr int32_t NumEvents = MouseHoverEvent + 1;
-    static constexpr int32_t InvalidEvent = NumEvents + 1;
 };
 
 struct tui_callbackI {
@@ -177,6 +199,8 @@ struct tui_callbackI {
     ~tui_callbackI() = default;
 };
 
+typedef void (*tui_log_func) (tui_log_severity severity, const char *message);
+
 struct tui_sdlContext {
     SDL_Window   *mWindow;
     SDL_Surface  *mSurface;
@@ -191,8 +215,6 @@ struct tui_sdlContext {
     ~tui_sdlContext() = default;
 };
 
-typedef void (*tui_log_func) (tui_log_severity severity, const char *message);
-
 struct tui_context {
     bool mCreated;
     const char *title;
@@ -203,7 +225,6 @@ struct tui_context {
 
     static tui_context &create(const char *title, tui_style &style);
     static void destroy(tui_context &ctx);
-    static void enableExtensions(tui_context &ctx, const std::vector<tui_extensions> &extensions);
     ~tui_context() = default;
 
 private:

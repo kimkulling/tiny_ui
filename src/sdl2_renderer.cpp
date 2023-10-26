@@ -1,9 +1,42 @@
+/*
+MIT License
+
+Copyright (c) 2022-2023 Kim Kulling
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include "sdl2_renderer.h"
 #include "widgets.h"
 #include <cassert>
 #include <iostream>
 
 namespace tinyui {
+
+static SDL_Color getSDLColor(const tui_color4 &col) {
+    SDL_Color sdl_col = {};
+    sdl_col.r = col.r;
+    sdl_col.g = col.g;
+    sdl_col.b = col.b;
+    sdl_col.a = col.a;
+
+    return sdl_col;
+}
 
 static void printDriverInfo(SDL_RendererInfo &info) {
     printf("Driver : %s\n", info.name);
@@ -90,7 +123,7 @@ tui_ret_code Renderer::releaseRenderer(tui_context &ctx) {
     return ResultOk;
 }
 
-tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *font, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
+tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *font, const tui_rect &r, const tui_color4 &fgC, const tui_color4 &bgC) {
     if (ctx.mSDLContext.mDefaultFont == nullptr) {
         if (ctx.mStyle.mFont.mName != nullptr) {
             ctx.mStyle.mFont.mSize = 20;
@@ -110,8 +143,8 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *
         return ErrorCode;
     }
 
-    SDL_Color text_color = fgC;
-    SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font->mFont, string, text_color); 
+    SDL_Color text_color = getSDLColor(fgC);
+    SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font->mFont, string, text_color);
     if (surfaceMessage == nullptr) {
         const std::string msg = "Cannot create message surface." + std::string(SDL_GetError()) + ".";
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
@@ -219,7 +252,8 @@ tui_ret_code Renderer::beginRender(tui_context &ctx, tui_color4 bg) {
         return ErrorCode;
     }
 
-    SDL_SetRenderDrawColor(ctx.mSDLContext.mRenderer, bg.r, bg.g, bg.b, bg.a);
+    const SDL_Color sdl_bg = getSDLColor(bg);
+    SDL_SetRenderDrawColor(ctx.mSDLContext.mRenderer, sdl_bg.r, sdl_bg.g, sdl_bg.b, sdl_bg.a);
     SDL_RenderClear(ctx.mSDLContext.mRenderer);
 
     return 0;
