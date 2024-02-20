@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     tui_context &ctx = tui_context::create("Sample-Screen",  style);
 
     if (tui_init_screen(ctx, 20, 20, 1024, 768) == -1) {
-        printf("Error: Cannot init screen\n");
+        ctx.mLogger(tui_log_severity::Error, "Cannot init screen");
         return ErrorCode;
     }
 

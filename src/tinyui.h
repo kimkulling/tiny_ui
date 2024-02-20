@@ -70,11 +70,11 @@ template<class T>
 struct tui_point {
     T x, y;
 
-    tui_pt() : x(0), y(0) {}
-    tui_pt(T x_, T y_) : x(x_), y(y_) {}
-    ~tui_pt() = default;
+    tui_point() : x(0), y(0) {}
+    tui_point(T x_, T y_) : x(x_), y(y_) {}
+    ~tui_point() = default;
 
-    void set(T x_m T y_) {
+    void set(T x_, T y_) {
         x = x_;
         y = y_;
     }
