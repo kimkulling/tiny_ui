@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2023 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -66,6 +66,22 @@ struct tui_image {
 
 using ImageCache = std::map<const char*, tui_image*>;
 
+template<class T>
+struct tui_point {
+    T x, y;
+
+    tui_pt() : x(0), y(0) {}
+    tui_pt(T x_, T y_) : x(x_), y(y_) {}
+    ~tui_pt() = default;
+
+    void set(T x_m T y_) {
+        x = x_;
+        y = y_;
+    }
+};
+
+using tui_pointi = tui_point<int32_t>;
+
 struct tui_rect {
     int32_t x1, y1, width, height, x2, y2;
 
@@ -78,6 +94,10 @@ struct tui_rect {
     }
 
     ~tui_rect() = default;
+
+    bool isIn(const tui_pointi &pt) const {
+        return isIn(pt.x, pt.y);
+    }
 
     bool isIn(int x_, int y_) const {
         if (x_ >= x1 && y_ >= y1 && x_ <=x2 && y_ <= y2) {

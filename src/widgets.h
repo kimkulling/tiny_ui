@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2023 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,20 +30,20 @@ namespace tinyui {
 struct tui_context;
 
 enum class WidgetType {
-    UnknownType = -1,
-    ContainerType = 0,
-    ButtonType,
-    LabelType,
-    PanelType,
-
-    NumTypes
+    Invalid = -1,
+    Container = 0,
+    Button,
+    Label,
+    Panel,
+    Box,
+    Count
 };
 
 enum class LayoutPolicy {
-    InvalidLayoutPolicy,
-    AbsolutePolicy,
-    RelativePolicy,
-    NumPolicies
+    Invalid = -1,
+    Absolute,
+    Relative,
+    Count
 };
 
 using Id = uint32_t;
@@ -61,7 +61,7 @@ struct tui_widget {
 
     tui_widget() :
             mId(0),
-            mType(WidgetType::UnknownType), 
+            mType(WidgetType::Invalid), 
             mParent(nullptr), 
             mEnabled(true), 
             mRect(), mText(), 
@@ -70,12 +70,18 @@ struct tui_widget {
             mCallback(nullptr) {
         // empty
     }
-    
+
     ~tui_widget() = default;
 };
 
+
 struct Widgets {
+    static const Id RootItem = 0;
+
+    Widgets() = default;
+    ~Widgets() = default;
     static tui_ret_code createContainer(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+    static tui_ret_code createBox(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, bool filled);
     static tui_widget *findWidget(Id id, tui_widget *root);
     static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found);
     static tui_ret_code createLabel(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);

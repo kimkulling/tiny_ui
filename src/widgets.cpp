@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2023 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,9 @@ namespace tinyui {
 static ImageCache sImageCache;
 
 static tui_image *findImage(const char *filename) {
-    assert(filename != nullptr);
+    if (filename == nullptr) {
+        return nullptr;
+    }
 
     ImageCache::iterator it = sImageCache.find(filename);
     if (it == sImageCache.end()) {
@@ -89,7 +91,7 @@ tui_widget *setParent(tui_context &ctx, tui_widget *child, Id parentId) {
     if (parentId == 0) {
         if (ctx.mRoot == nullptr) {
             ctx.mRoot = new tui_widget;
-            ctx.mRoot->mType = WidgetType::ContainerType;
+            ctx.mRoot->mType = WidgetType::Container;
         }
         parent = ctx.mRoot;
     } else {
@@ -115,7 +117,7 @@ tui_ret_code Widgets::createContainer(tui_context &ctx, Id id, Id parentId, cons
     }
     widget->mParent = setParent(ctx, widget, parentId);
 
-    return 0;
+    return ResultOk;
 }
 
 tui_widget *Widgets::findWidget(Id id, tui_widget *root) {
@@ -166,13 +168,13 @@ tui_ret_code Widgets::createLabel(tui_context &ctx, Id id, Id parentId, const ch
 
     tui_widget *widget = createWidget(ctx, id);
     widget->mRect.set(x, y, w, h);
-    widget->mType = WidgetType::LabelType;
+    widget->mType = WidgetType::Label;
     if (text != nullptr) {
         widget->mText.assign(text);
     }
     widget->mParent = setParent(ctx, widget, parentId);
 
-    return 0;
+    return ResultOk;
 }
 
 tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const char *text, 
@@ -181,25 +183,42 @@ tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const c
         return ErrorCode;
     }
 
-    tui_widget *child = createWidget(ctx, id);
-    if (child == nullptr) {
+    tui_widget *childWidget = createWidget(ctx, id);
+    if (childWidget == nullptr) {
         return ErrorCode;
     }
 
-    child->mType = WidgetType::ButtonType;
-    child->mRect.set(x, y, w, h);
-    child->mCallback = callback;
+    childWidget->mType = WidgetType::Button;
+    childWidget->mRect.set(x, y, w, h);
+    childWidget->mCallback = callback;
     if (text != nullptr) {
-        child->mText.assign(text);
+        childWidget->mText.assign(text);
     }
-    
+
     if (image != nullptr) {
-        child->mImage = image;
+        childWidget->mImage = image;
     }
 
-    child->mParent = setParent(ctx, child, parentId);
+    childWidget->mParent = setParent(ctx, childWidget, parentId);
 
-    return 0;
+    return ResultOk;
+}
+
+tui_ret_code Widgets::createBox(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, bool filled) {
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        return ErrorCode;
+    }
+
+    tui_widget *childWidget = createWidget(ctx, id);
+    if (childWidget == nullptr) {
+        return ErrorCode;
+    }
+
+    childWidget->mRect.set(x, y, w, h);
+    childWidget->mType = WidgetType::Box;
+    childWidget->mParent = setParent(ctx, childWidget, parentId);
+
+    return ResultOk;
 }
 
 tui_ret_code Widgets::createPanel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, 
@@ -215,11 +234,11 @@ tui_ret_code Widgets::createPanel(tui_context &ctx, Id id, Id parentId, int x, i
         return ErrorCode;
     }
 
-    child->mType = WidgetType::PanelType;
+    child->mType = WidgetType::Panel;
     child->mRect.set(x, y, w, h);
     child->mParent = setParent(ctx, child, parentId);
 
-    return 0;
+    return ResultOk;
 }
 
 static void render(tui_context &ctx, tui_widget *currentWidget) {
@@ -233,7 +252,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
 
     const tui_rect &r = currentWidget->mRect;
     switch( currentWidget->mType) {
-        case WidgetType::ButtonType:
+        case WidgetType::Button:
             {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
                 if (currentWidget->mImage != nullptr) {
@@ -246,7 +265,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
             }
             break;
 
-        case WidgetType::LabelType:
+        case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
                     const tui_color4 fg = { 0x00,0x00,0xff,0x00 }, bg = {0xff,0xff,0xff, 0x00};
@@ -255,13 +274,20 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
             } 
             break;
 
-        case WidgetType::PanelType:
+        case WidgetType::Panel:
+            {
+                //printf("draw the rect with x:%d, y:%d, w:%d, h:%d\n", r.x1, r.y1, r.width, r.height);
+                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
+            }
+            break;
+
+        case WidgetType::Box:
             {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
             }
             break;
 
-        default:
+       default:
             break;
     }
 
@@ -274,7 +300,6 @@ void Widgets::renderWidgets(tui_context &ctx) {
     if (ctx.mRoot == nullptr) {
         return;
     }
-
     render(ctx, ctx.mRoot);
 }
 

@@ -63,7 +63,7 @@ static int queryDriver(tui_context &ctx, const char *type) {
     if (type == nullptr) {
         return -1;
     }
-    
+
     const int numRenderDrivers = SDL_GetNumRenderDrivers();
     int found = -1;
     for (int i = 0; i < numRenderDrivers; ++i) {
@@ -158,9 +158,9 @@ tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *
         return ErrorCode;
     }
 
-    SDL_Rect Message_rect = {}; 
-    Message_rect.x = r.x1;  
-    Message_rect.y = r.y1; 
+    SDL_Rect Message_rect = {};
+    Message_rect.x = r.x1;
+    Message_rect.y = r.y1;
     Message_rect.w = r.width;
     Message_rect.h = r.height;
 
@@ -194,7 +194,7 @@ tui_ret_code Renderer::initScreen(tui_context &ctx, int32_t x, int32_t y, int32_
         ctx.mLogger(tui_log_severity::Error, msg.c_str());
         return ErrorCode;
     }
-    
+
     const int driverIndex = queryDriver(ctx, "opengl");
     if (driverIndex == -1) {
         ctx.mLogger(tui_log_severity::Error, "Cannot open opengl driver");
