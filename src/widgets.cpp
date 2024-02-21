@@ -31,29 +31,25 @@ SOFTWARE.
 
 namespace tinyui {
 
-static ImageCache sImageCache;
-
-static tui_image *findImage(const char *filename) {
+static tui_image *findImage(tui_context &ctx, const char *filename) {
     if (filename == nullptr) {
         return nullptr;
     }
 
-    ImageCache::iterator it = sImageCache.find(filename);
-    if (it == sImageCache.end()) {
+    tui_ImageCache::iterator it = ctx.mImageCache.find(filename);
+    if (it == ctx.mImageCache.end()) {
         return nullptr;
     }
 
     return it->second;
 }
 
-static FontCache sFontCache;
-
-static tui_image *loadIntoImageCache(const char *filename) {
+static tui_image *loadIntoImageCache(tui_context &ctx, const char *filename) {
     if (filename == nullptr) {
         return nullptr;
     }
 
-    tui_image *image = findImage(filename);
+    tui_image *image = findImage(ctx, filename);
     if (image != nullptr) {
         return image;
     }
@@ -74,7 +70,7 @@ static tui_image *loadIntoImageCache(const char *filename) {
     image->mY = y;
     image->mComp = comp;
 
-    sImageCache[filename] = image;
+    ctx.mImageCache[filename] = image;
 
     return image;
 }

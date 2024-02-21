@@ -64,7 +64,7 @@ struct tui_image {
     }
 };
 
-using ImageCache = std::map<const char*, tui_image*>;
+using tui_ImageCache = std::map<const char*, tui_image*>;
 
 template<class T>
 struct tui_point {
@@ -150,7 +150,7 @@ struct tui_font {
     }
 };
 
-using FontCache = std::map<const char*, tui_font*>;
+using tui_FontCache = std::map<const char*, tui_font*>;
 
 struct tui_style {
     tui_color4 mClearColor;
@@ -242,6 +242,8 @@ struct tui_context {
     tui_style mStyle;
     tui_widget *mRoot;
     tui_log_func mLogger;
+    tui_FontCache mFontCache;
+    tui_ImageCache mImageCache;
 
     static tui_context &create(const char *title, tui_style &style);
     static void destroy(tui_context &ctx);
