@@ -133,9 +133,9 @@ tui_widget *Widgets::findWidget(Id id, tui_widget *root) {
         if (child->mId == id) {
             return child;
         }
-        tui_widget *found = findWidget(id, child);
-        if(found != nullptr) {
-            return found;
+        tui_widget *foundWidget = findWidget(id, child);
+        if (foundWidget != nullptr) {
+            return foundWidget;
         }
     }
 
@@ -157,7 +157,8 @@ void Widgets::findSelectedWidget(int x, int y, tui_widget *currentChild, tui_wid
     }
 }
 
-tui_ret_code Widgets::createLabel(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h) {
+tui_ret_code Widgets::createLabel(tui_context &ctx, Id id, Id parentId, const char *text,
+        int x, int y, int w, int h) {
     if (ctx.mRoot == nullptr) {
         return ErrorCode;
     }
@@ -173,7 +174,7 @@ tui_ret_code Widgets::createLabel(tui_context &ctx, Id id, Id parentId, const ch
     return ResultOk;
 }
 
-tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const char *text, 
+tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const char *text,
         tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -200,7 +201,8 @@ tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const c
     return ResultOk;
 }
 
-tui_ret_code Widgets::createBox(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, bool filled) {
+tui_ret_code Widgets::createBox(tui_context &ctx, Id id, Id parentId, int x, int y, 
+        int w, int h, const tui_color4 &color, bool filled) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
@@ -213,6 +215,7 @@ tui_ret_code Widgets::createBox(tui_context &ctx, Id id, Id parentId, int x, int
     childWidget->mRect.set(x, y, w, h);
     childWidget->mType = WidgetType::Box;
     childWidget->mParent = setParent(ctx, childWidget, parentId);
+    childWidget->mFilledRect = filled;
 
     return ResultOk;
 }
@@ -279,7 +282,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
 
         case WidgetType::Box:
             {
-                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
+                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
             }
             break;
 
@@ -378,6 +381,12 @@ bool Widgets::isEnabled(tui_context &ctx, Id id) {
     }
 
     return false;
+}
+
+tui_widget *Widgets::getWidgetById(tui_context &ctx, Id id) {
+    tui_widget *widget = findWidget(id, ctx.mRoot);
+
+    return widget;
 }
 
 } // namespace tinyui

@@ -33,7 +33,7 @@ using namespace tinyui;
 static constexpr Id RootPanelId = 1;
 
 int main(int argc, char *argv[]) {
-    tui_style style = get_default_style();
+    tui_style style = tui_get_default_style();
     tui_context &ctx = tui_context::create("Sample-Screen",  style);
 
     if (tui_init_screen(ctx, 20, 20, 1024, 768) == -1) {

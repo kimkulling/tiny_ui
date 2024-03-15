@@ -263,9 +263,9 @@ bool tui_run(tui_context &ctx);
 tui_ret_code tui_begin_render(tui_context &ctx, tui_color4 bg);
 tui_ret_code tui_end_render(tui_context &ctx);
 tui_ret_code tui_release(tui_context &ctx);
-const tui_style &get_default_style();
-void set_default_style(const tui_style &style);
-void set_default_font(tui_context &ctx, const char *defaultFont);
-tui_context *create_context(const char *title, tui_style &style);
+const tui_style &tui_get_default_style();
+void tui_set_default_style(const tui_style &style);
+void tui_set_default_font(tui_context &ctx, const char *defaultFont);
+tui_context *tui_create_context(const char *title, tui_style &style);
 
 } // Namespace TinyUi

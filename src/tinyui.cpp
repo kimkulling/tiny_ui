@@ -127,11 +127,11 @@ void tui_context::destroy(tui_context &ctx) {
     delete ptr;
 }
 
-const tui_style &get_default_style() {
+const tui_style &tui_get_default_style() {
     return DefaultStyle;
 }
 
-void set_default_style(const tui_style &style) {
+void tui_set_default_style(const tui_style &style) {
     DefaultStyle.mFg = style.mFg;
     DefaultStyle.mBg = style.mBg;
     DefaultStyle.mTextColor = style.mTextColor;
@@ -139,13 +139,13 @@ void set_default_style(const tui_style &style) {
     DefaultStyle.mMargin = style.mMargin;
 }
 
-tui_context *create_context(const char *title, tui_style &style) {
+tui_context *tui_create_context(const char *title, tui_style &style) {
     tui_context *ctx = &tui_context::create(title, style);
 
     return ctx;
 }
 
-void set_default_font(tui_context &ctx, const char *defaultFont) {
+void tui_set_default_font(tui_context &ctx, const char *defaultFont) {
     if (defaultFont == nullptr) {
         return;
     }
