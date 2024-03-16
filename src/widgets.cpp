@@ -61,6 +61,10 @@ static tui_widget *createWidget(tui_context &ctx, Id id) {
     return widget;
 }
 
+void event_dispatcher() {
+
+}
+
 tui_widget *setParent(tui_context &ctx, tui_widget *child, Id parentId) {
     tui_widget *parent = nullptr;
     if (parentId == 0) {
@@ -294,6 +298,14 @@ void Widgets::onMouseMove(int x, int y, int eventType, tui_mouseState state, tui
             }
         }
     }
+}
+
+void Widgets::onKey(const char *key, bool isDown, tui_context &ctx) {
+    if (key == nullptr) {
+        return;
+    }
+
+    event_dispatcher();
 }
 
 void recursiveClear(tui_widget *current) {

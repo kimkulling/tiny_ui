@@ -121,26 +121,30 @@ struct tui_style {
 };
 
 enum class tui_mouseState {
-    Unknown = -1,
+    Invalid = -1,
     LeftButton = 0,
     MiddleButton,
     RightButton,
-    NumStates
+    
+    Count
 };
 
 enum class tui_log_severity {
+    Invalid = -1,
     Message = 0,
     Trace,
     Debug,
     Info,
     Warn,
-    Error
+    Error,
+
+    Count
 };
 
 enum class tui_extensions {
-    InvalidExtension = -1,
+    Invalid = -1,
     VerboseMode,
-    NumExtensions
+    Count
 };
 
 struct tui_events {
@@ -177,6 +181,9 @@ struct tui_callbackI {
     ~tui_callbackI() = default;
 };
 
+using EventCallbackArray = std::vector<tui_callbackI*>;
+using EventDispatchMap = std::map<int32_t, EventCallbackArray>;
+
 struct tui_sdlContext {
     SDL_Window   *mWindow;
     SDL_Surface  *mSurface;
@@ -200,6 +207,7 @@ struct tui_context {
     tui_style mStyle;
     tui_widget *mRoot;
     tui_log_func mLogger;
+    EventDispatchMap mEventDispatchMap;
 
     static tui_context &create(const char *title, tui_style &style);
     static void destroy(tui_context &ctx);

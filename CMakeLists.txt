@@ -37,6 +37,8 @@ ADD_LIBRARY(tiny_ui
     src/stb_image.h
     src/sdl2_renderer.cpp
     src/sdl2_renderer.h
+    src/sdl2_iodevice.h    
+    src/sdl2_iodevice.cpp
 )
 target_link_libraries(tiny_ui SDL2::SDL2 SDL_ttf::SDL_ttf)
 

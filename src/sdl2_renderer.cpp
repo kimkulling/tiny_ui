@@ -1,9 +1,12 @@
 #include "sdl2_renderer.h"
+#include "sdl2_iodevice.h"
 #include "widgets.h"
+
 #include <cassert>
 #include <iostream>
 
 namespace tinyui {
+namespace {
 
 static void printDriverInfo(SDL_RendererInfo &info) {
     printf("Driver : %s\n", info.name);
@@ -30,7 +33,7 @@ static int queryDriver(tui_context &ctx, const char *type) {
     if (type == nullptr) {
         return -1;
     }
-    
+
     const int numRenderDrivers = SDL_GetNumRenderDrivers();
     int found = -1;
     for (int i = 0; i < numRenderDrivers; ++i) {
@@ -44,6 +47,15 @@ static int queryDriver(tui_context &ctx, const char *type) {
 
     return found;
 }
+
+static void loadFont(tui_context &ctx) {
+    ctx.mStyle.mFont.mSize = 20;
+    ctx.mSDLContext.mDefaultFont = new tui_font;
+    ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
+    ctx.mSDLContext.mDefaultFont->mFont = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
+}
+
+} // namespace
 
 tui_ret_code Renderer::initRenderer(tui_context &ctx) {
     if (ctx.mCreated) {
@@ -89,19 +101,15 @@ tui_ret_code Renderer::releaseRenderer(tui_context &ctx) {
 
     return ResultOk;
 }
-
+        
 tui_ret_code Renderer::drawText(tui_context &ctx, const char *string, tui_font *font, const tui_rect &r, const SDL_Color &fgC, const SDL_Color &bgC) {
     if (ctx.mSDLContext.mDefaultFont == nullptr) {
         if (ctx.mStyle.mFont.mName != nullptr) {
-            ctx.mStyle.mFont.mSize = 20;
-            ctx.mSDLContext.mDefaultFont = new tui_font;
-            ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
-            ctx.mSDLContext.mDefaultFont->mFont = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
+            loadFont(ctx);
+            if (font == nullptr) {
+                font = ctx.mSDLContext.mDefaultFont;
+            }
         }
-    }
-
-    if (font == nullptr) {
-        font = ctx.mSDLContext.mDefaultFont;
     }
 
     if (font == nullptr) {
@@ -273,7 +281,7 @@ tui_ret_code Renderer::endRender(tui_context &ctx) {
 }
 
 static tui_mouseState getButtonState(const SDL_MouseButtonEvent &b) {
-    tui_mouseState state = tui_mouseState::Unknown;
+    tui_mouseState state = tui_mouseState::Invalid;
     switch (b.button) {
         case SDL_BUTTON_LEFT:
             state = tui_mouseState::LeftButton;
@@ -304,10 +312,6 @@ static int32_t getEventType(Uint32 sdlType) {
     return tui_events::InvalidEvent;
 }
 
-bool IODevice::update(SDL_Event &event) {
-    return SDL_PollEvent(&event);
-}
-
 bool Renderer::update(tui_context &ctx) {
     if (!ctx.mCreated) {
         return false;
@@ -333,6 +337,20 @@ bool Renderer::update(tui_context &ctx) {
                 {
                     const int32_t x = event.button.x;
                     const int32_t y = event.button.y;
+                } break;
+            
+            case SDL_KEYDOWN: 
+                {
+                    const char *key = SDL_GetKeyName(event.key.keysym.sym);
+                    assert(key != nullptr);
+                    Widgets::onKey(key, true, ctx);
+                } break;
+
+            case SDL_KEYUP: 
+                {
+                    const char *key = SDL_GetKeyName(event.key.keysym.sym);
+                    assert(key != nullptr);
+                    Widgets::onKey(key, false, ctx);
                 } break;
 
             default:
