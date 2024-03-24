@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2022-2024 Kim Kulling
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #pragma once
 
 #include <SDL_ttf/SDL_ttf.h>
@@ -22,9 +45,8 @@ using tui_ret_code = int32_t;
 static constexpr tui_ret_code ErrorCode = -1;
 static constexpr tui_ret_code ResultOk = 0;
 
-
 struct tui_color4 {
-    int32_t r,g,b,a;
+    uint8_t r,g,b,a;
 
     ~tui_color4() = default;
 };
@@ -42,7 +64,23 @@ struct tui_image {
     }
 };
 
-using ImageCache = std::map<const char*, tui_image*>;
+using tui_ImageCache = std::map<const char*, tui_image*>;
+
+template<class T>
+struct tui_point {
+    T x, y;
+
+    tui_point() : x(0), y(0) {}
+    tui_point(T x_, T y_) : x(x_), y(y_) {}
+    ~tui_point() = default;
+
+    void set(T x_, T y_) {
+        x = x_;
+        y = y_;
+    }
+};
+
+using tui_pointi = tui_point<int32_t>;
 
 struct tui_rect {
     int32_t x1, y1, width, height, x2, y2;
@@ -56,6 +94,10 @@ struct tui_rect {
     }
 
     ~tui_rect() = default;
+
+    bool isIn(const tui_pointi &pt) const {
+        return isIn(pt.x, pt.y);
+    }
 
     bool isIn(int x_, int y_) const {
         if (x_ >= x1 && y_ >= y1 && x_ <=x2 && y_ <= y2) {
@@ -108,7 +150,7 @@ struct tui_font {
     }
 };
 
-using FontCache = std::map<const char*, tui_font*>;
+using tui_FontCache = std::map<const char*, tui_font*>;
 
 struct tui_style {
     tui_color4 mClearColor;
@@ -148,14 +190,14 @@ enum class tui_extensions {
 };
 
 struct tui_events {
+    static constexpr int32_t InvalidEvent = -1;
     static constexpr int32_t QuitEvent = 0;
     static constexpr int32_t MouseButtonDownEvent = 1;
     static constexpr int32_t MouseButtonUpEvent = 2;
     static constexpr int32_t MouseMoveEvent = 3;
     static constexpr int32_t MouseHoverEvent = 4;
-    
+
     static constexpr int32_t NumEvents = MouseHoverEvent + 1;
-    static constexpr int32_t InvalidEvent = NumEvents + 1;
 };
 
 struct tui_callbackI {
@@ -184,6 +226,8 @@ struct tui_callbackI {
 using EventCallbackArray = std::vector<tui_callbackI*>;
 using EventDispatchMap = std::map<int32_t, EventCallbackArray>;
 
+typedef void (*tui_log_func) (tui_log_severity severity, const char *message);
+
 struct tui_sdlContext {
     SDL_Window   *mWindow;
     SDL_Surface  *mSurface;
@@ -198,8 +242,6 @@ struct tui_sdlContext {
     ~tui_sdlContext() = default;
 };
 
-typedef void (*tui_log_func) (tui_log_severity severity, const char *message);
-
 struct tui_context {
     bool mCreated;
     const char *title;
@@ -208,10 +250,12 @@ struct tui_context {
     tui_widget *mRoot;
     tui_log_func mLogger;
     EventDispatchMap mEventDispatchMap;
+    tui_FontCache mFontCache;
+    tui_ImageCache mImageCache;
 
     static tui_context &create(const char *title, tui_style &style);
     static void destroy(tui_context &ctx);
-    static void enableExtensions(tui_context &ctx, const std::vector<tui_extensions> &extensions);
+    static void enableExtensions(tui_context &ctx, const std::vector<tinyui::tui_extensions> &extensions);
     ~tui_context() = default;
 
 private:
@@ -228,9 +272,9 @@ bool tui_run(tui_context &ctx);
 tui_ret_code tui_begin_render(tui_context &ctx, tui_color4 bg);
 tui_ret_code tui_end_render(tui_context &ctx);
 tui_ret_code tui_release(tui_context &ctx);
-const tui_style &get_default_style();
-void set_default_style(const tui_style &style);
-void set_default_font(tui_context &ctx, const char *defaultFont);
-tui_context *create_context(const char *title, tui_style &style);
+const tui_style &tui_get_default_style();
+void tui_set_default_style(const tui_style &style);
+void tui_set_default_font(tui_context &ctx, const char *defaultFont);
+tui_context *tui_create_context(const char *title, tui_style &style);
 
 } // Namespace TinyUi

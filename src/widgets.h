@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2022-2024 Kim Kulling
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #pragma once
 
 #include "tinyui.h"
@@ -9,39 +32,37 @@ struct tui_context;
 /// @brief
 enum class WidgetType {
     Invalid = -1,
-    ContainerType = 0,
-    ButtonType,
-    LabelType,
-    PanelType,
-    Count
-};
-
-/// @brief
-enum class LayoutType {
-    Invalid = -1,
-    HorizontalLayout,
-    VerticalLayout,
+    Container = 0,
+    Button,
+    Label,
+    Panel,
+    Box,
     Count
 };
 
 /// @brief
 enum class LayoutPolicy {
-    Invalid,
-    AbsolutePolicy,
-    RelativePolicy,
+    Invalid = -1,
+    Absolute,
+    Relative,
     Count
 };
 
 /// @brief
 using Id = uint32_t;
 
-/// @brief
+enum class WidgetStyle : uint32_t {
+    tui_border_style = 1
+};
+
 struct tui_widget {
     Id mId;
     WidgetType mType;
     tui_widget *mParent;
     bool mEnabled;
     tui_rect mRect;
+    bool mFilledRect;
+    uint32_t mStyles;
     std::string mText;
     tui_image *mImage;
     std::vector<tui_widget*> mChildren;
@@ -49,25 +70,41 @@ struct tui_widget {
 
     tui_widget() :
             mId(0),
-            mType(WidgetType::Invalid), 
-            mParent(nullptr), 
-            mEnabled(true), 
-            mRect(), mText(), 
-            mImage(nullptr), 
-            mChildren(), 
+            mType(WidgetType::Invalid),
+            mParent(nullptr),
+            mEnabled(true),
+            mRect(),
+            mFilledRect(true),
+            mStyles(0u),
+            mText(),
+            mImage(nullptr),
+            mChildren(),
             mCallback(nullptr) {
         // empty
     }
-    
+
     ~tui_widget() = default;
+
+    bool hasStyle(WidgetStyle style) const {
+        return mStyles & static_cast<uint32_t>(style);
+    }
+
+    void setStyle(WidgetStyle style) {
+        mStyles = mStyles | static_cast<uint32_t>(style);
+    }
+
+    tui_widget(const tui_style &) = delete;
+    tui_widget& operator = (const tui_style &) = delete;
 };
  
 /// @brief
 struct Widgets {
-    /// @brief
-    static tui_ret_code createContainer(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+    static const Id RootItem = 0;
 
-    /// @brief
+    Widgets() = default;
+    ~Widgets() = default;
+    static tui_ret_code createContainer(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+    static tui_ret_code createBox(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, const tui_color4 &bg, bool filled);
     static tui_widget *findWidget(Id id, tui_widget *root);
 
     /// @brief
@@ -103,6 +140,7 @@ struct Widgets {
     
     /// @brief
     static bool isEnabled(tui_context &ctx, Id id);
+    static tui_widget *getWidgetById(tui_context &ctx, Id id);
 };
 
 } // namespace tinyui

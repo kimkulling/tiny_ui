@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2022-2024 Kim Kulling
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include "tinyui.h"
 #include "widgets.h"
 #include "sdl2_renderer.h"
@@ -9,11 +32,11 @@
 namespace tinyui {
 
 static  tui_style DefaultStyle = {
-    tui_color4{  0,  100,  100, 0 }, 
-    tui_color4{ 220, 220, 220,  0 }, 
-    tui_color4{ 20, 20, 20, 0 }, 
-    tui_color4{ 0,   255,   255, 0 }, 
-    tui_color4{ 200, 200, 200, 0 }, 
+    tui_color4{   0, 100, 100, 0 },
+    tui_color4{ 220, 220, 220, 0 },
+    tui_color4{  20,  20,  20, 0 },
+    tui_color4{   0, 255, 255, 0 },
+    tui_color4{ 200, 200, 200, 0 },
     2,
     { "Arial.ttf", 20, nullptr }
 };
@@ -63,7 +86,7 @@ tui_ret_code tui_get_surface_info(tui_context &ctx, int32_t &w, int32_t &h) {
 
     w = ctx.mSDLContext.mSurface->w;
     h = ctx.mSDLContext.mSurface->h;
-    
+
     return ResultOk;
 }
 
@@ -104,14 +127,13 @@ void tui_context::destroy(tui_context &ctx) {
     delete ptr;
 }
 
-void tui_context::enableExtensions(tui_context &ctx, const std::vector<tui_extensions> &extensions) {
-}
+void tui_context::enableExtensions(tui_context &ctx, const std::vector<tinyui::tui_extensions> &extensions) {}
 
-const tui_style &get_default_style() {
+const tui_style &tui_get_default_style() {
     return DefaultStyle;
 }
 
-void set_default_style(const tui_style &style) {
+void tui_set_default_style(const tui_style &style) {
     DefaultStyle.mFg = style.mFg;
     DefaultStyle.mBg = style.mBg;
     DefaultStyle.mTextColor = style.mTextColor;
@@ -119,13 +141,13 @@ void set_default_style(const tui_style &style) {
     DefaultStyle.mMargin = style.mMargin;
 }
 
-tui_context *create_context(const char *title, tui_style &style) {
+tui_context *tui_create_context(const char *title, tui_style &style) {
     tui_context *ctx = &tui_context::create(title, style);
-    
+
     return ctx;
 }
 
-void set_default_font(tui_context &ctx, const char *defaultFont) {
+void tui_set_default_font(tui_context &ctx, const char *defaultFont) {
     if (defaultFont == nullptr) {
         return;
     }

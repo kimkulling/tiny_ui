@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2022-2024 Kim Kulling
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include "widgets.h"
 #include "sdl2_renderer.h"
 
@@ -8,27 +31,25 @@
 
 namespace tinyui {
 
-static ImageCache sImageCache;
+static tui_image *findImage(tui_context &ctx, const char *filename) {
+    if (filename == nullptr) {
+        return nullptr;
+    }
 
-static tui_image *findImage(const char *filename) {
-    assert(filename != nullptr);
-
-    ImageCache::iterator it = sImageCache.find(filename);
-    if (it == sImageCache.end()) {
+    tui_ImageCache::iterator it = ctx.mImageCache.find(filename);
+    if (it == ctx.mImageCache.end()) {
         return nullptr;
     }
 
     return it->second;
 }
 
-static FontCache sFontCache;
-
-static tui_image *loadIntoImageCache(const char *filename) {
+static tui_image *loadIntoImageCache(tui_context &ctx, const char *filename) {
     if (filename == nullptr) {
         return nullptr;
     }
 
-    tui_image *image = findImage(filename);
+    tui_image *image = findImage(ctx, filename);
     if (image != nullptr) {
         return image;
     }
@@ -49,7 +70,7 @@ static tui_image *loadIntoImageCache(const char *filename) {
     image->mY = y;
     image->mComp = comp;
 
-    sImageCache[filename] = image;
+    ctx.mImageCache[filename] = image;
 
     return image;
 }
@@ -70,7 +91,7 @@ tui_widget *setParent(tui_context &ctx, tui_widget *child, Id parentId) {
     if (parentId == 0) {
         if (ctx.mRoot == nullptr) {
             ctx.mRoot = new tui_widget;
-            ctx.mRoot->mType = WidgetType::ContainerType;
+            ctx.mRoot->mType = WidgetType::Container;
         }
         parent = ctx.mRoot;
     } else {
@@ -96,7 +117,7 @@ tui_ret_code Widgets::createContainer(tui_context &ctx, Id id, Id parentId, cons
     }
     widget->mParent = setParent(ctx, widget, parentId);
 
-    return 0;
+    return ResultOk;
 }
 
 tui_widget *Widgets::findWidget(Id id, tui_widget *root) {
@@ -116,9 +137,9 @@ tui_widget *Widgets::findWidget(Id id, tui_widget *root) {
         if (child->mId == id) {
             return child;
         }
-        tui_widget *found = findWidget(id, child);
-        if(found != nullptr) {
-            return found;
+        tui_widget *foundWidget = findWidget(id, child);
+        if (foundWidget != nullptr) {
+            return foundWidget;
         }
     }
 
@@ -126,6 +147,10 @@ tui_widget *Widgets::findWidget(Id id, tui_widget *root) {
 }
 
 void Widgets::findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found) {
+    if (found == nullptr) {
+        return;
+    }
+    
     if (currentChild == nullptr) {
         return;
     }
@@ -140,47 +165,67 @@ void Widgets::findSelectedWidget(int x, int y, tui_widget *currentChild, tui_wid
     }
 }
 
-tui_ret_code Widgets::createLabel(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h) {
+tui_ret_code Widgets::createLabel(tui_context &ctx, Id id, Id parentId, const char *text,
+        int x, int y, int w, int h) {
     if (ctx.mRoot == nullptr) {
         return ErrorCode;
     }
 
     tui_widget *widget = createWidget(ctx, id);
     widget->mRect.set(x, y, w, h);
-    widget->mType = WidgetType::LabelType;
+    widget->mType = WidgetType::Label;
     if (text != nullptr) {
         widget->mText.assign(text);
     }
     widget->mParent = setParent(ctx, widget, parentId);
 
-    return 0;
+    return ResultOk;
 }
 
-tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const char *text, 
+tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const char *text,
         tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
 
-    tui_widget *child = createWidget(ctx, id);
-    if (child == nullptr) {
+    tui_widget *childWidget = createWidget(ctx, id);
+    if (childWidget == nullptr) {
         return ErrorCode;
     }
 
-    child->mType = WidgetType::ButtonType;
-    child->mRect.set(x, y, w, h);
-    child->mCallback = callback;
+    childWidget->mType = WidgetType::Button;
+    childWidget->mRect.set(x, y, w, h);
+    childWidget->mCallback = callback;
     if (text != nullptr) {
-        child->mText.assign(text);
+        childWidget->mText.assign(text);
     }
-    
+
     if (image != nullptr) {
-        child->mImage = image;
+        childWidget->mImage = image;
     }
 
-    child->mParent = setParent(ctx, child, parentId);
+    childWidget->mParent = setParent(ctx, childWidget, parentId);
 
-    return 0;
+    return ResultOk;
+}
+
+tui_ret_code Widgets::createBox(tui_context &ctx, Id id, Id parentId, int x, int y, 
+        int w, int h, const tui_color4 &color, bool filled) {
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        return ErrorCode;
+    }
+
+    tui_widget *childWidget = createWidget(ctx, id);
+    if (childWidget == nullptr) {
+        return ErrorCode;
+    }
+
+    childWidget->mRect.set(x, y, w, h);
+    childWidget->mType = WidgetType::Box;
+    childWidget->mParent = setParent(ctx, childWidget, parentId);
+    childWidget->mFilledRect = filled;
+
+    return ResultOk;
 }
 
 tui_ret_code Widgets::createPanel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, 
@@ -196,11 +241,11 @@ tui_ret_code Widgets::createPanel(tui_context &ctx, Id id, Id parentId, int x, i
         return ErrorCode;
     }
 
-    child->mType = WidgetType::PanelType;
+    child->mType = WidgetType::Panel;
     child->mRect.set(x, y, w, h);
     child->mParent = setParent(ctx, child, parentId);
 
-    return 0;
+    return ResultOk;
 }
 
 static void render(tui_context &ctx, tui_widget *currentWidget) {
@@ -214,35 +259,42 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
 
     const tui_rect &r = currentWidget->mRect;
     switch( currentWidget->mType) {
-        case WidgetType::ButtonType:
+        case WidgetType::Button:
             {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
                 if (currentWidget->mImage != nullptr) {
                     Renderer::drawImage(ctx, currentWidget->mImage);
                 }
                 if (!currentWidget->mText.empty()) {
-                    SDL_Color fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
+                    tui_color4 fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);
                 }
             }
             break;
 
-        case WidgetType::LabelType:
+        case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
-                    SDL_Color fg = { 0x00,0x00,0xff }, bg = {0xff,0xff,0xff};
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);                
+                    const tui_color4 fg = { 0x00,0x00,0xff,0x00 }, bg = {0xff,0xff,0xff, 0x00};
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);
                 }
             } 
             break;
 
-        case WidgetType::PanelType: 
+        case WidgetType::Panel:
             {
+                //printf("draw the rect with x:%d, y:%d, w:%d, h:%d\n", r.x1, r.y1, r.width, r.height);
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
             }
             break;
 
-        default:
+        case WidgetType::Box:
+            {
+                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
+            }
+            break;
+
+       default:
             break;
     }
 
@@ -255,7 +307,6 @@ void Widgets::renderWidgets(tui_context &ctx) {
     if (ctx.mRoot == nullptr) {
         return;
     }
-
     render(ctx, ctx.mRoot);
 }
 
@@ -346,6 +397,12 @@ bool Widgets::isEnabled(tui_context &ctx, Id id) {
     }
 
     return false;
+}
+
+tui_widget *Widgets::getWidgetById(tui_context &ctx, Id id) {
+    tui_widget *widget = findWidget(id, ctx.mRoot);
+
+    return widget;
 }
 
 } // namespace tinyui
