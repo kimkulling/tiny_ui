@@ -23,7 +23,8 @@ SOFTWARE.
 */
 #pragma once
 
-#include <SDL_ttf/SDL_ttf.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 #include <cstdint>
 #include <vector>
 #include <string>

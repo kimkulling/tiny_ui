@@ -112,6 +112,12 @@ tui_ret_code Renderer::initRenderer(tui_context &ctx) {
         printDriverInfo(info);
     }
 
+    int imgFlags = IMG_INIT_PNG;
+    if (!IMG_Init(imgFlags))  {
+        ctx.mLogger(tui_log_severity::Error, "Error while IMG_Init for PNG support.");
+        return ErrorCode;
+    }
+
     return ResultOk;
 }
 

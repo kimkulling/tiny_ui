@@ -25,11 +25,10 @@ SOFTWARE.
 
 #include "tinyui.h"
 #include <SDL.h>
-#include <SDL_ttf/SDL_ttf.h>
+#include <SDL_ttf.h>
 #include <vector>
 
 namespace tinyui {
-
 
 struct Renderer {
     static tui_ret_code initRenderer(tui_context &ctx);
