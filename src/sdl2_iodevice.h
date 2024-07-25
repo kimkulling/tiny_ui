@@ -1,7 +1,12 @@
 #pragma once
 
+#include <SDL.h>
+
+namespace tinyui {
+
 struct IODevice {
-    virtual ~IODevice() = default;
+    ~IODevice() = default;
+    static bool update(SDL_Event &event);
 };
 
 } //  namespace tinyui

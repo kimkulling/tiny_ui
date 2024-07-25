@@ -378,8 +378,8 @@ bool Renderer::update(tui_context &ctx) {
                     const int32_t x = event.button.x;
                     const int32_t y = event.button.y;
                 } break;
-            
-            case SDL_KEYDOWN: 
+
+            case SDL_KEYDOWN:
                 {
                     const char *key = SDL_GetKeyName(event.key.keysym.sym);
                     assert(key != nullptr);
