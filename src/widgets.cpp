@@ -104,7 +104,7 @@ tui_widget *setParent(tui_context &ctx, tui_widget *child, Id parentId) {
     return parent;
 }
 
-tui_ret_code Widgets::createContainer(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h) {
+tui_ret_code Widgets::Container(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h) {
     if (ctx.mRoot != nullptr) {
         return ErrorCode;
     }
@@ -150,7 +150,7 @@ void Widgets::findSelectedWidget(int x, int y, tui_widget *currentChild, tui_wid
     if (found == nullptr) {
         return;
     }
-    
+
     if (currentChild == nullptr) {
         return;
     }
@@ -165,7 +165,7 @@ void Widgets::findSelectedWidget(int x, int y, tui_widget *currentChild, tui_wid
     }
 }
 
-tui_ret_code Widgets::createLabel(tui_context &ctx, Id id, Id parentId, const char *text,
+tui_ret_code Widgets::Label(tui_context &ctx, Id id, Id parentId, const char *text,
         int x, int y, int w, int h) {
     if (ctx.mRoot == nullptr) {
         return ErrorCode;
@@ -182,7 +182,7 @@ tui_ret_code Widgets::createLabel(tui_context &ctx, Id id, Id parentId, const ch
     return ResultOk;
 }
 
-tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const char *text,
+tui_ret_code Widgets::Button(tui_context &ctx, Id id, Id parentId, const char *text,
         tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -209,7 +209,7 @@ tui_ret_code Widgets::createButton(tui_context &ctx, Id id, Id parentId, const c
     return ResultOk;
 }
 
-tui_ret_code Widgets::createBox(tui_context &ctx, Id id, Id parentId, int x, int y, 
+tui_ret_code Widgets::Box(tui_context &ctx, Id id, Id parentId, int x, int y, 
         int w, int h, const tui_color4 &color, bool filled) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -228,7 +228,7 @@ tui_ret_code Widgets::createBox(tui_context &ctx, Id id, Id parentId, int x, int
     return ResultOk;
 }
 
-tui_ret_code Widgets::createPanel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, 
+tui_ret_code Widgets::Panel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, 
         tui_callbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         ctx.mLogger(tui_log_severity::Error, "TUI-Renderer is nullptr.");
@@ -283,7 +283,6 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
 
         case WidgetType::Panel:
             {
-                //printf("draw the rect with x:%d, y:%d, w:%d, h:%d\n", r.x1, r.y1, r.width, r.height);
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
             }
             break;
@@ -386,14 +385,18 @@ void Widgets::clear(tui_context &ctx) {
 void Widgets::setEnableState(tui_context &ctx, Id id, bool enabled) {
     tui_widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
-        widget->mEnabled = enabled;
+        if (enabled) {
+            widget->enable();
+        } else {
+            widget->disable();
+        }
     }
 }
 
 bool Widgets::isEnabled(tui_context &ctx, Id id) {
     tui_widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
-        return widget->mEnabled;
+        return widget->isEnabled();
     }
 
     return false;

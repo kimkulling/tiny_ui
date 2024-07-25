@@ -49,8 +49,9 @@ enum class LayoutPolicy {
 };
 
 /// @brief
-using Id = uint32_t;
+using Id = uint64_t;
 
+/// @brief
 enum class WidgetStyle : uint32_t {
     tui_border_style = 1
 };
@@ -93,36 +94,58 @@ struct tui_widget {
         mStyles = mStyles | static_cast<uint32_t>(style);
     }
 
+    void enable() {
+        mEnabled = true;
+    }
+
+    void disable()  {
+        mEnabled = false;
+    }
+
+    bool isEnabled() const {
+        return mEnabled;
+    }
+
     tui_widget(const tui_style &) = delete;
     tui_widget& operator = (const tui_style &) = delete;
 };
- 
+
 /// @brief
 struct Widgets {
+    /// @brief
     static const Id RootItem = 0;
 
+    /// @brief
     Widgets() = default;
+
+    /// @brief
     ~Widgets() = default;
-    static tui_ret_code createContainer(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
-    static tui_ret_code createBox(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, const tui_color4 &bg, bool filled);
+
+    /// @brief
+    static tui_ret_code Container(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+
+    /// @brief
+    static tui_ret_code Box(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, const tui_color4 &bg, bool filled);
+
+    /// @brief
     static tui_widget *findWidget(Id id, tui_widget *root);
 
     /// @brief
     static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found);
 
     /// @brief
-    static tui_ret_code createLabel(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
-    
+    static tui_ret_code Label(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+
     /// @brief
-    static tui_ret_code createButton(tui_context &ctx, Id id, Id parentId, const char *text, tui_image *image, int x, int y, 
+    static tui_ret_code Button(tui_context &ctx, Id id, Id parentId, const char *text, tui_image *image, int x, int y, 
         int w, int h, tui_callbackI *callback);
-    
+
     /// @brief
-    static tui_ret_code createPanel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, tui_callbackI *callback);
-    
+    static tui_ret_code Panel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, tui_callbackI *callback);
+
     /// @brief
     static void renderWidgets(tui_context &ctx);
-    
+
     /// @brief
     static void onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
 
@@ -140,6 +163,8 @@ struct Widgets {
 
     /// @brief
     static bool isEnabled(tui_context &ctx, Id id);
+
+    /// @brief
     static tui_widget *getWidgetById(tui_context &ctx, Id id);
 };
 

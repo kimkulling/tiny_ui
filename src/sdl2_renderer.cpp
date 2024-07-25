@@ -305,7 +305,7 @@ tui_ret_code Renderer::closeScreen(tui_context &ctx) {
     if (ctx.mSDLContext.mWindow == nullptr) {
         return ErrorCode;
     }
-    
+
     TTF_Quit();
 
     SDL_DestroyWindow(ctx.mSDLContext.mWindow);

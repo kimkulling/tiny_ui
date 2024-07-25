@@ -168,7 +168,6 @@ enum class tui_mouseState {
     LeftButton = 0,
     MiddleButton,
     RightButton,
-    
     Count
 };
 
@@ -180,7 +179,6 @@ enum class tui_log_severity {
     Info,
     Warn,
     Error,
-
     Count
 };
 
@@ -190,6 +188,7 @@ enum class tui_extensions {
     Count
 };
 
+/// @brief The tiny ui events.
 struct tui_events {
     static constexpr int32_t InvalidEvent = -1;
     static constexpr int32_t QuitEvent = 0;
@@ -197,15 +196,19 @@ struct tui_events {
     static constexpr int32_t MouseButtonUpEvent = 2;
     static constexpr int32_t MouseMoveEvent = 3;
     static constexpr int32_t MouseHoverEvent = 4;
-
     static constexpr int32_t NumEvents = MouseHoverEvent + 1;
 };
 
+/// @brief This interface is used to store all neede message handlers.
 struct tui_callbackI {
+    /// The function callback
     typedef int (*funcCallback) (uint32_t id, void *data);
+    /// The function callback array, not handled callbacks are marked as a nullptr.
     funcCallback mfuncCallback[tui_events::NumEvents];
+    /// The data instance.
     void *mInstance;
 
+    /// @brief The default class constructor.
     tui_callbackI() :
             mfuncCallback{ nullptr }, mInstance(nullptr) {
         for (size_t i=0; i<tui_events::NumEvents; ++i) {
