@@ -23,12 +23,13 @@ int main(int argc, char *argv[]) {
     }
 
     tui_style style = get_default_style();
-    Widgets::createPanel(ctx, 1, 0, 90, 5, 120, 200, nullptr);
-    Widgets::createLabel(ctx, 2, 1, "Title", 100, 10, 100, 20);
-    Widgets::createButton(ctx, 3, 1, "Test 1", nullptr, 100, 50, 100, 20, nullptr);
-    Widgets::createButton(ctx, 4, 1, "Test 2", nullptr, 100, 90, 100, 20, nullptr);
-    Widgets::createButton(ctx, 5, 1, "Test 3", nullptr, 100, 130, 100, 20, nullptr);
-    Widgets::createButton(ctx, 6, 1, nullptr, nullptr, 100, 170, 100, 20, nullptr);
+    Widgets::Panel(ctx, 1, 0, 90, 5, 120, 200, nullptr);
+    Widgets::Label(ctx, 2, 1, "Title", 100, 10, 100, 20);
+    Widgets::Button(ctx, 3, 1, "Test 1", nullptr, 100, 50, 100, 20, nullptr);
+    Widgets::Button(ctx, 4, 1, "Test 2", nullptr, 100, 90, 100, 20, nullptr);
+    Widgets::Button(ctx, 5, 1, "Test 3", nullptr, 100, 130, 100, 20, nullptr);
+    Widgets::Button(ctx, 6, 1, nullptr, nullptr, 100, 170, 100, 20, nullptr);
+
     while (tui_run(ctx)) {
         tui_begin_render(ctx, style.mClearColor);
         Widgets::renderWidgets(ctx);
