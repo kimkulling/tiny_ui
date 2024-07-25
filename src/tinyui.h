@@ -44,7 +44,7 @@ struct tui_widget;
 using tui_ret_code = int32_t;
 
 static constexpr tui_ret_code ErrorCode = -1;
-static constexpr tui_ret_code ResultOk = 0;
+static constexpr tui_ret_code ResultOk  = 0;
 
 struct tui_color4 {
     uint8_t r,g,b,a;

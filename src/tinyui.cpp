@@ -31,7 +31,7 @@ SOFTWARE.
 
 namespace tinyui {
 
-static  tui_style DefaultStyle = {
+static tui_style DefaultStyle = {
     tui_color4{   0, 100, 100, 0 },
     tui_color4{ 220, 220, 220, 0 },
     tui_color4{  20,  20,  20, 0 },

@@ -24,11 +24,15 @@ ADD_LIBRARY(tiny_ui
     src/sdl2_iodevice.h    
     src/sdl2_iodevice.cpp
 )
-target_link_libraries(tiny_ui SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf)
+target_link_libraries(tiny_ui  $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
+    $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static)
 
 if( TINY_UI_SAMPLES)
     ADD_EXECUTABLE(tiny_ui_sample
         samples/main.cpp
     )
-    target_link_libraries(tiny_ui_sample tiny_ui SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf)
+    target_link_libraries(tiny_ui_sample tiny_ui $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
+    $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static)
 endif()

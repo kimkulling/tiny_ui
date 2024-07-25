@@ -125,19 +125,19 @@ struct Widgets {
     
     /// @brief
     static void onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
-    
+
     /// @brief
     static void onMouseMove(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
-    
+
     /// @brief
     static void onKey(const char *key, bool isDown, tui_context &ctx);
-    
+
     /// @brief
     static void clear(tui_context &ctx);
-    
+
     /// @brief
     static void setEnableState(tui_context &ctx, Id id, bool enabled);
-    
+
     /// @brief
     static bool isEnabled(tui_context &ctx, Id id);
     static tui_widget *getWidgetById(tui_context &ctx, Id id);
