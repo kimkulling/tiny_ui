@@ -281,16 +281,18 @@ private:
     }
 };
 
-ret_code init(Context &ctx);
-ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
-ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h);
-bool run(Context &ctx);
-ret_code beginRender(Context &ctx, Color4 bg);
-ret_code endRender(Context &ctx);
-ret_code release(Context &ctx);
-const Style &getDefaultStyle();
-void setDefaultStyle(const Style &style);
-void setDefaultFont(Context &ctx, const char *defaultFont);
-Context *createContext(const char *title, Style &style);
+struct TinyUi {
+    static ret_code init(Context &ctx);
+    static ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
+    static ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h);
+    static bool run(Context &ctx);
+    static ret_code beginRender(Context &ctx, Color4 bg);
+    static ret_code endRender(Context &ctx);
+    static ret_code release(Context &ctx);
+    static const Style &getDefaultStyle();
+    static void setDefaultStyle(const Style &style);
+    static void setDefaultFont(Context &ctx, const char *defaultFont);
+    static Context *createContext(const char *title, Style &style);
+};
 
 } // Namespace TinyUi

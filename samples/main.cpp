@@ -39,10 +39,10 @@ static void renderDialog(const char *title, Context &ctx) {
 }
 
 int main(int argc, char *argv[]) {
-    Style style = getDefaultStyle();
+    Style style = TinyUi::getDefaultStyle();
     Context &ctx = Context::create("Sample-Screen",  style);
 
-    if (initScreen(ctx, 20, 20, 1024, 768) == -1) {
+    if (TinyUi::initScreen(ctx, 20, 20, 1024, 768) == -1) {
         ctx.mLogger(LogSeverity::Error, "Cannot init screen");
         return ErrorCode;
     }
@@ -55,13 +55,13 @@ int main(int argc, char *argv[]) {
     Widgets::button(ctx, 6, RootPanelId, nullptr,  nullptr, 100, 200, 100, 40, nullptr);
     Widgets::button(ctx, 7, RootPanelId, "Quit",   nullptr, 100, 250, 100, 40, nullptr);
 
-    while (run(ctx)) {
-        beginRender(ctx, style.mClearColor);
+    while (TinyUi::run(ctx)) {
+        TinyUi::beginRender(ctx, style.mClearColor);
         Widgets::renderWidgets(ctx);
-        endRender(ctx);
+        TinyUi::endRender(ctx);
     }
 
-    release(ctx);
+    TinyUi::release(ctx);
 
     return 0;
 }

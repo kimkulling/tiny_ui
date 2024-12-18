@@ -23,7 +23,7 @@ SOFTWARE.
 */
 #include "tinyui.h"
 #include "widgets.h"
-#include "sdl2_renderer.h"
+#include "backends/sdl2_renderer.h"
 
 #include <cassert>
 #include <iostream>
@@ -55,7 +55,7 @@ void log_message(LogSeverity severity, const char *message) {
     std::cout << SeverityToken[static_cast<size_t>(severity)] << " " << message <<"\n.";
 }
 
-ret_code init(Context &ctx) {
+ret_code TinyUi::init(Context &ctx) {
     if (ctx.mCreated) {
         return ErrorCode;
     }
@@ -65,7 +65,7 @@ ret_code init(Context &ctx) {
     return ResultOk;
 }
 
-ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
+ret_code TinyUi::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
     if (Renderer::initRenderer(ctx) == ErrorCode) {
         printf("Error: Cannot init renderer\n");
         return ErrorCode;
@@ -74,7 +74,7 @@ ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
     return Renderer::initScreen(ctx, x, y, w, h);
 }
 
-ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
+ret_code TinyUi::getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
     w = h = -1;
     if (!ctx.mCreated) {
         return ErrorCode;
@@ -90,19 +90,19 @@ ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
     return ResultOk;
 }
 
-bool run(Context &ctx) {
+bool TinyUi::run(Context &ctx) {
     return Renderer::update(ctx);
 }
 
-ret_code beginRender(Context &ctx, Color4 bg) {
+ret_code TinyUi::beginRender(Context &ctx, Color4 bg) {
     return Renderer::beginRender(ctx, bg);
 }
 
-ret_code endRender(Context &ctx) {
+ret_code TinyUi::endRender(Context &ctx) {
     return Renderer::endRender(ctx);
 }
 
-ret_code release(Context &ctx) {
+ret_code TinyUi::release(Context &ctx) {
     if (!ctx.mCreated) {
         return ErrorCode;
     }
@@ -129,11 +129,11 @@ void Context::destroy(Context &ctx) {
 
 void Context::enableExtensions(Context &ctx, const std::vector<tinyui::Extensions> &extensions) {}
 
-const Style &getDefaultStyle() {
+const Style &TinyUi::getDefaultStyle() {
     return DefaultStyle;
 }
 
-void setDefaultStyle(const Style &style) {
+void TinyUi::setDefaultStyle(const Style &style) {
     DefaultStyle.mFg = style.mFg;
     DefaultStyle.mBg = style.mBg;
     DefaultStyle.mTextColor = style.mTextColor;
@@ -141,13 +141,13 @@ void setDefaultStyle(const Style &style) {
     DefaultStyle.mMargin = style.mMargin;
 }
 
-Context *createContext(const char *title, Style &style) {
+Context *TinyUi::createContext(const char *title, Style &style) {
     Context *ctx = &Context::create(title, style);
 
     return ctx;
 }
 
-void setDefaultFont(Context &ctx, const char *defaultFont) {
+void TinyUi::setDefaultFont(Context &ctx, const char *defaultFont) {
     if (defaultFont == nullptr) {
         return;
     }

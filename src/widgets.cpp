@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "widgets.h"
-#include "sdl2_renderer.h"
+#include "backends/sdl2_renderer.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"

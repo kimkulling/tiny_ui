@@ -19,10 +19,10 @@ ADD_LIBRARY(tiny_ui
     src/widgets.cpp
     src/widgets.h
     src/stb_image.h
-    src/sdl2_renderer.cpp
-    src/sdl2_renderer.h
-    src/sdl2_iodevice.h    
-    src/sdl2_iodevice.cpp
+    src/backends/sdl2_renderer.cpp
+    src/backends/sdl2_renderer.h
+    src/backends/sdl2_iodevice.h    
+    src/backends/sdl2_iodevice.cpp
 )
 target_link_libraries(tiny_ui PRIVATE
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
