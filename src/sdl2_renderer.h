@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2023 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,24 +24,30 @@ SOFTWARE.
 #pragma once
 
 #include "tinyui.h"
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <vector>
 
+struct SDL_Window;
+struct SDL_Renderer;
+struct SDL_Texture;
+
 namespace tinyui {
 
 struct Renderer {
-    static tui_ret_code initRenderer(tui_context &ctx);
-    static tui_ret_code releaseRenderer(tui_context &ctx);
-    static tui_ret_code initScreen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
-    static tui_ret_code initScreen(tui_context &ctx, SDL_Window *mWindow, SDL_Renderer *mRenderer);
-    static tui_ret_code drawText(tui_context &ctx, const char *string, tui_font *font, const tui_rect &r, const tui_color4 &fgC, const tui_color4 &bgC);
-    static tui_ret_code drawRect(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, tui_color4 fg);
-    static tui_ret_code drawImage(tui_context &ctx, tui_image *image);
-    static tui_ret_code beginRender(tui_context &ctx, tui_color4 bg, SDL_Texture *renderTarget = nullptr);
-    static tui_ret_code endRender(tui_context &ctx);
-    static tui_ret_code closeScreen(tui_context &ctx);
-    static bool update(tui_context &ctx);
+    static ret_code initRenderer(Context &ctx);
+    static ret_code releaseRenderer(Context &ctx);
+    static ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
+    static ret_code initScreen(Context &ctx, SDL_Window *mWindow, SDL_Renderer *mRenderer);
+
+    static ret_code drawText(Context &ctx, const char *string, Font *font, const Rect &r, const Color4 &fgC, const Color4 &bgC, Alignment alignment);
+    static ret_code drawRect(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, Color4 fg);
+    static ret_code drawImage(Context &ctx, Image *image);
+    static ret_code beginRender(Context &ctx, Color4 bg, SDL_Texture *renderTarget = nullptr);
+    static ret_code endRender(Context &ctx);
+    static ret_code closeScreen(Context &ctx);
+    static bool update(Context &ctx);
 };
 
 } //  namespace tinyui

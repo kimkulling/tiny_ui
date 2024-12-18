@@ -27,16 +27,17 @@ SOFTWARE.
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include <iostream>
 #include <cassert>
 
 namespace tinyui {
 
-static tui_image *findImage(tui_context &ctx, const char *filename) {
+static Image *findImage(Context &ctx, const char *filename) {
     if (filename == nullptr) {
         return nullptr;
     }
 
-    tui_ImageCache::iterator it = ctx.mImageCache.find(filename);
+    ImageCache::iterator it = ctx.mImageCache.find(filename);
     if (it == ctx.mImageCache.end()) {
         return nullptr;
     }
@@ -44,17 +45,17 @@ static tui_image *findImage(tui_context &ctx, const char *filename) {
     return it->second;
 }
 
-static tui_image *loadIntoImageCache(tui_context &ctx, const char *filename) {
+static Image *loadIntoImageCache(Context &ctx, const char *filename) {
     if (filename == nullptr) {
         return nullptr;
     }
 
-    tui_image *image = findImage(ctx, filename);
+    Image *image = findImage(ctx, filename);
     if (image != nullptr) {
         return image;
     }
 
-    image = new tui_image;
+    image = new Image;
     if (image == nullptr) {
         return nullptr;
     }
@@ -75,22 +76,22 @@ static tui_image *loadIntoImageCache(tui_context &ctx, const char *filename) {
     return image;
 }
 
-static tui_widget *createWidget(tui_context &ctx, Id id) {
-    tui_widget *widget = new tui_widget;
+static Widget *createWidget(Context &ctx, Id id) {
+    Widget *widget = new Widget;
     widget->mId = id;
 
     return widget;
 }
 
-void event_dispatcher() {
+void eventDispatcher() {
 
 }
 
-tui_widget *setParent(tui_context &ctx, tui_widget *child, Id parentId) {
-    tui_widget *parent = nullptr;
+Widget *setParent(Context &ctx, Widget *child, Id parentId) {
+    Widget *parent = nullptr;
     if (parentId == 0) {
         if (ctx.mRoot == nullptr) {
-            ctx.mRoot = new tui_widget;
+            ctx.mRoot = new Widget;
             ctx.mRoot->mType = WidgetType::Container;
         }
         parent = ctx.mRoot;
@@ -104,12 +105,12 @@ tui_widget *setParent(tui_context &ctx, tui_widget *child, Id parentId) {
     return parent;
 }
 
-tui_ret_code Widgets::Container(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h) {
+ret_code Widgets::container(Context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h) {
     if (ctx.mRoot != nullptr) {
         return ErrorCode;
     }
 
-    tui_widget *widget = createWidget(ctx, id);
+    Widget *widget = createWidget(ctx, id);
     ctx.mRoot = widget;
     widget->mRect.set(x, y, w, h);
     if (text != nullptr) {
@@ -120,7 +121,7 @@ tui_ret_code Widgets::Container(tui_context &ctx, Id id, Id parentId, const char
     return ResultOk;
 }
 
-tui_widget *Widgets::findWidget(Id id, tui_widget *root) {
+Widget *Widgets::findWidget(Id id, Widget *root) {
     if (root == nullptr) {
         return nullptr;
     }
@@ -130,14 +131,14 @@ tui_widget *Widgets::findWidget(Id id, tui_widget *root) {
     }
 
     for (size_t i=0; i<root->mChildren.size(); ++i) {
-        tui_widget *child = root->mChildren[i];
+        Widget *child = root->mChildren[i];
         if (child == nullptr) {
             continue;
         }
         if (child->mId == id) {
             return child;
         }
-        tui_widget *foundWidget = findWidget(id, child);
+        Widget *foundWidget = findWidget(id, child);
         if (foundWidget != nullptr) {
             return foundWidget;
         }
@@ -146,7 +147,7 @@ tui_widget *Widgets::findWidget(Id id, tui_widget *root) {
     return nullptr;
 }
 
-void Widgets::findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found) {
+void Widgets::findSelectedWidget(int x, int y, Widget *currentChild, Widget **found) {
     if (found == nullptr) {
         return;
     }
@@ -165,15 +166,16 @@ void Widgets::findSelectedWidget(int x, int y, tui_widget *currentChild, tui_wid
     }
 }
 
-tui_ret_code Widgets::Label(tui_context &ctx, Id id, Id parentId, const char *text,
-        int x, int y, int w, int h) {
+ret_code Widgets::label(Context &ctx, Id id, Id parentId, const char *text,
+        int x, int y, int w, int h, Alignment alignment) {
     if (ctx.mRoot == nullptr) {
         return ErrorCode;
     }
 
-    tui_widget *widget = createWidget(ctx, id);
+    Widget *widget = createWidget(ctx, id);
     widget->mRect.set(x, y, w, h);
     widget->mType = WidgetType::Label;
+    widget->mAlignment = alignment;
     if (text != nullptr) {
         widget->mText.assign(text);
     }
@@ -182,13 +184,13 @@ tui_ret_code Widgets::Label(tui_context &ctx, Id id, Id parentId, const char *te
     return ResultOk;
 }
 
-tui_ret_code Widgets::Button(tui_context &ctx, Id id, Id parentId, const char *text,
-        tui_image *image, int x, int y, int w, int h, tui_callbackI *callback) {
+ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text,
+        Image *image, int x, int y, int w, int h, CallbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
 
-    tui_widget *childWidget = createWidget(ctx, id);
+    Widget *childWidget = createWidget(ctx, id);
     if (childWidget == nullptr) {
         return ErrorCode;
     }
@@ -209,13 +211,13 @@ tui_ret_code Widgets::Button(tui_context &ctx, Id id, Id parentId, const char *t
     return ResultOk;
 }
 
-tui_ret_code Widgets::Box(tui_context &ctx, Id id, Id parentId, int x, int y, 
-        int w, int h, const tui_color4 &color, bool filled) {
+ret_code Widgets::box(Context &ctx, Id id, Id parentId, int x, int y, 
+        int w, int h, const Color4 &color, bool filled) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
 
-    tui_widget *childWidget = createWidget(ctx, id);
+    Widget *childWidget = createWidget(ctx, id);
     if (childWidget == nullptr) {
         return ErrorCode;
     }
@@ -228,16 +230,16 @@ tui_ret_code Widgets::Box(tui_context &ctx, Id id, Id parentId, int x, int y,
     return ResultOk;
 }
 
-tui_ret_code Widgets::Panel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, 
-        tui_callbackI *callback) {
+ret_code Widgets::panel(Context &ctx, Id id, Id parentId, const char *title, int x, int y, int w, int h, 
+        CallbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
-        ctx.mLogger(tui_log_severity::Error, "TUI-Renderer is nullptr.");
+        ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");
         return ErrorCode;
     }
 
-    tui_widget *child = createWidget(ctx, id);
+    Widget *child = createWidget(ctx, id);
     if (child == nullptr) {
-        ctx.mLogger(tui_log_severity::Error, "TUI-Widget cannot be created.");
+        ctx.mLogger(LogSeverity::Error, "TUI-Widget cannot be created.");
         return ErrorCode;
     }
 
@@ -248,7 +250,11 @@ tui_ret_code Widgets::Panel(tui_context &ctx, Id id, Id parentId, int x, int y, 
     return ResultOk;
 }
 
-static void render(tui_context &ctx, tui_widget *currentWidget) {
+ret_code Widgets::treeView(Context& ctx, Id id, Id parentId, const char* title, int x, int y, int w, int h) {
+    return ResultOk;
+}
+
+static void render(Context &ctx, Widget *currentWidget) {
     if (!currentWidget->mEnabled) {
         return;
     }
@@ -257,7 +263,7 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
         return;
     }
 
-    const tui_rect &r = currentWidget->mRect;
+    const Rect &r = currentWidget->mRect;
     switch( currentWidget->mType) {
         case WidgetType::Button:
             {
@@ -266,8 +272,8 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
                     Renderer::drawImage(ctx, currentWidget->mImage);
                 }
                 if (!currentWidget->mText.empty()) {
-                    tui_color4 fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);
+                    Color4 fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             }
             break;
@@ -275,8 +281,8 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
         case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
-                    const tui_color4 fg = { 0x00,0x00,0xff,0x00 }, bg = {0xff,0xff,0xff, 0x00};
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg);
+                    const Color4 fg = { 0x00,0x00,0xff,0x00 }, bg = {0xff,0xff,0xff, 0x00};
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             } 
             break;
@@ -302,26 +308,26 @@ static void render(tui_context &ctx, tui_widget *currentWidget) {
     }
 }
 
-void Widgets::renderWidgets(tui_context &ctx) {
+void Widgets::renderWidgets(Context &ctx) {
     if (ctx.mRoot == nullptr) {
         return;
     }
     render(ctx, ctx.mRoot);
 }
 
-void Widgets::onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx) {
+void Widgets::onMouseButton(int x, int y, int eventType, MouseState state, Context &ctx) {
     assert(eventType >= 0);
-    assert(eventType < tui_events::NumEvents);
+    assert(eventType < Events::NumEvents);
 
     if (ctx.mRoot == nullptr) {
         return;
     }
 
-    tui_widget *found = nullptr;
+    Widget *found = nullptr;
     findSelectedWidget(x, y, ctx.mRoot, &found);
     if (found != nullptr) {
 #ifdef _DEBUG
-        printf("Clicked %d\n", found->mId);
+        std::cout << "Clicked " << found->mId << "\n";
 #endif // _DEBUG
         if (found->mCallback != nullptr) {
             if (found->mCallback->mfuncCallback[eventType] != nullptr) {
@@ -331,15 +337,15 @@ void Widgets::onMouseButton(int x, int y, int eventType, tui_mouseState state, t
     } 
 }
 
-void Widgets::onMouseMove(int x, int y, int eventType, tui_mouseState state, tui_context &ctx) {
+void Widgets::onMouseMove(int x, int y, int eventType, MouseState state, Context &ctx) {
     assert(eventType >= 0);
-    assert(eventType < tui_events::NumEvents);
+    assert(eventType < Events::NumEvents);
 
     if (ctx.mRoot == nullptr) {
         return;
     }
 
-    tui_widget *found = nullptr;
+    Widget *found = nullptr;
     findSelectedWidget(x, y, ctx.mRoot, &found);
     if (found != nullptr) {
         if (found->mCallback != nullptr) {
@@ -350,15 +356,15 @@ void Widgets::onMouseMove(int x, int y, int eventType, tui_mouseState state, tui
     }
 }
 
-void Widgets::onKey(const char *key, bool isDown, tui_context &ctx) {
+void Widgets::onKey(const char *key, bool isDown, Context &ctx) {
     if (key == nullptr) {
         return;
     }
 
-    event_dispatcher();
+    eventDispatcher();
 }
 
-void recursiveClear(tui_widget *current) {
+void recursiveClear(Widget *current) {
     if (current == nullptr) {
         return;
     }
@@ -372,18 +378,18 @@ void recursiveClear(tui_widget *current) {
     }
 }
 
-void Widgets::clear(tui_context &ctx) {
+void Widgets::clear(Context &ctx) {
     if (ctx.mRoot == nullptr) {
         return;
     }
 
-    tui_widget *current = ctx.mRoot;
+    Widget *current = ctx.mRoot;
     recursiveClear(current);
 }
 
 
-void Widgets::setEnableState(tui_context &ctx, Id id, bool enabled) {
-    tui_widget *widget = findWidget(id, ctx.mRoot);
+void Widgets::setEnableState(Context &ctx, Id id, bool enabled) {
+    Widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
         if (enabled) {
             widget->enable();
@@ -393,8 +399,8 @@ void Widgets::setEnableState(tui_context &ctx, Id id, bool enabled) {
     }
 }
 
-bool Widgets::isEnabled(tui_context &ctx, Id id) {
-    tui_widget *widget = findWidget(id, ctx.mRoot);
+bool Widgets::isEnabled(Context &ctx, Id id) {
+    Widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
         return widget->isEnabled();
     }
@@ -402,10 +408,8 @@ bool Widgets::isEnabled(tui_context &ctx, Id id) {
     return false;
 }
 
-tui_widget *Widgets::getWidgetById(tui_context &ctx, Id id) {
-    tui_widget *widget = findWidget(id, ctx.mRoot);
-
-    return widget;
+Widget *Widgets::getWidgetById(Context &ctx, Id id) {
+    return findWidget(id, ctx.mRoot);
 }
 
 } // namespace tinyui

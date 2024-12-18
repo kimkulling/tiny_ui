@@ -39,41 +39,40 @@ struct SDL_MouseButtonEvent;
 
 namespace tinyui {
 
-struct tui_widget;
+struct Widget;
 
-using tui_ret_code = int32_t;
+using ret_code = int32_t;
 
-static constexpr tui_ret_code ErrorCode = -1;
-static constexpr tui_ret_code ResultOk  = 0;
+static constexpr ret_code InvalidHandle = -2;
+static constexpr ret_code ErrorCode = -1;
+static constexpr ret_code ResultOk  = 0;
 
-struct tui_color4 {
+struct Color4 {
     uint8_t r,g,b,a;
-
-    ~tui_color4() = default;
 };
 
-struct tui_image {
+struct Image {
     SDL_Surface *mSurface;
     int32_t mX, mY, mComp;
 
-    tui_image() : mSurface(nullptr), mX(0), mY(0), mComp(0) {}
+    Image() : mSurface(nullptr), mX(0), mY(0), mComp(0) {}
 
-    ~tui_image() {
+    ~Image() {
         if (mSurface != nullptr) {
             SDL_FreeSurface(mSurface);
         }
     }
 };
 
-using tui_ImageCache = std::map<const char*, tui_image*>;
+using ImageCache = std::map<const char*, Image*>;
 
 template<class T>
-struct tui_point {
+struct Point2 {
     T x, y;
 
-    tui_point() : x(0), y(0) {}
-    tui_point(T x_, T y_) : x(x_), y(y_) {}
-    ~tui_point() = default;
+    Point2() : x(0), y(0) {}
+    Point2(T x_, T y_) : x(x_), y(y_) {}
+    ~Point2() = default;
 
     void set(T x_, T y_) {
         x = x_;
@@ -81,22 +80,22 @@ struct tui_point {
     }
 };
 
-using tui_pointi = tui_point<int32_t>;
+using Point2i = Point2<int32_t>;
 
-struct tui_rect {
+struct Rect {
     int32_t x1, y1, width, height, x2, y2;
 
-    tui_rect() :
+    Rect() :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
 
-    tui_rect(int32_t x, int32_t y, int32_t w, int32_t h) :
+    Rect(int32_t x, int32_t y, int32_t w, int32_t h) :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {
         set(x, y, w, h);
     }
 
-    ~tui_rect() = default;
+    ~Rect() = default;
 
-    bool isIn(const tui_pointi &pt) const {
+    bool isIn(const Point2i &pt) const {
         return isIn(pt.x, pt.y);
     }
 
@@ -107,7 +106,7 @@ struct tui_rect {
         return false;
     }
 
-    void set( int32_t x, int32_t y, int32_t w, int32_t h ) {
+    void set(int32_t x, int32_t y, int32_t w, int32_t h) {
         x1 = x;
         y1 = y;
         width = w;
@@ -116,7 +115,7 @@ struct tui_rect {
         y2 = y + h;
     }
 
-    void mergeWithRect(const tui_rect &r) {
+    void mergeWithRect(const Rect &r) {
         if (x1 > r.x1 || x1 == -1) {
             x1 = r.x1;
         }
@@ -139,31 +138,39 @@ struct tui_rect {
     }
 };
 
-struct tui_font {
+enum class Alignment : int32_t {
+    Invalid = -1,
+    Left = 0,
+    Center,
+    Right,
+    Count
+};
+
+struct Font {
     const char *mName;
     uint32_t mSize;
     TTF_Font *mFont;
 
-    ~tui_font() {
+    ~Font() {
         if (mFont != nullptr) {
             TTF_CloseFont(mFont);
         }
     }
 };
 
-using tui_FontCache = std::map<const char*, tui_font*>;
+using tui_FontCache = std::map<const char*, Font*>;
 
-struct tui_style {
-    tui_color4 mClearColor;
-    tui_color4 mFg;
-    tui_color4 mBg;
-    tui_color4 mTextColor;
-    tui_color4 mBorder;
+struct Style {
+    Color4 mClearColor;
+    Color4 mFg;
+    Color4 mBg;
+    Color4 mTextColor;
+    Color4 mBorder;
     int32_t mMargin;
-    tui_font mFont;
+    Font mFont;
 };
 
-enum class tui_mouseState {
+enum class MouseState {
     Invalid = -1,
     LeftButton = 0,
     MiddleButton,
@@ -171,7 +178,7 @@ enum class tui_mouseState {
     Count
 };
 
-enum class tui_log_severity {
+enum class LogSeverity {
     Invalid = -1,
     Message = 0,
     Trace,
@@ -182,14 +189,14 @@ enum class tui_log_severity {
     Count
 };
 
-enum class tui_extensions {
+enum class Extensions {
     Invalid = -1,
     VerboseMode,
     Count
 };
 
 /// @brief The tiny ui events.
-struct tui_events {
+struct Events {
     static constexpr int32_t InvalidEvent = -1;
     static constexpr int32_t QuitEvent = 0;
     static constexpr int32_t MouseButtonDownEvent = 1;
@@ -200,85 +207,90 @@ struct tui_events {
 };
 
 /// @brief This interface is used to store all neede message handlers.
-struct tui_callbackI {
+struct CallbackI {
     /// The function callback
     typedef int (*funcCallback) (uint32_t id, void *data);
     /// The function callback array, not handled callbacks are marked as a nullptr.
-    funcCallback mfuncCallback[tui_events::NumEvents];
+    funcCallback mfuncCallback[Events::NumEvents];
     /// The data instance.
     void *mInstance;
 
     /// @brief The default class constructor.
-    tui_callbackI() :
+    CallbackI() :
             mfuncCallback{ nullptr }, mInstance(nullptr) {
-        for (size_t i=0; i<tui_events::NumEvents; ++i) {
+        for (size_t i=0; i<Events::NumEvents; ++i) {
             mfuncCallback[i] = nullptr;
         }
     }
 
-    tui_callbackI(funcCallback mbDownFunc, void *instance) :
+    CallbackI(funcCallback mbDownFunc, void *instance) :
             mfuncCallback{ nullptr }, mInstance(instance) {
-        for (size_t i=0; i<tui_events::NumEvents; ++i) {
+        for (size_t i = 0; i < Events::NumEvents; ++i) {
             mfuncCallback[i] = nullptr;
         }
-        mfuncCallback[tui_events::MouseButtonDownEvent] = mbDownFunc;
+        mfuncCallback[Events::MouseButtonDownEvent] = mbDownFunc;
     }
 
-    ~tui_callbackI() = default;
+    ~CallbackI() = default;
 };
 
-using EventCallbackArray = std::vector<tui_callbackI*>;
+using EventCallbackArray = std::vector<CallbackI*>;
 using EventDispatchMap = std::map<int32_t, EventCallbackArray>;
 
-typedef void (*tui_log_func) (tui_log_severity severity, const char *message);
+typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 
-struct tui_sdlContext {
+struct SDLContext {
     SDL_Window   *mWindow;
     SDL_Surface  *mSurface;
     SDL_Renderer *mRenderer;
-    tui_font     *mDefaultFont;
-    tui_font     *mSelectedFont;
+    Font         *mDefaultFont;
+    Font         *mSelectedFont;
     bool          mOwner;
 
-    tui_sdlContext() : mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr),
+    SDLContext() :
+            mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr),
         mDefaultFont(nullptr), mSelectedFont(nullptr), mOwner(true) {}
-
-    ~tui_sdlContext() = default;
 };
 
-struct tui_context {
-    bool mCreated;
-    const char *title;
-    tui_sdlContext mSDLContext;
-    tui_style mStyle;
-    tui_widget *mRoot;
-    tui_log_func mLogger;
+struct Context {
+    bool             mCreated;
+    const char      *mAppTitle;
+    const char      *mWindowsTitle;
+    SDLContext       mSDLContext;
+    Style            mStyle;
+    Widget          *mRoot;
+    tui_log_func     mLogger;
     EventDispatchMap mEventDispatchMap;
-    tui_FontCache mFontCache;
-    tui_ImageCache mImageCache;
+    tui_FontCache    mFontCache;
+    ImageCache       mImageCache;
 
-    static tui_context &create(const char *title, tui_style &style);
-    static void destroy(tui_context &ctx);
-    static void enableExtensions(tui_context &ctx, const std::vector<tinyui::tui_extensions> &extensions);
-    ~tui_context() = default;
+    static Context &create(const char *title, Style &style);
+    static void destroy(Context &ctx);
+    static void enableExtensions(Context &ctx, const std::vector<tinyui::Extensions> &extensions);
 
 private:
-    tui_context() :
-            mCreated(false), title(nullptr), mSDLContext(), mStyle(), mRoot(nullptr), mLogger(nullptr) {
+    Context() :
+            mCreated(false),
+            mAppTitle(nullptr),
+            mWindowsTitle(nullptr),
+            mSDLContext(),
+            mStyle(),
+            mRoot(nullptr),
+            mLogger(nullptr) {
         // empty
     }
 };
 
-tui_ret_code tui_init(tui_context &ctx);
-tui_ret_code tui_init_screen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
-tui_ret_code tui_get_surface_info(tui_context &ctx, int32_t &w, int32_t &h);
-bool tui_run(tui_context &ctx);
-tui_ret_code tui_begin_render(tui_context &ctx, tui_color4 bg);
-tui_ret_code tui_end_render(tui_context &ctx);
-tui_ret_code tui_release(tui_context &ctx);
-const tui_style &tui_get_default_style();
-void tui_set_default_style(const tui_style &style);
-void tui_set_default_font(tui_context &ctx, const char *defaultFont);
-tui_context *tui_create_context(const char *title, tui_style &style);
+ret_code init(Context &ctx);
+ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
+ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h);
+bool run(Context &ctx);
+ret_code beginRender(Context &ctx, Color4 bg);
+ret_code endRender(Context &ctx);
+ret_code release(Context &ctx);
+const Style &getDefaultStyle();
+void setDefaultStyle(const Style &style);
+void setDefaultFont(Context &ctx, const char *defaultFont);
+Context *createContext(const char *title, Style &style);
 
 } // Namespace TinyUi

@@ -34,34 +34,34 @@ static constexpr Id RootPanelId = 1;
 
 static constexpr Id NextPanelId = 100;
 
-static void renderDialog(tui_context &ctx) {
-    Widgets::Panel(ctx, NextPanelId, 0, 240, 90, 120, 250, nullptr);
+static void renderDialog(const char *title, Context &ctx) {
+    Widgets::panel(ctx, NextPanelId, 0, title, 240, 90, 120, 250, nullptr);
 }
 
 int main(int argc, char *argv[]) {
-    tui_style style = tui_get_default_style();
-    tui_context &ctx = tui_context::create("Sample-Screen",  style);
+    Style style = getDefaultStyle();
+    Context &ctx = Context::create("Sample-Screen",  style);
 
-    if (tui_init_screen(ctx, 20, 20, 1024, 768) == -1) {
-        ctx.mLogger(tui_log_severity::Error, "Cannot init screen");
+    if (initScreen(ctx, 20, 20, 1024, 768) == -1) {
+        ctx.mLogger(LogSeverity::Error, "Cannot init screen");
         return ErrorCode;
     }
 
-    Widgets::Panel(ctx, RootPanelId, 0, 90, 5, 120, 250, nullptr);
-    Widgets::Label(ctx, 2, RootPanelId, "Title", 100, 10, 100, 20);
-    Widgets::Button(ctx, 3, RootPanelId, "Test 1", nullptr, 100, 50, 100, 20, nullptr);
-    Widgets::Button(ctx, 4, RootPanelId, "Test 2", nullptr, 100, 90, 100, 20, nullptr);
-    Widgets::Button(ctx, 5, RootPanelId, "Test 3", nullptr, 100, 130, 100, 20, nullptr);
-    Widgets::Button(ctx, 6, RootPanelId, nullptr,  nullptr, 100, 170, 100, 20, nullptr);
-    Widgets::Button(ctx, 7, RootPanelId, "Quit",   nullptr, 100, 210, 100, 20, nullptr);
+    Widgets::panel(ctx, RootPanelId, 0, "Sample-Dialog", 90, 5, 120, 300, nullptr);
+    Widgets::label(ctx, 2, RootPanelId, "Title", 100, 10, 100, 20, Alignment::Center);
+    Widgets::button(ctx, 3, RootPanelId, "Test 1", nullptr, 100, 50, 100, 40, nullptr);
+    Widgets::button(ctx, 4, RootPanelId, "Test 2", nullptr, 100, 100, 100, 40, nullptr);
+    Widgets::button(ctx, 5, RootPanelId, "Test 3", nullptr, 100, 150, 100, 40, nullptr);
+    Widgets::button(ctx, 6, RootPanelId, nullptr,  nullptr, 100, 200, 100, 40, nullptr);
+    Widgets::button(ctx, 7, RootPanelId, "Quit",   nullptr, 100, 250, 100, 40, nullptr);
 
-    while (tui_run(ctx)) {
-        tui_begin_render(ctx, style.mClearColor);
+    while (run(ctx)) {
+        beginRender(ctx, style.mClearColor);
         Widgets::renderWidgets(ctx);
-        tui_end_render(ctx);
+        endRender(ctx);
     }
 
-    tui_release(ctx);
+    release(ctx);
 
     return 0;
 }

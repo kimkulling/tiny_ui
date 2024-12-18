@@ -31,14 +31,14 @@ SOFTWARE.
 
 namespace tinyui {
 
-static tui_style DefaultStyle = {
-    tui_color4{   0, 100, 100, 0 },
-    tui_color4{ 220, 220, 220, 0 },
-    tui_color4{  20,  20,  20, 0 },
-    tui_color4{   0, 255, 255, 0 },
-    tui_color4{ 200, 200, 200, 0 },
+static Style DefaultStyle = {
+    Color4{   0, 100, 100, 0 },
+    Color4{ 220, 220, 220, 0 },
+    Color4{ 20, 20, 20, 0 },
+    Color4{ 0, 255, 255, 0 },
+    Color4{ 200, 200, 200, 0 },
     2,
-    { "Arial.ttf", 20, nullptr }
+    { "Arial.ttf", 35, nullptr }
 };
 
 static const char *SeverityToken[] = {
@@ -50,12 +50,12 @@ static const char *SeverityToken[] = {
     "*ERROR*"
 };
 
-void log_message(tui_log_severity severity, const char *message) {
+void log_message(LogSeverity severity, const char *message) {
     assert(message != nullptr);
     std::cout << SeverityToken[static_cast<size_t>(severity)] << " " << message <<"\n.";
 }
 
-tui_ret_code tui_init(tui_context &ctx) {
+ret_code init(Context &ctx) {
     if (ctx.mCreated) {
         return ErrorCode;
     }
@@ -65,7 +65,7 @@ tui_ret_code tui_init(tui_context &ctx) {
     return ResultOk;
 }
 
-tui_ret_code tui_init_screen(tui_context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
+ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
     if (Renderer::initRenderer(ctx) == ErrorCode) {
         printf("Error: Cannot init renderer\n");
         return ErrorCode;
@@ -74,7 +74,7 @@ tui_ret_code tui_init_screen(tui_context &ctx, int32_t x, int32_t y, int32_t w, 
     return Renderer::initScreen(ctx, x, y, w, h);
 }
 
-tui_ret_code tui_get_surface_info(tui_context &ctx, int32_t &w, int32_t &h) {
+ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
     w = h = -1;
     if (!ctx.mCreated) {
         return ErrorCode;
@@ -90,20 +90,19 @@ tui_ret_code tui_get_surface_info(tui_context &ctx, int32_t &w, int32_t &h) {
     return ResultOk;
 }
 
-bool tui_run(tui_context &ctx) {
+bool run(Context &ctx) {
     return Renderer::update(ctx);
 }
 
-tui_ret_code tui_begin_render(tui_context &ctx, tui_color4 bg) {
+ret_code beginRender(Context &ctx, Color4 bg) {
     return Renderer::beginRender(ctx, bg);
 }
 
-
-tui_ret_code tui_end_render(tui_context &ctx) {
+ret_code endRender(Context &ctx) {
     return Renderer::endRender(ctx);
 }
 
-tui_ret_code tui_release(tui_context &ctx) {
+ret_code release(Context &ctx) {
     if (!ctx.mCreated) {
         return ErrorCode;
     }
@@ -113,27 +112,28 @@ tui_ret_code tui_release(tui_context &ctx) {
     return ResultOk;
 }
 
-tui_context &tui_context::create(const char *title, tui_style &style) {
-    tui_context *ctx = new tui_context;
+Context &Context::create(const char *title, Style &style) {
+    Context *ctx = new Context;
     ctx->mLogger = log_message;
-    ctx->title = title;
+    ctx->mAppTitle = title;
+    ctx->mWindowsTitle = title;
     ctx->mStyle = style;
 
     return *ctx;
 }
 
-void tui_context::destroy(tui_context &ctx) {
-    tui_context *ptr = &ctx;
+void Context::destroy(Context &ctx) {
+    Context *ptr = &ctx;
     delete ptr;
 }
 
-void tui_context::enableExtensions(tui_context &ctx, const std::vector<tinyui::tui_extensions> &extensions) {}
+void Context::enableExtensions(Context &ctx, const std::vector<tinyui::Extensions> &extensions) {}
 
-const tui_style &tui_get_default_style() {
+const Style &getDefaultStyle() {
     return DefaultStyle;
 }
 
-void tui_set_default_style(const tui_style &style) {
+void setDefaultStyle(const Style &style) {
     DefaultStyle.mFg = style.mFg;
     DefaultStyle.mBg = style.mBg;
     DefaultStyle.mTextColor = style.mTextColor;
@@ -141,13 +141,13 @@ void tui_set_default_style(const tui_style &style) {
     DefaultStyle.mMargin = style.mMargin;
 }
 
-tui_context *tui_create_context(const char *title, tui_style &style) {
-    tui_context *ctx = &tui_context::create(title, style);
+Context *createContext(const char *title, Style &style) {
+    Context *ctx = &Context::create(title, style);
 
     return ctx;
 }
 
-void tui_set_default_font(tui_context &ctx, const char *defaultFont) {
+void setDefaultFont(Context &ctx, const char *defaultFont) {
     if (defaultFont == nullptr) {
         return;
     }

@@ -27,7 +27,7 @@ SOFTWARE.
 
 namespace tinyui {
 
-struct tui_context;
+struct Context;
 
 /// @brief
 enum class WidgetType {
@@ -37,6 +37,7 @@ enum class WidgetType {
     Label,
     Panel,
     Box,
+    TreeView,
     Count
 };
 
@@ -56,20 +57,23 @@ enum class WidgetStyle : uint32_t {
     tui_border_style = 1
 };
 
-struct tui_widget {
-    Id mId;
-    WidgetType mType;
-    tui_widget *mParent;
-    bool mEnabled;
-    tui_rect mRect;
-    bool mFilledRect;
-    uint32_t mStyles;
-    std::string mText;
-    tui_image *mImage;
-    std::vector<tui_widget*> mChildren;
-    tui_callbackI *mCallback;
+using WidgetArray = std::vector<Widget*>;
 
-    tui_widget() :
+struct Widget {
+    Id          mId;
+    WidgetType  mType;
+    Widget     *mParent;
+    bool        mEnabled;
+    Rect        mRect;
+    bool        mFilledRect;
+    uint32_t    mStyles;
+    Alignment   mAlignment;
+    std::string mText;
+    Image      *mImage;
+    WidgetArray mChildren;
+    CallbackI  *mCallback;
+
+    Widget() :
             mId(0),
             mType(WidgetType::Invalid),
             mParent(nullptr),
@@ -77,6 +81,7 @@ struct tui_widget {
             mRect(),
             mFilledRect(true),
             mStyles(0u),
+            mAlignment(Alignment::Left),
             mText(),
             mImage(nullptr),
             mChildren(),
@@ -84,7 +89,7 @@ struct tui_widget {
         // empty
     }
 
-    ~tui_widget() = default;
+    ~Widget() = default;
 
     bool hasStyle(WidgetStyle style) const {
         return mStyles & static_cast<uint32_t>(style);
@@ -106,8 +111,8 @@ struct tui_widget {
         return mEnabled;
     }
 
-    tui_widget(const tui_style &) = delete;
-    tui_widget& operator = (const tui_style &) = delete;
+    Widget(const Widget &) = delete;
+    Widget &operator=(const Widget &) = delete;
 };
 
 /// @brief
@@ -122,50 +127,53 @@ struct Widgets {
     ~Widgets() = default;
 
     /// @brief
-    static tui_ret_code Container(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+    static ret_code container(Context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
 
     /// @brief
-    static tui_ret_code Box(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, const tui_color4 &bg, bool filled);
+    static ret_code box(Context &ctx, Id id, Id parentId, int x, int y, int w, int h, const Color4 &bg, bool filled);
 
     /// @brief
-    static tui_widget *findWidget(Id id, tui_widget *root);
+    static Widget *findWidget(Id id, Widget *root);
 
     /// @brief
-    static void findSelectedWidget(int x, int y, tui_widget *currentChild, tui_widget **found);
+    static void findSelectedWidget(int x, int y, Widget *currentChild, Widget **found);
 
     /// @brief
-    static tui_ret_code Label(tui_context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+    static ret_code label(Context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h, Alignment alignment);
 
     /// @brief
-    static tui_ret_code Button(tui_context &ctx, Id id, Id parentId, const char *text, tui_image *image, int x, int y, 
-        int w, int h, tui_callbackI *callback);
+    static ret_code button(Context &ctx, Id id, Id parentId, const char *text, Image *image, int x, int y, 
+        int w, int h, CallbackI *callback);
 
     /// @brief
-    static tui_ret_code Panel(tui_context &ctx, Id id, Id parentId, int x, int y, int w, int h, tui_callbackI *callback);
+    static ret_code panel(Context &ctx, Id id, Id parentId, const char *title, int x, int y, int w, int h, CallbackI *callback);
 
     /// @brief
-    static void renderWidgets(tui_context &ctx);
+    static ret_code treeView(Context &ctx, Id id, Id parentId, const char *title, int x, int y, int w, int h);
 
     /// @brief
-    static void onMouseButton(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
+    static void renderWidgets(Context &ctx);
 
     /// @brief
-    static void onMouseMove(int x, int y, int eventType, tui_mouseState state, tui_context &ctx);
+    static void onMouseButton(int x, int y, int eventType, MouseState state, Context &ctx);
 
     /// @brief
-    static void onKey(const char *key, bool isDown, tui_context &ctx);
+    static void onMouseMove(int x, int y, int eventType, MouseState state, Context &ctx);
 
     /// @brief
-    static void clear(tui_context &ctx);
+    static void onKey(const char *key, bool isDown, Context &ctx);
 
     /// @brief
-    static void setEnableState(tui_context &ctx, Id id, bool enabled);
+    static void clear(Context &ctx);
 
     /// @brief
-    static bool isEnabled(tui_context &ctx, Id id);
+    static void setEnableState(Context &ctx, Id id, bool enabled);
 
     /// @brief
-    static tui_widget *getWidgetById(tui_context &ctx, Id id);
+    static bool isEnabled(Context &ctx, Id id);
+
+    /// @brief
+    static Widget *getWidgetById(Context &ctx, Id id);
 };
 
 } // namespace tinyui
