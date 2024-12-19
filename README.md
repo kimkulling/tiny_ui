@@ -51,7 +51,9 @@ int main(int argc, char *argv[]) {
     TinyUi::release(ctx);
 
     return 0;
-}```
+}
+
+```
 results to
 
 ![Sample screen](assets/images/sample1.png "The sample screen").
