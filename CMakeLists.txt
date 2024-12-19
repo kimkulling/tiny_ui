@@ -13,17 +13,25 @@ find_package(SDL2_image CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 
 SET(CMAKE_CXX_FLAGS "${}")
+
+SET(tinyui_backends_src
+    src/backends/sdl2_renderer.cpp
+    src/backends/sdl2_renderer.h
+    src/backends/sdl2_iodevice.h    
+    src/backends/sdl2_iodevice.cpp
+)
+
+SOURCE_GROUP( Backends  FILES ${tinyui_backends_src} )
+
 ADD_LIBRARY(tiny_ui
     src/tinyui.h
     src/tinyui.cpp
     src/widgets.cpp
     src/widgets.h
     src/stb_image.h
-    src/backends/sdl2_renderer.cpp
-    src/backends/sdl2_renderer.h
-    src/backends/sdl2_iodevice.h    
-    src/backends/sdl2_iodevice.cpp
+    ${tinyui_backends_src}
 )
+
 target_link_libraries(tiny_ui PRIVATE
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
     $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
