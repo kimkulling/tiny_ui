@@ -26,31 +26,32 @@ Currently this works on Windows and Linux. The renderer is based on SDL2. An OSR
 using namespace tinyui;
 
 int main(int argc, char *argv[]) {
-    Style style = getDefaultStyle();
+    Style style = TinyUi::getDefaultStyle();
     Context &ctx = Context::create("Sample-Screen",  style);
 
-    if (initScreen(ctx, 20, 20, 1024, 768) == -1) {
-        std::cerr<< "Error: Cannot init screen\n";
-        return -1;
+    if (TinyUi::initScreen(ctx, 20, 20, 1024, 768) == -1) {
+        ctx.mLogger(LogSeverity::Error, "Cannot init screen");
+        return ErrorCode;
     }
 
-    Widgets::Panel(ctx, 1, 0, 90, 5, 120, 200, nullptr);
-    Widgets::Label(ctx, 2, 1, "Title", 100, 10, 100, 20);
-    Widgets::Button(ctx, 3, 1, "Test 1", nullptr, 100, 50, 100, 20, nullptr);
-    Widgets::Button(ctx, 4, 1, "Test 2", nullptr, 100, 90, 100, 20, nullptr);
-    Widgets::Button(ctx, 5, 1, "Test 3", nullptr, 100, 130, 100, 20, nullptr);
-    Widgets::Button(ctx, 6, 1, nullptr, nullptr, 100, 170, 100, 20, nullptr);
+    Widgets::panel(ctx, RootPanelId, 0, "Sample-Dialog", 90, 5, 120, 300, nullptr);
+    Widgets::label(ctx, 2, RootPanelId, "Title", 100, 10, 100, 20, Alignment::Center);
+    Widgets::button(ctx, 3, RootPanelId, "Test 1", nullptr, 100, 50, 100, 40, nullptr);
+    Widgets::button(ctx, 4, RootPanelId, "Test 2", nullptr, 100, 100, 100, 40, nullptr);
+    Widgets::button(ctx, 5, RootPanelId, "Test 3", nullptr, 100, 150, 100, 40, nullptr);
+    Widgets::button(ctx, 6, RootPanelId, nullptr,  "button_test.png", 100, 200, 100, 40, nullptr);
+    Widgets::button(ctx, 7, RootPanelId, "Quit",   nullptr, 100, 250, 100, 40, nullptr);
 
-    while (tui_run(ctx)) {
-        beginRender(ctx, style.mClearColor);
+    while (TinyUi::run(ctx)) {
+        TinyUi::beginRender(ctx, style.mClearColor);
         Widgets::renderWidgets(ctx);
-        endRender(ctx);
+        TinyUi::endRender(ctx);
     }
-    release(ctx);
+
+    TinyUi::release(ctx);
 
     return 0;
-}
-```
+}```
 results to
 
 ![Sample screen](assets/images/sample1.png "The sample screen").
