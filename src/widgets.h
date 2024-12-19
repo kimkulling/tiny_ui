@@ -29,16 +29,16 @@ namespace tinyui {
 
 struct Context;
 
-/// @brief
+/// @brief  This enum is used to descripe the widget type-
 enum class WidgetType {
-    Invalid = -1,
-    Container = 0,
-    Button,
-    Label,
-    Panel,
-    Box,
-    TreeView,
-    Count
+    Invalid = -1,       ///< Not initialized
+    Container = 0,      ///< A container widget
+    Button,             ///< A button widget
+    Label,              ///< A label widget
+    Panel,              ///< A panel widget
+    Box,                ///< A box widget
+    TreeView,           ///< A treeeview widget
+    Count               ///< The number of widgets
 };
 
 /// @brief
@@ -142,7 +142,7 @@ struct Widgets {
     static ret_code label(Context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h, Alignment alignment);
 
     /// @brief
-    static ret_code button(Context &ctx, Id id, Id parentId, const char *text, Image *image, int x, int y, 
+    static ret_code button(Context &ctx, Id id, Id parentId, const char *text, const char *image, int x, int y, 
         int w, int h, CallbackI *callback);
 
     /// @brief

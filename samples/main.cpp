@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     Widgets::button(ctx, 3, RootPanelId, "Test 1", nullptr, 100, 50, 100, 40, nullptr);
     Widgets::button(ctx, 4, RootPanelId, "Test 2", nullptr, 100, 100, 100, 40, nullptr);
     Widgets::button(ctx, 5, RootPanelId, "Test 3", nullptr, 100, 150, 100, 40, nullptr);
-    Widgets::button(ctx, 6, RootPanelId, nullptr,  nullptr, 100, 200, 100, 40, nullptr);
+    Widgets::button(ctx, 6, RootPanelId, nullptr,  "button_test.png", 100, 200, 100, 40, nullptr);
     Widgets::button(ctx, 7, RootPanelId, "Quit",   nullptr, 100, 250, 100, 40, nullptr);
 
     while (TinyUi::run(ctx)) {

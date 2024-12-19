@@ -340,13 +340,15 @@ ret_code Renderer::drawRect(Context &ctx, int32_t x, int32_t y, int32_t w, int32
     return ResultOk;
 }
 
-ret_code Renderer::drawImage(Context &ctx, Image *image) {
+ret_code Renderer::drawImage(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, Image *image) {
     if (image == nullptr) {
         return ErrorCode;
     }
 
+    SDL_Rect imageRect = {x,y, w,h};
+    
     SDL_Texture *tex = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, image->mSurface);
-    SDL_RenderCopy(ctx.mSDLContext.mRenderer, tex, nullptr, nullptr);
+    SDL_RenderCopy(ctx.mSDLContext.mRenderer, tex, nullptr, &imageRect);
     SDL_DestroyTexture(tex);
 
     return ResultOk;

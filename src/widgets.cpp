@@ -60,16 +60,39 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
         return nullptr;
     }
 
-    int32_t x, y, comp;
-    unsigned char *data = stbi_load(filename, &x, &y, &comp, 4);
+    int w, h, bytesPerPixel;
+    unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
     if (data == nullptr) {
         return nullptr;
     }
-    int32_t format = SDL_PIXELFORMAT_RGBA32;
-    image->mSurface = SDL_CreateRGBSurfaceWithFormatFrom(data, x, y, comp, 1, format);
-    image->mX = x;
-    image->mY = y;
-    image->mComp = comp;
+
+
+    int pitch = w * bytesPerPixel;
+    pitch = (pitch + 3) & ~3;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    const int32_t Rmask = 0x000000FF;
+    const int32_t Gmask = 0x0000FF00;
+    const int32_t Bmask = 0x00FF0000;
+    const int32_t Amask = (bytesPerPixel == 4) ? 0xFF000000 : 0;
+#else
+    const int32_t int s = (bytesPerPixel == 4) ? 0 : 8;
+    const int32_t Rmask = 0xFF000000 >> s;
+    const int32_t Gmask = 0x00FF0000 >> s;
+    const int32_t Bmask = 0x0000FF00 >> s;
+    const int32_t Amask = 0x000000FF >> s;
+#endif
+    SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(data, w, h, bytesPerPixel * 8, pitch, Rmask, Gmask, Bmask, Amask);
+    if (surface == nullptr) {
+        const char *errorMsg = SDL_GetError();
+        std::cerr << "*ERR*: %s\n"
+                  << errorMsg << "\n";
+        return nullptr;
+    }
+
+    image->mSurface = surface;
+    image->mX = w;
+    image->mY = h;
+    image->mComp = bytesPerPixel;
 
     ctx.mImageCache[filename] = image;
 
@@ -185,7 +208,7 @@ ret_code Widgets::label(Context &ctx, Id id, Id parentId, const char *text,
 }
 
 ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text,
-        Image *image, int x, int y, int w, int h, CallbackI *callback) {
+        const char *image, int x, int y, int w, int h, CallbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
@@ -203,7 +226,7 @@ ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text,
     }
 
     if (image != nullptr) {
-        childWidget->mImage = image;
+        childWidget->mImage = loadIntoImageCache(ctx, image);
     }
 
     childWidget->mParent = setParent(ctx, childWidget, parentId);
@@ -269,7 +292,7 @@ static void render(Context &ctx, Widget *currentWidget) {
             {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
                 if (currentWidget->mImage != nullptr) {
-                    Renderer::drawImage(ctx, currentWidget->mImage);
+                    Renderer::drawImage(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mImage);
                 }
                 if (!currentWidget->mText.empty()) {
                     Color4 fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
