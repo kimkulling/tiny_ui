@@ -4,6 +4,9 @@ This repo contains a small library to generate simple UIs on different platforms
 Currently this works on Windows and Linux. The renderer is based on SDL2. An OSRE Renderbackend is planned.
 
 # Features
+- Elements
+  - Panel
+  - Buttons
 - Platform support for
   - Windows
   - Linux
