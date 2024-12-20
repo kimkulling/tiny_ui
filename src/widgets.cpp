@@ -286,6 +286,7 @@ static void render(Context &ctx, Widget *currentWidget) {
         return;
     }
 
+    
     const Rect &r = currentWidget->mRect;
     switch( currentWidget->mType) {
         case WidgetType::Button:
@@ -295,7 +296,7 @@ static void render(Context &ctx, Widget *currentWidget) {
                     Renderer::drawImage(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mImage);
                 }
                 if (!currentWidget->mText.empty()) {
-                    Color4 fg = { 0x00, 0x00, 0xff }, bg = { 0xff, 0xff, 0xff };
+                    Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             }
@@ -304,7 +305,7 @@ static void render(Context &ctx, Widget *currentWidget) {
         case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
-                    const Color4 fg = { 0x00,0x00,0xff,0x00 }, bg = {0xff,0xff,0xff, 0x00};
+                Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             } 

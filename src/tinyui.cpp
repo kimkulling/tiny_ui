@@ -32,10 +32,10 @@ SOFTWARE.
 namespace tinyui {
 
 static Style DefaultStyle = {
-    Color4{   0, 100, 100, 0 },
-    Color4{ 220, 220, 220, 0 },
+    Color4{   0, 0, 0, 0 },
+    Color4{ 255, 255, 255, 0 },
     Color4{ 20, 20, 20, 0 },
-    Color4{ 0, 255, 255, 0 },
+    Color4{ 100, 100, 100, 0 },
     Color4{ 200, 200, 200, 0 },
     2,
     { "Arial.ttf", 35, nullptr }
