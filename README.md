@@ -13,6 +13,7 @@ Currently this works on Windows and Linux. The renderer is based on SDL2. An OSR
  
 # Planned
 - Treeview
+- Status Bar
 - Default dialogs
 
 # Examples:
@@ -62,3 +63,4 @@ results to
 ![Sample screen](assets/images/sample1.png "The sample screen").
 
 Build Status: [![CMake](https://github.com/kimkulling/tiny_ui/actions/workflows/cmake.yml/badge.svg)](https://github.com/kimkulling/tiny_ui/actions/workflows/cmake.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kimkulling_tiny_ui&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=kimkulling_tiny_ui)
