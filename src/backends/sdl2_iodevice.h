@@ -27,6 +27,9 @@ SOFTWARE.
 
 namespace tinyui {
 
+/// @brief the SDL2 implementation for an io-device.
+///
+/// IO-Devices are used to contrl any kind of input / output operations.
 struct IODevice {
     ~IODevice() = default;
     static bool update(SDL_Event &event);

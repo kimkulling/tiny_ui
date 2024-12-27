@@ -27,6 +27,8 @@ SOFTWARE.
 
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <SDL_image.h>
+
 #include <vector>
 
 struct SDL_Window;
@@ -34,6 +36,33 @@ struct SDL_Renderer;
 struct SDL_Texture;
 
 namespace tinyui {
+    
+struct SurfaceImpl {
+    SDL_Surface *mSurface;
+
+    ~SurfaceImpl() {
+        if (mSurface != nullptr) {
+            SDL_FreeSurface(mSurface);
+        }
+    }
+};
+
+struct FontImpl {
+    TTF_Font *mFontImpl;
+    
+    void clear() {
+        if (mFontImpl != nullptr) {
+            TTF_CloseFont(mFontImpl);
+            mFontImpl = nullptr;
+        }
+    }
+    
+    ~FontImpl() {
+        clear();
+    }
+};
+
+
 
 struct Renderer {
     static ret_code initRenderer(Context &ctx);
@@ -47,6 +76,7 @@ struct Renderer {
     static ret_code endRender(Context &ctx);
     static ret_code closeScreen(Context &ctx);
     static bool update(Context &ctx);
+    static SurfaceImpl *createSurfaceImpl(unsigned char *data, int w, int h, int bytesPerPixel, int pitch);
 };
 
 } //  namespace tinyui

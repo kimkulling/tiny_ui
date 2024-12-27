@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include "tinyui.h"
 
+
 namespace tinyui {
 
 struct Context;
@@ -38,41 +39,45 @@ enum class WidgetType {
     Panel,              ///< A panel widget
     Box,                ///< A box widget
     TreeView,           ///< A treeeview widget
+    StatusBar,          ///< A status bar widget
     Count               ///< The number of widgets
 };
 
-/// @brief
+/// @brief This enum is used to descripe the alignment of a widget.
 enum class LayoutPolicy {
-    Invalid = -1,
-    Absolute,
-    Relative,
-    Count
+    Invalid = -1,       ///< Not initialized
+    Absolute,           ///< Absolute layout
+    Relative,           ///< Relative layout
+    Count               ///< The number of layouts
 };
 
-/// @brief
+/// @brief This enum is used to descripe the alignment of a widget.
 using Id = uint64_t;
 
-/// @brief
+/// @brief This enum is used to descripe the alignment of a widget.
 enum class WidgetStyle : uint32_t {
-    tui_border_style = 1
+    tui_border_style = 1 ///< The widget has a border
 };
 
+/// @brief This enum is used to descripe the alignment of a widget.
 using WidgetArray = std::vector<Widget*>;
 
+/// @brief This struct contains all the data which is needed to describe a widget.
 struct Widget {
-    Id          mId;
-    WidgetType  mType;
-    Widget     *mParent;
-    bool        mEnabled;
-    Rect        mRect;
-    bool        mFilledRect;
-    uint32_t    mStyles;
-    Alignment   mAlignment;
-    std::string mText;
-    Image      *mImage;
-    WidgetArray mChildren;
-    CallbackI  *mCallback;
+    Id          mId;            ///< The unique id of the widget
+    WidgetType  mType;          ///< The type of the widget
+    Widget     *mParent;        ///< The parent widget
+    bool        mEnabled;       ///< The enabled state of the widget 
+    Rect        mRect;          ///< The rectangle of the widget
+    bool        mFilledRect;    ///< The filled rectangle state
+    uint32_t    mStyles;        ///< The style of the widget
+    Alignment   mAlignment;     ///< The alignment of the widget
+    std::string mText;          ///< The label text  
+    Image      *mImage;         ///< The image of the widget
+    WidgetArray mChildren;      ///< The children of the widget
+    CallbackI  *mCallback;      ///< The callback of the widget
 
+    /// @brief The default class constructor.
     Widget() :
             mId(0),
             mType(WidgetType::Invalid),
@@ -89,6 +94,7 @@ struct Widget {
         // empty
     }
 
+    /// @brief The class destructor.
     ~Widget() = default;
 
     bool hasStyle(WidgetStyle style) const {
@@ -150,6 +156,9 @@ struct Widgets {
 
     /// @brief
     static ret_code treeView(Context &ctx, Id id, Id parentId, const char *title, int x, int y, int w, int h);
+
+    /// @brief
+    static ret_code statusBar(Context &ctx, Id id, Id parentId, int x, int y, int w, int h);
 
     /// @brief
     static void renderWidgets(Context &ctx);

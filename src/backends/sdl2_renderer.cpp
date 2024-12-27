@@ -41,11 +41,11 @@ static SDL_Color getSDLColor(const Color4 &col) {
     return sdl_col;
 }
 
-static void printDriverInfo(SDL_RendererInfo &info) {
+static void printDriverInfo(const SDL_RendererInfo &info) {
     printf("Driver : %s\n", info.name);
 }
 
-static void listAllRenderDivers(Context &ctx) {
+static void listAllRenderDivers(const Context &ctx) {
     const int numRenderDrivers = SDL_GetNumRenderDrivers();
     ctx.mLogger(LogSeverity::Message, "Available drivers:");
     for (int i = 0; i < numRenderDrivers; ++i) {
@@ -55,14 +55,14 @@ static void listAllRenderDivers(Context &ctx) {
     }
 }
 
-static void showDriverInUse(Context &ctx) {
+static void showDriverInUse(const Context &ctx) {
     ctx.mLogger(LogSeverity::Message, "Driver in use:");
     SDL_RendererInfo info;
     SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
     printDriverInfo(info);
 }
 
-static int queryDriver(Context &ctx, const char *type) {
+static int queryDriver(const Context &ctx, const char *type) {
     if (type == nullptr) {
         return -1;
     }
@@ -83,8 +83,9 @@ static int queryDriver(Context &ctx, const char *type) {
 
 static void loadFont(Context &ctx) {
     ctx.mSDLContext.mDefaultFont = new Font;
+    ctx.mSDLContext.mDefaultFont->mFont = new FontImpl;
     ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
-    ctx.mSDLContext.mDefaultFont->mFont = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
+    ctx.mSDLContext.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
 }
 
 static MouseState getButtonState(const SDL_MouseButtonEvent &b) {
@@ -192,7 +193,7 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
 
 
     SDL_Color text_color = getSDLColor(fgC);
-    SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font->mFont, string, text_color);
+    SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font->mFont->mFontImpl, string, text_color);
     if (surfaceMessage == nullptr) {
         const std::string msg = "Cannot create message surface." + std::string(SDL_GetError()) + ".";
         ctx.mLogger(LogSeverity::Error, msg.c_str());
@@ -347,7 +348,7 @@ ret_code Renderer::drawImage(Context &ctx, int32_t x, int32_t y, int32_t w, int3
 
     SDL_Rect imageRect = {x,y, w,h};
     
-    SDL_Texture *tex = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, image->mSurface);
+    SDL_Texture *tex = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, image->mSurfaceImpl->mSurface);
     SDL_RenderCopy(ctx.mSDLContext.mRenderer, tex, nullptr, &imageRect);
     SDL_DestroyTexture(tex);
 
@@ -378,7 +379,7 @@ bool Renderer::update(Context &ctx) {
         return false;
     }
 
-    bool running = true;
+    bool running = !ctx.mRequestShutdown;
     SDL_Event event = {};
     while (IODevice::update(event)) {
         switch (event.type) {
@@ -420,6 +421,32 @@ bool Renderer::update(Context &ctx) {
     }
 
     return running;
+}
+
+SurfaceImpl *Renderer::createSurfaceImpl(unsigned char *data, int w, int h, int bytesPerPixel, int pitch) {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    const int32_t Rmask = 0x000000FF;
+    const int32_t Gmask = 0x0000FF00;
+    const int32_t Bmask = 0x00FF0000;
+    const int32_t Amask = (bytesPerPixel == 4) ? 0xFF000000 : 0;
+#else
+    const int32_t int s = (bytesPerPixel == 4) ? 0 : 8;
+    const int32_t Rmask = 0xFF000000 >> s;
+    const int32_t Gmask = 0x00FF0000 >> s;
+    const int32_t Bmask = 0x0000FF00 >> s;
+    const int32_t Amask = 0x000000FF >> s;
+#endif
+    SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(data, w, h, bytesPerPixel * 8, pitch, Rmask, Gmask, Bmask, Amask);
+    if (surface == nullptr) {
+        const char *errorMsg = SDL_GetError();
+        std::cerr << "*ERR*: %s\n"
+                  << errorMsg << "\n";
+        return nullptr;
+    }
+    SurfaceImpl *surfaceImpl = new SurfaceImpl;
+    surfaceImpl->mSurface = surface;
+
+    return surfaceImpl;
 }
 
 } // namespace tinyui

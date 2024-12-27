@@ -38,6 +38,17 @@ static void renderDialog(const char *title, Context &ctx) {
     Widgets::panel(ctx, NextPanelId, 0, title, 240, 90, 120, 250, nullptr);
 }
 
+static int quit(unsigned int id, void *data) {
+    if (data == nullptr) {
+        return ErrorCode;
+    }
+    
+    Context *ctx = static_cast<Context *>(data);
+    ctx->mRequestShutdown = true;
+
+    return ResultOk;
+}
+
 int main(int argc, char *argv[]) {
     Style style = TinyUi::getDefaultStyle();
     Context &ctx = Context::create("Sample-Screen",  style);
@@ -53,7 +64,9 @@ int main(int argc, char *argv[]) {
     Widgets::button(ctx, 4, RootPanelId, "Test 2", nullptr, 100, 100, 100, 40, nullptr);
     Widgets::button(ctx, 5, RootPanelId, "Test 3", nullptr, 100, 150, 100, 40, nullptr);
     Widgets::button(ctx, 6, RootPanelId, nullptr,  "button_test.png", 100, 200, 100, 40, nullptr);
-    Widgets::button(ctx, 7, RootPanelId, "Quit",   nullptr, 100, 250, 100, 40, nullptr);
+
+    CallbackI quit(quit, &ctx);
+    Widgets::button(ctx, 7, RootPanelId, "Quit", nullptr, 100, 250, 100, 40, &quit);
 
     while (TinyUi::run(ctx)) {
         TinyUi::beginRender(ctx, style.mClearColor);

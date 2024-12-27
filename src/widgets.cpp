@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 #include "widgets.h"
 #include "backends/sdl2_renderer.h"
 
@@ -69,27 +70,7 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
 
     int pitch = w * bytesPerPixel;
     pitch = (pitch + 3) & ~3;
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    const int32_t Rmask = 0x000000FF;
-    const int32_t Gmask = 0x0000FF00;
-    const int32_t Bmask = 0x00FF0000;
-    const int32_t Amask = (bytesPerPixel == 4) ? 0xFF000000 : 0;
-#else
-    const int32_t int s = (bytesPerPixel == 4) ? 0 : 8;
-    const int32_t Rmask = 0xFF000000 >> s;
-    const int32_t Gmask = 0x00FF0000 >> s;
-    const int32_t Bmask = 0x0000FF00 >> s;
-    const int32_t Amask = 0x000000FF >> s;
-#endif
-    SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(data, w, h, bytesPerPixel * 8, pitch, Rmask, Gmask, Bmask, Amask);
-    if (surface == nullptr) {
-        const char *errorMsg = SDL_GetError();
-        std::cerr << "*ERR*: %s\n"
-                  << errorMsg << "\n";
-        return nullptr;
-    }
-
-    image->mSurface = surface;
+    image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
     image->mX = w;
     image->mY = h;
     image->mComp = bytesPerPixel;
@@ -99,18 +80,7 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
     return image;
 }
 
-static Widget *createWidget(Context &ctx, Id id) {
-    Widget *widget = new Widget;
-    widget->mId = id;
-
-    return widget;
-}
-
-void eventDispatcher() {
-
-}
-
-Widget *setParent(Context &ctx, Widget *child, Id parentId) {
+static Widget *setParent(Context &ctx, Widget *child, Id parentId) {
     Widget *parent = nullptr;
     if (parentId == 0) {
         if (ctx.mRoot == nullptr) {
@@ -128,18 +98,36 @@ Widget *setParent(Context &ctx, Widget *child, Id parentId) {
     return parent;
 }
 
+static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, WidgetType type) {
+    Widget *widget = new Widget;
+    if (widget == nullptr) {
+        ctx.mLogger(LogSeverity::Error, "TUI-Widget cannot be created.");
+        return nullptr;
+    }
+
+    widget->mId = id;
+    widget->mType = type;
+    widget->mRect = rect;
+    widget->mParent = setParent(ctx, widget, parentId);
+
+    return widget;
+}
+
+void eventDispatcher() {
+
+}
+
 ret_code Widgets::container(Context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h) {
     if (ctx.mRoot != nullptr) {
         return ErrorCode;
     }
-
-    Widget *widget = createWidget(ctx, id);
+    Rect r(x, y, w, h);
+    Widget *widget = createWidget(ctx, id, parentId, r, WidgetType::Container);
     ctx.mRoot = widget;
-    widget->mRect.set(x, y, w, h);
+    //widget->mRect.set(x, y, w, h);
     if (text != nullptr) {
         widget->mText.assign(text);
     }
-    widget->mParent = setParent(ctx, widget, parentId);
 
     return ResultOk;
 }
@@ -195,14 +183,16 @@ ret_code Widgets::label(Context &ctx, Id id, Id parentId, const char *text,
         return ErrorCode;
     }
 
-    Widget *widget = createWidget(ctx, id);
+    Rect r(x, y, w, h);
+    Widget *widget = createWidget(ctx, id, parentId, r, WidgetType::Label);
+    if (widget == nullptr) {
+        return ErrorCode;
+    }
     widget->mRect.set(x, y, w, h);
-    widget->mType = WidgetType::Label;
     widget->mAlignment = alignment;
     if (text != nullptr) {
         widget->mText.assign(text);
     }
-    widget->mParent = setParent(ctx, widget, parentId);
 
     return ResultOk;
 }
@@ -213,23 +203,21 @@ ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text,
         return ErrorCode;
     }
 
-    Widget *childWidget = createWidget(ctx, id);
-    if (childWidget == nullptr) {
+    Rect r(x, y, w, h);
+    Widget *child = createWidget(ctx, id, parentId, r, WidgetType::Button);
+    if (child == nullptr) {
         return ErrorCode;
     }
 
-    childWidget->mType = WidgetType::Button;
-    childWidget->mRect.set(x, y, w, h);
-    childWidget->mCallback = callback;
+    child->mRect.set(x, y, w, h);
+    child->mCallback = callback;
     if (text != nullptr) {
-        childWidget->mText.assign(text);
+        child->mText.assign(text);
     }
 
     if (image != nullptr) {
-        childWidget->mImage = loadIntoImageCache(ctx, image);
+        child->mImage = loadIntoImageCache(ctx, image);
     }
-
-    childWidget->mParent = setParent(ctx, childWidget, parentId);
 
     return ResultOk;
 }
@@ -240,15 +228,14 @@ ret_code Widgets::box(Context &ctx, Id id, Id parentId, int x, int y,
         return ErrorCode;
     }
 
-    Widget *childWidget = createWidget(ctx, id);
-    if (childWidget == nullptr) {
+    Rect r(x, y, w, h);
+    Widget *child = createWidget(ctx, id, parentId, r, WidgetType::Box);
+    if (child == nullptr) {
         return ErrorCode;
     }
 
-    childWidget->mRect.set(x, y, w, h);
-    childWidget->mType = WidgetType::Box;
-    childWidget->mParent = setParent(ctx, childWidget, parentId);
-    childWidget->mFilledRect = filled;
+    child->mRect.set(x, y, w, h);
+    child->mFilledRect = filled;
 
     return ResultOk;
 }
@@ -260,22 +247,45 @@ ret_code Widgets::panel(Context &ctx, Id id, Id parentId, const char *title, int
         return ErrorCode;
     }
 
-    Widget *child = createWidget(ctx, id);
+    Rect r(x, y, w, h);
+    Widget *child = createWidget(ctx, id, parentId, r, WidgetType::Panel);
     if (child == nullptr) {
-        ctx.mLogger(LogSeverity::Error, "TUI-Widget cannot be created.");
         return ErrorCode;
     }
-
-    child->mType = WidgetType::Panel;
-    child->mRect.set(x, y, w, h);
-    child->mParent = setParent(ctx, child, parentId);
 
     return ResultOk;
 }
 
 ret_code Widgets::treeView(Context& ctx, Id id, Id parentId, const char* title, int x, int y, int w, int h) {
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");
+        return ErrorCode;
+    }
+
+    Rect r(x, y, w, h);
+    Widget *child = createWidget(ctx, id, parentId, r, WidgetType::TreeView);
+    if (child == nullptr) {
+        return ErrorCode;
+    }
+
     return ResultOk;
 }
+
+ret_code Widgets::statusBar(Context& ctx, Id id, Id parentId, int x, int y, int w, int h) {
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");
+        return ErrorCode;
+    }
+
+    Rect r(x, y, w, h);
+    Widget *child = createWidget(ctx, id, parentId, r, WidgetType::StatusBar);
+    if (child == nullptr) {
+        return ErrorCode;
+    }
+    
+    return ResultOk;
+}
+
 
 static void render(Context &ctx, Widget *currentWidget) {
     if (!currentWidget->mEnabled) {
@@ -316,7 +326,8 @@ static void render(Context &ctx, Widget *currentWidget) {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
             }
             break;
-
+        
+        case WidgetType::Container:
         case WidgetType::Box:
             {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);

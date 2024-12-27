@@ -23,14 +23,18 @@ SOFTWARE.
 */
 #pragma once
 
-#include <SDL_image.h>
-#include <SDL_ttf.h>
 #include <cstdint>
 #include <vector>
 #include <string>
 #include <map>
 
 #include "stb_image.h"
+
+/*
+ *  Changelog:
+ *  ==========
+ *  0.1.0: Initial version.
+ */
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -39,66 +43,104 @@ struct SDL_MouseButtonEvent;
 
 namespace tinyui {
 
+struct SurfaceImpl;
+struct FontImpl;
 struct Widget;
 
+/// @brief The return code.
 using ret_code = int32_t;
 
+/// @brief The invalid handle.
 static constexpr ret_code InvalidHandle = -2;
+/// @brief The error code.
 static constexpr ret_code ErrorCode = -1;
+/// @brief The ok code.
 static constexpr ret_code ResultOk  = 0;
 
+/// @brief The default color type with 4 components.
 struct Color4 {
-    uint8_t r,g,b,a;
+    uint8_t r;      ///< The red component.
+    uint8_t g;      ///< The green component.
+    uint8_t b;      ///< The blue component.
+    uint8_t a;      ///< The alpha component.
 };
 
+/// @brief The image data.
 struct Image {
-    SDL_Surface *mSurface;
-    int32_t mX, mY, mComp;
+    SurfaceImpl *mSurfaceImpl;
+    int32_t mX;     ///< The width of the image.
+    int32_t mY;     ///< The height of the image.
+    int32_t mComp;  ///< The number of components.
 
-    Image() : mSurface(nullptr), mX(0), mY(0), mComp(0) {}
-
-    ~Image() {
-        if (mSurface != nullptr) {
-            SDL_FreeSurface(mSurface);
-        }
-    }
+    /// @brief The default class constructor
+    Image() : mSurfaceImpl(nullptr), mX(0), mY(0), mComp(0) {}
 };
 
+/// @brief The image cache.
 using ImageCache = std::map<const char*, Image*>;
 
+/// @brief The point in 2D.
 template<class T>
 struct Point2 {
-    T x, y;
+    T x; ///< The x-coordinate.
+    T y; ///< The y-coordinate.
 
+    /// @brief The default class constructor.
     Point2() : x(0), y(0) {}
+
+    /// @brief The class constructor
+    /// @param x_ The x-coordinate.
+    /// @param y_ The y-coordinate.
     Point2(T x_, T y_) : x(x_), y(y_) {}
+
+    /// @brief The class destructor.
     ~Point2() = default;
 
+    /// @brief Set the point.
+    /// @param x_ The x-coordinate.
+    /// @param y_ The y-coordinate.
     void set(T x_, T y_) {
         x = x_;
         y = y_;
     }
 };
 
+/// @brief The point in 2D with integer values.
 using Point2i = Point2<int32_t>;
 
+/// @brief The rectangle in 2D.
 struct Rect {
-    int32_t x1, y1, width, height, x2, y2;
+    int32_t x1;     ///< The x-coordinate of the upper left corner.
+    int32_t y1;     ///< The y-coordinate of the upper left corner.
+    int32_t width;  ///< The width of the rectangle.
+    int32_t height; ///< The height of the rectangle.
+    int32_t x2;     ///< The x-coordinate of the lower right corner.
+    int32_t y2;     ///< The y-coordinate of the lower right corner.
 
+    /// @brief The default class constructor
     Rect() :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
 
+    /// @brief The class constructor
     Rect(int32_t x, int32_t y, int32_t w, int32_t h) :
             x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {
         set(x, y, w, h);
     }
 
+    /// @brief The class destructor.
     ~Rect() = default;
 
+    /// @brief Check if a point is inside the rectangle.
+    /// @param pt The point to check.
+    /// @return true if the point is inside the rectangle, false if not.
     bool isIn(const Point2i &pt) const {
         return isIn(pt.x, pt.y);
     }
 
+    /// @brief Check if a point is inside the rectangle.
+    /// @param x_ The x-coordinate of the point.
+    /// @param y_ The y-coordinate of the point.
+    /// @return true if the point is inside the rectangle, false if not.
     bool isIn(int x_, int y_) const {
         if (x_ >= x1 && y_ >= y1 && x_ <=x2 && y_ <= y2) {
             return true;
@@ -106,6 +148,11 @@ struct Rect {
         return false;
     }
 
+    /// @brief Set the rectangle.
+    /// @param x The x-coordinate of the upper left corner.
+    /// @param y The y-coordinate of the upper left corner.
+    /// @param w The width of the rectangle.
+    /// @param h The height of the rectangle.
     void set(int32_t x, int32_t y, int32_t w, int32_t h) {
         x1 = x;
         y1 = y;
@@ -115,6 +162,8 @@ struct Rect {
         y2 = y + h;
     }
 
+    /// @brief Merge the rectangle with another rectangle.
+    /// @param r The rectangle to merge with.
     void mergeWithRect(const Rect &r) {
         if (x1 > r.x1 || x1 == -1) {
             x1 = r.x1;
@@ -138,27 +187,24 @@ struct Rect {
     }
 };
 
+/// @brief The alignment enum.
 enum class Alignment : int32_t {
-    Invalid = -1,
-    Left = 0,
-    Center,
-    Right,
-    Count
+    Invalid = -1,   ///< The invalid alignment.
+    Left = 0,       ///< The left alignment.
+    Center,         ///< The center alignment.
+    Right,          ///< The right alignment.
+    Count           ///< The number of alignments.
 };
 
+/// @brief The font description struct.
 struct Font {
-    const char *mName;
-    uint32_t mSize;
-    TTF_Font *mFont;
-
-    ~Font() {
-        if (mFont != nullptr) {
-            TTF_CloseFont(mFont);
-        }
-    }
+    const char *mName;  ///< The name of the font.
+    uint32_t mSize;     ///< The size of the font.
+    FontImpl *mFont;    ///< The font implementation.
 };
 
-using tui_FontCache = std::map<const char*, Font*>;
+/// @brief The font cache.
+using FontCache = std::map<const char*, Font*>;
 
 struct Style {
     Color4 mClearColor;
@@ -254,6 +300,7 @@ struct SDLContext {
 
 struct Context {
     bool             mCreated;
+    bool             mRequestShutdown;
     const char      *mAppTitle;
     const char      *mWindowsTitle;
     SDLContext       mSDLContext;
@@ -261,7 +308,7 @@ struct Context {
     Widget          *mRoot;
     tui_log_func     mLogger;
     EventDispatchMap mEventDispatchMap;
-    tui_FontCache    mFontCache;
+    FontCache        mFontCache;
     ImageCache       mImageCache;
 
     static Context &create(const char *title, Style &style);
@@ -271,6 +318,7 @@ struct Context {
 private:
     Context() :
             mCreated(false),
+            mRequestShutdown(false),
             mAppTitle(nullptr),
             mWindowsTitle(nullptr),
             mSDLContext(),
