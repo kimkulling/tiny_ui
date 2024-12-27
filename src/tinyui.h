@@ -264,20 +264,22 @@ struct CallbackI {
     /// @brief The default class constructor.
     CallbackI() :
             mfuncCallback{ nullptr }, mInstance(nullptr) {
-        for (size_t i=0; i<Events::NumEvents; ++i) {
-            mfuncCallback[i] = nullptr;
-        }
+        clear();
     }
 
     CallbackI(funcCallback mbDownFunc, void *instance) :
             mfuncCallback{ nullptr }, mInstance(instance) {
-        for (size_t i = 0; i < Events::NumEvents; ++i) {
-            mfuncCallback[i] = nullptr;
-        }
+        clear();
         mfuncCallback[Events::MouseButtonDownEvent] = mbDownFunc;
     }
 
     ~CallbackI() = default;
+
+    void clear() {
+        for (size_t i = 0; i < Events::NumEvents; ++i) {
+            mfuncCallback[i] = nullptr;
+        }
+    }
 };
 
 using EventCallbackArray = std::vector<CallbackI*>;

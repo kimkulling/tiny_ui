@@ -38,7 +38,7 @@ static void renderDialog(const char *title, Context &ctx) {
     Widgets::panel(ctx, NextPanelId, 0, title, 240, 90, 120, 250, nullptr);
 }
 
-static int quit(uint32_t id, void *data) {
+int quit(uint32_t id, void *data) {
     if (data == nullptr) {
         return ErrorCode;
     }
