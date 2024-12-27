@@ -38,12 +38,12 @@ static void renderDialog(const char *title, Context &ctx) {
     Widgets::panel(ctx, NextPanelId, 0, title, 240, 90, 120, 250, nullptr);
 }
 
-int quit(uint32_t id, void *data) {
-    if (data == nullptr) {
+int quit(uint32_t id, void *instance) {
+    if (instance == nullptr) {
         return ErrorCode;
     }
     
-    Context *ctx = static_cast<Context*>(data);
+    Context *ctx = static_cast<Context *>(instance);
     ctx->mRequestShutdown = true;
 
     return ResultOk;
@@ -65,8 +65,8 @@ int main(int argc, char *argv[]) {
     Widgets::button(ctx, 5, RootPanelId, "Test 3", nullptr, 100, 150, 100, 40, nullptr);
     Widgets::button(ctx, 6, RootPanelId, nullptr,  "button_test.png", 100, 200, 100, 40, nullptr);
 
-    CallbackI quit(quit, (void*) & ctx);
-    Widgets::button(ctx, 7, RootPanelId, "Quit", nullptr, 100, 250, 100, 40, &quit);
+    CallbackI quitCallback(quit, (void*) &ctx);
+    Widgets::button(ctx, 7, RootPanelId, "Quit", nullptr, 100, 250, 100, 40, &quitCallback);
 
     while (TinyUi::run(ctx)) {
         TinyUi::beginRender(ctx, style.mClearColor);
