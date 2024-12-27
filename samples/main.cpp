@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     Widgets::button(ctx, 5, RootPanelId, "Test 3", nullptr, 100, 150, 100, 40, nullptr);
     Widgets::button(ctx, 6, RootPanelId, nullptr,  "button_test.png", 100, 200, 100, 40, nullptr);
 
-    CallbackI quit(quit, &ctx);
+    CallbackI quit(quit, (void*) & ctx);
     Widgets::button(ctx, 7, RootPanelId, "Quit", nullptr, 100, 250, 100, 40, &quit);
 
     while (TinyUi::run(ctx)) {
