@@ -124,7 +124,6 @@ ret_code Widgets::container(Context &ctx, Id id, Id parentId, const char *text, 
     Rect r(x, y, w, h);
     Widget *widget = createWidget(ctx, id, parentId, r, WidgetType::Container);
     ctx.mRoot = widget;
-    //widget->mRect.set(x, y, w, h);
     if (text != nullptr) {
         widget->mText.assign(text);
     }
@@ -188,7 +187,6 @@ ret_code Widgets::label(Context &ctx, Id id, Id parentId, const char *text,
     if (widget == nullptr) {
         return ErrorCode;
     }
-    widget->mRect.set(x, y, w, h);
     widget->mAlignment = alignment;
     if (text != nullptr) {
         widget->mText.assign(text);
@@ -209,7 +207,6 @@ ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text,
         return ErrorCode;
     }
 
-    child->mRect.set(x, y, w, h);
     child->mCallback = callback;
     if (text != nullptr) {
         child->mText.assign(text);
@@ -234,7 +231,6 @@ ret_code Widgets::box(Context &ctx, Id id, Id parentId, int x, int y,
         return ErrorCode;
     }
 
-    child->mRect.set(x, y, w, h);
     child->mFilledRect = filled;
 
     return ResultOk;
@@ -332,9 +328,6 @@ static void render(Context &ctx, Widget *currentWidget) {
             {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
             }
-            break;
-
-       default:
             break;
     }
 

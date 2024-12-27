@@ -25,9 +25,9 @@ SOFTWARE.
 
 #include "tinyui.h"
 
-
 namespace tinyui {
 
+// Forward declarations
 struct Context;
 
 /// @brief  This enum is used to descripe the widget type-

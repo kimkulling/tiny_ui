@@ -43,7 +43,7 @@ int quit(uint32_t id, void *instance) {
         return ErrorCode;
     }
     
-    Context *ctx = static_cast<Context *>(instance);
+    auto *ctx = static_cast<Context *>(instance);
     ctx->mRequestShutdown = true;
 
     return ResultOk;

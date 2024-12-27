@@ -36,6 +36,7 @@ SOFTWARE.
  *  0.1.0: Initial version.
  */
 
+// Forward declarations
 struct SDL_Window;
 struct SDL_Surface;
 struct SDL_Renderer;
@@ -331,17 +332,66 @@ private:
     }
 };
 
+/// @brief The tiny ui interface.
 struct TinyUi {
+    /// @brief Initialize the tiny ui.
+    /// @param ctx The context to initialize.
+    /// @return ResultOk if the initialization was successful, ErrorCode if not.
     static ret_code init(Context &ctx);
+
+    /// @brief Initialize the screen.
+    /// @param ctx The context to initialize.
+    /// @param x The x-coordinate of the screen.
+    /// @param y The y-coordinate of the screen.
+    /// @param w The width of the screen.
+    /// @param h The height of the screen.
+    /// @return ResultOk if the initialization was successful, ErrorCode if not.
     static ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
+
+    /// @brief Get the surface information.
+    /// @param ctx The context to get the surface information from.
+    /// @param w The width of the surface.
+    /// @param h The height of the surface.
+    /// @return ResultOk if the information was retrieved, ErrorCode if not.
     static ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h);
+
+    /// @brief Run the tiny ui.
+    /// @param ctx The context to run.
+    /// @return true if the tiny ui is running, false if not.
     static bool run(Context &ctx);
+
+    /// @brief Begins the rendering.
+    /// @param ctx The context to begin the rendering.
+    /// @param bg The background color for clearing.
+    /// @return ResultOk if the rendering was started, ErrorCode if not.
     static ret_code beginRender(Context &ctx, Color4 bg);
+
+    /// @brief Ends the rendering.
+    /// @param ctx The context to end the rendering.
     static ret_code endRender(Context &ctx);
+    
+    /// @brief Release the tiny ui context.
+    /// @param ctx The context to release.
+    /// @return ResultOk if the context was released, ErrorCode if not.
     static ret_code release(Context &ctx);
+
+    /// @brief Get the default style.
+    /// @return The default style.
     static const Style &getDefaultStyle();
+
+    /// @brief Set the default style.
+    /// @param style The style to set as default.
     static void setDefaultStyle(const Style &style);
+
+    /// @brief Get the default font.
+    /// @param ctx The context to end the rendering.
+    /// @param defaultFont The default font to set.
     static void setDefaultFont(Context &ctx, const char *defaultFont);
+    
+    /// @brief Will create a new context.
+    /// @param title The title of the context.
+    /// @param style The style to use.
+    /// @return The created context.
     static Context *createContext(const char *title, Style &style);
 };
 
