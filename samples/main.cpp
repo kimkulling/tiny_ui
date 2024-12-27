@@ -38,12 +38,12 @@ static void renderDialog(const char *title, Context &ctx) {
     Widgets::panel(ctx, NextPanelId, 0, title, 240, 90, 120, 250, nullptr);
 }
 
-static int quit(unsigned int id, void *data) {
+static int quit(uint32_t id, void *data) {
     if (data == nullptr) {
         return ErrorCode;
     }
     
-    Context *ctx = static_cast<Context *>(data);
+    Context *ctx = static_cast<Context*>(data);
     ctx->mRequestShutdown = true;
 
     return ResultOk;
