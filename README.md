@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/kimkulling/tiny_ui/blob/master/assets/Images/tinyui_logo.png" />
+</p>
+
 # tiny_ui
 This repo contains a small library to generate simple UIs on different platforms. I am using it for my own games.
 
