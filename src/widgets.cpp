@@ -402,8 +402,8 @@ void recursiveClear(Widget *current) {
 
     for (size_t i = 0; i < current->mChildren.size(); ++i) {
         recursiveClear(current->mChildren[i]);
-        delete current;
     }
+    delete current;
 }
 
 void Widgets::clear(Context &ctx) {
