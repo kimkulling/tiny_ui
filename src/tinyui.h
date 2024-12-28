@@ -33,7 +33,7 @@ SOFTWARE.
 /*
  *  Changelog:
  *  ==========
- *  0.1.0: Initial version.
+ *  0.0.1: Initial version.
  */
 
 // Forward declarations
