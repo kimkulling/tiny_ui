@@ -343,7 +343,7 @@ void Widgets::renderWidgets(Context &ctx) {
     render(ctx, ctx.mRoot);
 }
 
-void Widgets::onMouseButton(int x, int y, int eventType, MouseState state, Context &ctx) {
+void Widgets::onMouseButton(Context &ctx, int x, int y, int eventType, MouseState state) {
     assert(eventType >= 0);
     assert(eventType < Events::NumEvents);
 
@@ -365,7 +365,7 @@ void Widgets::onMouseButton(int x, int y, int eventType, MouseState state, Conte
     } 
 }
 
-void Widgets::onMouseMove(int x, int y, int eventType, MouseState state, Context &ctx) {
+void Widgets::onMouseMove(Context &ctx, int x, int y, int eventType, MouseState state) {
     assert(eventType >= 0);
     assert(eventType < Events::NumEvents);
 
@@ -384,7 +384,7 @@ void Widgets::onMouseMove(int x, int y, int eventType, MouseState state, Context
     }
 }
 
-void Widgets::onKey(const char *key, bool isDown, Context &ctx) {
+void Widgets::onKey(Context &ctx, const char *key, bool isDown) {
     if (key == nullptr) {
         return;
     }
