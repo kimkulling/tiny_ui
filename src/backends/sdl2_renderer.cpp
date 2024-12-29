@@ -392,7 +392,7 @@ bool Renderer::update(Context &ctx) {
                 {
                     const int32_t x = event.button.x;
                     const int32_t y = event.button.y;
-                    Widgets::onMouseButton(x, y, getEventType(event.type), getButtonState(event.button), ctx);
+                    Widgets::onMouseButton(ctx, x, y, getEventType(event.type), getButtonState(event.button));
                 } break;
 
             case SDL_MOUSEMOTION:
@@ -405,18 +405,15 @@ bool Renderer::update(Context &ctx) {
                 {
                     const char *key = SDL_GetKeyName(event.key.keysym.sym);
                     assert(key != nullptr);
-                    Widgets::onKey(key, true, ctx);
+                    Widgets::onKey(ctx, key, true);
                 } break;
 
             case SDL_KEYUP: 
                 {
                     const char *key = SDL_GetKeyName(event.key.keysym.sym);
                     assert(key != nullptr);
-                    Widgets::onKey(key, false, ctx);
+                    Widgets::onKey(ctx, key, false);
                 } break;
-
-            default:
-                break;
         }
     }
 
