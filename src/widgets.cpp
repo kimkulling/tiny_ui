@@ -284,6 +284,10 @@ ret_code Widgets::statusBar(Context& ctx, Id id, Id parentId, int x, int y, int 
 
 
 static void render(Context &ctx, Widget *currentWidget) {
+    if (currentWidget == nullptr) {
+        return;
+    }
+
     if (!currentWidget->mEnabled) {
         return;
     }
@@ -292,7 +296,7 @@ static void render(Context &ctx, Widget *currentWidget) {
         return;
     }
 
-    
+    // Render the widget
     const Rect &r = currentWidget->mRect;
     switch( currentWidget->mType) {
         case WidgetType::Button:
@@ -303,7 +307,8 @@ static void render(Context &ctx, Widget *currentWidget) {
                 }
                 if (!currentWidget->mText.empty()) {
                     Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg, currentWidget->mAlignment);
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, 
+                        currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             }
             break;
@@ -312,7 +317,8 @@ static void render(Context &ctx, Widget *currentWidget) {
             {
                 if (!currentWidget->mText.empty()) {
                 Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, currentWidget->mRect, fg, bg, currentWidget->mAlignment);
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, 
+                        currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             } 
             break;
