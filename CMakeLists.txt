@@ -14,13 +14,14 @@ SET( PROJECT_VERSION "${OSRE_VERSION}" )
 SET( LIB_INSTALL_DIR "lib"      CACHE PATH "Path the built library files are installed to." )
 SET( BIN_INSTALL_DIR "bin"      CACHE PATH "Path the tool executables are installed to." )
 
-# set the default build output folders
+# Set the default build output folders
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib )
 SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin )
 
 INCLUDE_DIRECTORIES( BEFORE
     ${CMAKE_HOME_DIRECTORY}/src
+    ${CMAKE_HOME_DIRECTORY}/contrib/stb_image    
 )
 
 find_package(SDL2 CONFIG REQUIRED)
@@ -36,6 +37,8 @@ SET(tinyui_backends_src
     src/backends/sdl2_iodevice.cpp
 )
 
+SET(tinyui_contrib_stb_image_src
+)
 SOURCE_GROUP( Backends  FILES ${tinyui_backends_src} )
 
 ADD_LIBRARY(tiny_ui
@@ -43,7 +46,6 @@ ADD_LIBRARY(tiny_ui
     src/tinyui.cpp
     src/widgets.cpp
     src/widgets.h
-    src/stb_image.h
     ${tinyui_backends_src}
 )
 
