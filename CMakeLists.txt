@@ -10,6 +10,15 @@ SET( TUI_VERSION_PATCH 1 )
 SET( TUI_VERSION ${TUI_VERSION_MAJOR}.${TUI_VERSION_MINOR}.${TUI_VERSION_PATCH} )
 SET( PROJECT_VERSION "${OSRE_VERSION}" )
 
+# Cache these to allow the user to override them manually.
+SET( LIB_INSTALL_DIR "lib"      CACHE PATH "Path the built library files are installed to." )
+SET( BIN_INSTALL_DIR "bin"      CACHE PATH "Path the tool executables are installed to." )
+
+# set the default build output folders
+SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib )
+SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib )
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin )
+
 INCLUDE_DIRECTORIES( BEFORE
     ${CMAKE_HOME_DIRECTORY}/src
 )
