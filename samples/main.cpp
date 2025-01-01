@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
         return ErrorCode;
     }
 
-    Widgets::panel(ctx, RootPanelId, 0, "Sample-Dialog", 90, 5, 120, 300, nullptr);
+    Widgets::panel(ctx, RootPanelId, 0, "Sample-Dialog", 90, 5, 120, 400, nullptr);
     Widgets::label(ctx, 2, RootPanelId, "Title", 100, 10, 100, 20, Alignment::Center);
     Widgets::button(ctx, 3, RootPanelId, "Test 1", nullptr, 100, 50, 100, 40, nullptr);
     Widgets::button(ctx, 4, RootPanelId, "Test 2", nullptr, 100, 100, 100, 40, nullptr);
@@ -67,6 +67,8 @@ int main(int argc, char *argv[]) {
 
     CallbackI quitCallback(quit, (void*) &ctx);
     Widgets::button(ctx, 7, RootPanelId, "Quit", nullptr, 100, 250, 100, 40, &quitCallback);
+
+    Widgets::progressBar(ctx, 8, RootPanelId, 100, 300, 100, 40, 50, nullptr);
 
     while (TinyUi::run(ctx)) {
         TinyUi::beginRender(ctx, style.mClearColor);

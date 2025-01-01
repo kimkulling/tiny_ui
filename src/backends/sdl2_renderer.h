@@ -62,7 +62,6 @@ struct FontImpl {
     }
 };
 
-
 /// @brief The renderer implementation using the SDL2 library.
 struct Renderer {
     static ret_code initRenderer(Context &ctx);

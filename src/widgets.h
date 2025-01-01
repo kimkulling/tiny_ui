@@ -39,7 +39,7 @@ enum class WidgetType {
     Panel,              ///< A panel widget
     Box,                ///< A box widget
     TreeView,           ///< A treeeview widget
-    StatusBar,          ///< A status bar widget
+    ProgressBar,          ///< A status bar widget
     Count               ///< The number of widgets
 };
 
@@ -234,8 +234,9 @@ struct Widgets {
     /// @param y        The y-coordinate of the widget.
     /// @param w        The width of the widget.
     /// @param h        The height of the widget.
+    /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code treeView(Context &ctx, Id id, Id parentId, const char *title, int x, int y, int w, int h);
+    static ret_code treeView(Context &ctx, Id id, Id parentId, const char *title, int x, int y, int w, int h, CallbackI *callback);
 
     /// @brief Creates a new widget from the type status bar.
     /// @param ctx      The context to create the widget in.
@@ -246,8 +247,10 @@ struct Widgets {
     /// @param y        The y-coordinate of the widget.
     /// @param w        The width of the widget.
     /// @param h        The height of the widget.
+    /// @param fillRate The fill rate of the widget.
+    /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code statusBar(Context &ctx, Id id, Id parentId, int x, int y, int w, int h);
+    static ret_code progressBar(Context &ctx, Id id, Id parentId, int x, int y, int w, int h, int fillRate, CallbackI *callback);
 
     /// @brief Will render all widgets.
     /// @param ctx The context to render the widgets in.
