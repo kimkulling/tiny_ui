@@ -267,6 +267,10 @@ ret_code Widgets::treeView(Context& ctx, Id id, Id parentId, const char* title, 
     return ResultOk;
 }
 
+struct FilledState {
+    uint32_t filledState;
+};
+
 ret_code Widgets::statusBar(Context& ctx, Id id, Id parentId, int x, int y, int w, int h) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");
@@ -278,6 +282,10 @@ ret_code Widgets::statusBar(Context& ctx, Id id, Id parentId, int x, int y, int 
     if (child == nullptr) {
         return ErrorCode;
     }
+    FilledState *state = new FilledState;
+    state->filledState = 0u;
+    child->mContent = new uint8_t[sizeof(FilledState)];
+    memcpy(child->mContent, state, sizeof(FilledState));
     
     return ResultOk;
 }
@@ -328,7 +336,14 @@ static void render(Context &ctx, Widget *currentWidget) {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
             }
             break;
-        
+        case WidgetType::StatusBar:
+            {
+                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
+                FilledState *state = reinterpret_cast<FilledState *>(currentWidget->mContent);
+                const uint32_t fillRate = state->filledState;
+                const uint32_t width = r.width * fillRate / 100;
+                Renderer::drawRect(ctx, r.x1, r.y1, width, r.height, true, ctx.mStyle.mFg);                       
+            } break;
         case WidgetType::Container:
         case WidgetType::Box:
             {

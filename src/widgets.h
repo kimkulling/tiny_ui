@@ -76,6 +76,7 @@ struct Widget {
     Image      *mImage;         ///< The image of the widget
     WidgetArray mChildren;      ///< The children of the widget
     CallbackI  *mCallback;      ///< The callback of the widget
+    uint8_t    *mContent;       ///< The content of the widget
 
     /// @brief The default class constructor.
     Widget() :
@@ -90,7 +91,8 @@ struct Widget {
             mText(),
             mImage(nullptr),
             mChildren(),
-            mCallback(nullptr) {
+            mCallback(nullptr),
+            mContent(nullptr) {
         // empty
     }
 
