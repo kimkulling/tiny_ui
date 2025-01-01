@@ -149,25 +149,19 @@ struct Widgets {
     /// @param id       The unique id of the widget.
     /// @param parentId The parent id of the widget.
     /// @param text     The text of the widget.
-    /// @param x        The x-coordinate of the widget.
-    /// @param y        The y-coordinate of the widget.
-    /// @param w        The width of the widget.
-    /// @param h        The height of the widget.
+    /// @param rect     The rect of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code container(Context &ctx, Id id, Id parentId, const char *text, int x, int y, int w, int h);
+    static ret_code container(Context &ctx, Id id, Id parentId, const char *text, const Rect &rect);
 
     /// @brief Create a new widget from the type box.
     /// @param ctx      The context to create the widget in.
     /// @param id       The unique id of the widget.
     /// @param parentId The parent id of the widget.
-    /// @param x        The x-coordinate of the widget.
-    /// @param y        The y-coordinate of the widget.
-    /// @param w        The width of the widget.
-    /// @param h        The height of the widget.
+    /// @param rect     The rect of the widget.
     /// @param bg       The background color of the widget.
     /// @param filled   The filled state of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code box(Context &ctx, Id id, Id parentId, int x, int y, int w, int h, const Color4 &bg, bool filled);
+    static ret_code box(Context &ctx, Id id, Id parentId, const Rect &rect, const Color4 &bg, bool filled);
 
     /// @brief Will look for a widget by its id.
     /// @param id   The id of the widget to look for.
@@ -187,14 +181,10 @@ struct Widgets {
     /// @param id           The unique id of the widget.
     /// @param parentId     The parent id of the widget.
     /// @param text         The text of the widget.
-    /// @param x            The x-coordinate of the widget.
-    /// @param y            The y-coordinate of the widget.
-    /// @param w            The width of the widget.
-    /// @param h            The height of the widget.
+    /// @param rect     The rect of the widget.
     /// @param alignment    The alignment of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code label(Context &ctx, Id id, Id parentId, const char *text, int x, int y, 
-        int w, int h, Alignment alignment);
+    static ret_code label(Context &ctx, Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment);
 
     /// @brief Create a new widget from the type button.
     /// @param ctx      The context to create the widget in.
@@ -202,55 +192,41 @@ struct Widgets {
     /// @param parentId The parent id of the widget.
     /// @param text     The text of the widget.
     /// @param image    The image of the widget.
-    /// @param x        The x-coordinate of the widget.
-    /// @param y        The y-coordinate of the widget.
-    /// @param w        The width of the widget.
-    /// @param h        The height of the widget.
+    /// @param rect     The rect of the widget.
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code button(Context &ctx, Id id, Id parentId, const char *text, const char *image, int x, int y, 
-        int w, int h, CallbackI *callback);
+    static ret_code button(Context &ctx, Id id, Id parentId, const char *text, const char *image, const Rect &rect, CallbackI *callback);
 
     /// @brief Creates a new widget from the type panel.
     /// @param ctx      The context to create the widget in.
     /// @param id       The unique id of the widget.
     /// @param parentId The parent id of the widget.
     /// @param title    The title of the widget.
-    /// @param x        The x-coordinate of the widget.
-    /// @param y        The y-coordinate of the widget.
-    /// @param w        The width of the widget.
-    /// @param h        The height of the widget.
+    /// @param rect     The rect of the widget.
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code panel(Context &ctx, Id id, Id parentId, const char *title, int x, int y,
-        int w, int h, CallbackI *callback);
+    static ret_code panel(Context &ctx, Id id, Id parentId, const char *title,const Rect &rect, CallbackI *callback);
 
     /// @brief Creates a new widget from the type treeview.
     /// @param ctx      The context to create the widget in.
     /// @param id       The unique id of the widget.
     /// @param parentId The parent id of the widget.
     /// @param title    The title of the widget.
-    /// @param x        The x-coordinate of the widget.
-    /// @param y        The y-coordinate of the widget.
-    /// @param w        The width of the widget.
-    /// @param h        The height of the widget.
+    /// @param rect     The rect of the widget.
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code treeView(Context &ctx, Id id, Id parentId, const char *title, int x, int y, int w, int h, CallbackI *callback);
+    static ret_code treeView(Context &ctx, Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback);
 
     /// @brief Creates a new widget from the type status bar.
     /// @param ctx      The context to create the widget in.
     /// @param id       The unique id of the widget.
     /// @param parentId The parent id of the widget.
     /// @param title    The title of the widget.
-    /// @param x        The x-coordinate of the widget.
-    /// @param y        The y-coordinate of the widget.
-    /// @param w        The width of the widget.
-    /// @param h        The height of the widget.
+    /// @param rect     The rect of the widget.
     /// @param fillRate The fill rate of the widget.
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code progressBar(Context &ctx, Id id, Id parentId, int x, int y, int w, int h, int fillRate, CallbackI *callback);
+    static ret_code progressBar(Context &ctx, Id id, Id parentId, const Rect &rect, int fillRate, CallbackI *callback);
 
     /// @brief Will render all widgets.
     /// @param ctx The context to render the widgets in.
