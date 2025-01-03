@@ -24,10 +24,6 @@ SOFTWARE.
 #include <iostream>
 #include "widgets.h"
 
-#ifdef main
-#  undef main
-#endif
-
 using namespace tinyui;
 
 static constexpr Id RootPanelId = 1;
