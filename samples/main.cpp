@@ -35,7 +35,8 @@ static constexpr Id RootPanelId = 1;
 static constexpr Id NextPanelId = 100;
 
 static void renderDialog(const char *title, Context &ctx) {
-    Widgets::panel(ctx, NextPanelId, 0, title, 240, 90, 120, 250, nullptr);
+    Rect r(240, 90, 120, 250);
+    Widgets::panel(ctx, NextPanelId, 0, title, r, nullptr);
 }
 
 int quit(uint32_t id, void *instance) {
@@ -49,6 +50,19 @@ int quit(uint32_t id, void *instance) {
     return ResultOk;
 }
 
+int updateProgressbar(uint32_t id, void *instance) {
+    if (instance == nullptr) {
+        return ErrorCode;
+    }
+    
+    auto *widget = (Widget*) instance;
+    auto *state = (FilledState*) widget->mContent;
+    state->filledState++;
+    if (state->filledState > 100) state->filledState = 0;
+
+    return ResultOk;
+}
+
 int main(int argc, char *argv[]) {
     Style style = TinyUi::getDefaultStyle();
     Context &ctx = Context::create("Sample-Screen",  style);
@@ -58,15 +72,18 @@ int main(int argc, char *argv[]) {
         return ErrorCode;
     }
 
-    Widgets::panel(ctx, RootPanelId, 0, "Sample-Dialog", 90, 5, 120, 300, nullptr);
-    Widgets::label(ctx, 2, RootPanelId, "Title", 100, 10, 100, 20, Alignment::Center);
-    Widgets::button(ctx, 3, RootPanelId, "Test 1", nullptr, 100, 50, 100, 40, nullptr);
-    Widgets::button(ctx, 4, RootPanelId, "Test 2", nullptr, 100, 100, 100, 40, nullptr);
-    Widgets::button(ctx, 5, RootPanelId, "Test 3", nullptr, 100, 150, 100, 40, nullptr);
-    Widgets::button(ctx, 6, RootPanelId, nullptr,  "button_test.png", 100, 200, 100, 40, nullptr);
+    Widgets::panel(ctx, RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 120, 400), nullptr);
+    Widgets::label(ctx, 2, RootPanelId, "Title", Rect(100, 10, 100, 20), Alignment::Center);
+    Widgets::button(ctx, 3, RootPanelId, "Test 1", nullptr, Rect(100, 50, 100, 40), nullptr);
+    Widgets::button(ctx, 4, RootPanelId, "Test 2", nullptr, Rect(100, 100, 100, 40), nullptr);
+    Widgets::button(ctx, 5, RootPanelId, "Test 3", nullptr, Rect(100, 150, 100, 40), nullptr);
+    Widgets::button(ctx, 6, RootPanelId, nullptr,  "button_test.png", Rect(100, 200, 100, 40), nullptr);
 
     CallbackI quitCallback(quit, (void*) &ctx);
-    Widgets::button(ctx, 7, RootPanelId, "Quit", nullptr, 100, 250, 100, 40, &quitCallback);
+    Widgets::button(ctx, 7, RootPanelId, "Quit", nullptr, Rect(100, 250, 100, 40), &quitCallback);
+
+    CallbackI updateProgressBarCallback(updateProgressbar, nullptr, Events::UpdateEvent);
+    Widgets::progressBar(ctx, 8, RootPanelId, Rect(100, 300, 100, 40), 50, &updateProgressBarCallback);
 
     while (TinyUi::run(ctx)) {
         TinyUi::beginRender(ctx, style.mClearColor);

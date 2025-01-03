@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include <cstdint>
 #include <vector>
+#include <list>
 #include <string>
 #include <map>
 
@@ -250,7 +251,8 @@ struct Events {
     static constexpr int32_t MouseButtonUpEvent = 2;
     static constexpr int32_t MouseMoveEvent = 3;
     static constexpr int32_t MouseHoverEvent = 4;
-    static constexpr int32_t NumEvents = MouseHoverEvent + 1;
+    static constexpr int32_t UpdateEvent = 5;
+    static constexpr int32_t NumEvents = UpdateEvent + 1;
 };
 
 /// @brief This interface is used to store all neede message handlers.
@@ -268,14 +270,20 @@ struct CallbackI {
         clear();
     }
 
-    CallbackI(funcCallback mbDownFunc, void *instance) :
+    /// @brief The class constructor
+    /// @param callbackFunc The callback function.
+    /// @param instance The instance to use.
+    /// @param eventType The event type to use.
+    CallbackI(funcCallback callbackFunc, void *instance, size_t eventType = Events::MouseButtonDownEvent) :
             mfuncCallback{ nullptr }, mInstance(instance) {
         clear();
-        mfuncCallback[Events::MouseButtonDownEvent] = mbDownFunc;
+        mfuncCallback[eventType] = callbackFunc;
     }
 
+    /// @brief The class destructor.
     ~CallbackI() = default;
 
+    /// @brief Will clear all callback functions.
     void clear() {
         for (size_t i = 0; i < Events::NumEvents; ++i) {
             mfuncCallback[i] = nullptr;
@@ -283,9 +291,13 @@ struct CallbackI {
     }
 };
 
+/// @brief The event callback array.
 using EventCallbackArray = std::vector<CallbackI*>;
+
+/// @brief The event dispatch map.
 using EventDispatchMap = std::map<int32_t, EventCallbackArray>;
 
+/// @brief Function pointer declaration for callbacks.
 typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 
 struct SDLContext {
@@ -301,18 +313,21 @@ struct SDLContext {
         mDefaultFont(nullptr), mSelectedFont(nullptr), mOwner(true) {}
 };
 
+using UpdateCallbackList = std::list<CallbackI*>;
+
 struct Context {
-    bool             mCreated;
-    bool             mRequestShutdown;
-    const char      *mAppTitle;
-    const char      *mWindowsTitle;
-    SDLContext       mSDLContext;
-    Style            mStyle;
-    Widget          *mRoot;
-    tui_log_func     mLogger;
-    EventDispatchMap mEventDispatchMap;
-    FontCache        mFontCache;
-    ImageCache       mImageCache;
+    bool               mCreated;
+    bool               mRequestShutdown;
+    const char        *mAppTitle;
+    const char        *mWindowsTitle;
+    SDLContext         mSDLContext;
+    Style              mStyle;
+    Widget            *mRoot;
+    tui_log_func       mLogger = nullptr;
+    EventDispatchMap   mEventDispatchMap;
+    FontCache          mFontCache;
+    ImageCache         mImageCache;
+    UpdateCallbackList mUpdateCallbackList;
 
     static Context &create(const char *title, Style &style);
     static void destroy(Context &ctx);
@@ -326,8 +341,7 @@ private:
             mWindowsTitle(nullptr),
             mSDLContext(),
             mStyle(),
-            mRoot(nullptr),
-            mLogger(nullptr) {
+            mRoot(nullptr) {
         // empty
     }
 };
