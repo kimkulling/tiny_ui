@@ -166,10 +166,9 @@ struct Widgets {
     /// @param id       The unique id of the widget.
     /// @param parentId The parent id of the widget.
     /// @param rect     The rect of the widget.
-    /// @param bg       The background color of the widget.
     /// @param filled   The filled state of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code box(Context &ctx, Id id, Id parentId, const Rect &rect, const Color4 &bg, bool filled);
+    static ret_code box(Context &ctx, Id id, Id parentId, const Rect &rect, bool filled);
 
     /// @brief Will look for a widget by its id.
     /// @param id   The id of the widget to look for.

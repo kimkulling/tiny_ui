@@ -215,7 +215,7 @@ ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text, con
     return ResultOk;
 }
 
-ret_code Widgets::box(Context &ctx, Id id, Id parentId, const Rect &rect,const Color4 &color, bool filled) {
+ret_code Widgets::box(Context &ctx, Id id, Id parentId, const Rect &rect, bool filled) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }

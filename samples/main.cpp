@@ -55,8 +55,8 @@ int updateProgressbar(uint32_t id, void *instance) {
         return ErrorCode;
     }
     
-    Widget *widget = (Widget*) instance;
-    FilledState *state = (FilledState*) widget->mContent;
+    auto *widget = (Widget*) instance;
+    auto *state = (FilledState*) widget->mContent;
     state->filledState++;
     if (state->filledState > 100) state->filledState = 0;
 

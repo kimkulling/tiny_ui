@@ -270,14 +270,20 @@ struct CallbackI {
         clear();
     }
 
+    /// @brief The class constructor
+    /// @param callbackFunc The callback function.
+    /// @param instance The instance to use.
+    /// @param eventType The event type to use.
     CallbackI(funcCallback callbackFunc, void *instance, size_t eventType = Events::MouseButtonDownEvent) :
             mfuncCallback{ nullptr }, mInstance(instance) {
         clear();
         mfuncCallback[eventType] = callbackFunc;
     }
 
+    /// @brief The class destructor.
     ~CallbackI() = default;
 
+    /// @brief Will clear all callback functions.
     void clear() {
         for (size_t i = 0; i < Events::NumEvents; ++i) {
             mfuncCallback[i] = nullptr;
@@ -285,9 +291,13 @@ struct CallbackI {
     }
 };
 
+/// @brief The event callback array.
 using EventCallbackArray = std::vector<CallbackI*>;
+
+/// @brief The event dispatch map.
 using EventDispatchMap = std::map<int32_t, EventCallbackArray>;
 
+/// @brief Function pointer declaration for callbacks.
 typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 
 struct SDLContext {
@@ -306,14 +316,14 @@ struct SDLContext {
 using UpdateCallbackList = std::list<CallbackI*>;
 
 struct Context {
-    bool             mCreated;
-    bool             mRequestShutdown;
-    const char      *mAppTitle;
-    const char      *mWindowsTitle;
-    SDLContext       mSDLContext;
-    Style            mStyle;
+    bool               mCreated;
+    bool               mRequestShutdown;
+    const char        *mAppTitle;
+    const char        *mWindowsTitle;
+    SDLContext         mSDLContext;
+    Style              mStyle;
     Widget            *mRoot;
-    tui_log_func       mLogger;
+    tui_log_func       mLogger = nullptr;
     EventDispatchMap   mEventDispatchMap;
     FontCache          mFontCache;
     ImageCache         mImageCache;
@@ -331,9 +341,7 @@ private:
             mWindowsTitle(nullptr),
             mSDLContext(),
             mStyle(),
-            mRoot(nullptr),
-            mLogger(nullptr),
-            mUpdateCallbackList() {
+            mRoot(nullptr) {
         // empty
     }
 };
