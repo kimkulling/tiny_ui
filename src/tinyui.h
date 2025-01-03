@@ -270,10 +270,10 @@ struct CallbackI {
         clear();
     }
 
-    CallbackI(funcCallback mbDownFunc, void *instance, size_t eventType = Events::MouseButtonDownEvent) :
+    CallbackI(funcCallback callbackFunc, void *instance, size_t eventType = Events::MouseButtonDownEvent) :
             mfuncCallback{ nullptr }, mInstance(instance) {
         clear();
-        mfuncCallback[eventType] = mbDownFunc;
+        mfuncCallback[eventType] = callbackFunc;
     }
 
     ~CallbackI() = default;
