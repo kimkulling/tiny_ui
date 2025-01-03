@@ -11,6 +11,8 @@ Currently this works on Windows and Linux. The renderer is based on SDL2. An OSR
 - Elements
   - Panel
   - Buttons
+  - Labels
+  - Progress Bar (experimental)
 - Platform support for
   - Windows
   - Linux
