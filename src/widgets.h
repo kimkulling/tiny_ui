@@ -101,7 +101,11 @@ struct Widget {
     }
 
     /// @brief The class destructor.
-    ~Widget() = default;
+    ~Widget() {
+        if (mContent != nullptr) {
+            delete [] mContent;
+        } 
+    }
 
     /// @brief Check if the widget has a specific style.
     /// @param style The style to check.
