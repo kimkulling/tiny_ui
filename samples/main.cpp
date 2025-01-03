@@ -50,6 +50,19 @@ int quit(uint32_t id, void *instance) {
     return ResultOk;
 }
 
+int updateProgressbar(uint32_t id, void *instance) {
+    if (instance == nullptr) {
+        return ErrorCode;
+    }
+    
+    Widget *widget = (Widget*) instance;
+    FilledState *state = (FilledState*) widget->mContent;
+    state->filledState++;
+    if (state->filledState > 100) state->filledState = 0;
+
+    return ResultOk;
+}
+
 int main(int argc, char *argv[]) {
     Style style = TinyUi::getDefaultStyle();
     Context &ctx = Context::create("Sample-Screen",  style);
@@ -69,7 +82,8 @@ int main(int argc, char *argv[]) {
     CallbackI quitCallback(quit, (void*) &ctx);
     Widgets::button(ctx, 7, RootPanelId, "Quit", nullptr, Rect(100, 250, 100, 40), &quitCallback);
 
-    Widgets::progressBar(ctx, 8, RootPanelId, Rect(100, 300, 100, 40), 50, nullptr);
+    CallbackI updateProgressBarCallback(updateProgressbar, nullptr, Events::UpdateEvent);
+    Widgets::progressBar(ctx, 8, RootPanelId, Rect(100, 300, 100, 40), 50, &updateProgressBarCallback);
 
     while (TinyUi::run(ctx)) {
         TinyUi::beginRender(ctx, style.mClearColor);

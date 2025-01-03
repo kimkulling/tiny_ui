@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include <cstdint>
 #include <vector>
+#include <list>
 #include <string>
 #include <map>
 
@@ -250,7 +251,8 @@ struct Events {
     static constexpr int32_t MouseButtonUpEvent = 2;
     static constexpr int32_t MouseMoveEvent = 3;
     static constexpr int32_t MouseHoverEvent = 4;
-    static constexpr int32_t NumEvents = MouseHoverEvent + 1;
+    static constexpr int32_t UpdateEvent = 5;
+    static constexpr int32_t NumEvents = UpdateEvent + 1;
 };
 
 /// @brief This interface is used to store all neede message handlers.
@@ -268,10 +270,10 @@ struct CallbackI {
         clear();
     }
 
-    CallbackI(funcCallback mbDownFunc, void *instance) :
+    CallbackI(funcCallback mbDownFunc, void *instance, size_t eventType = Events::MouseButtonDownEvent) :
             mfuncCallback{ nullptr }, mInstance(instance) {
         clear();
-        mfuncCallback[Events::MouseButtonDownEvent] = mbDownFunc;
+        mfuncCallback[eventType] = mbDownFunc;
     }
 
     ~CallbackI() = default;
@@ -301,6 +303,8 @@ struct SDLContext {
         mDefaultFont(nullptr), mSelectedFont(nullptr), mOwner(true) {}
 };
 
+using UpdateCallbackList = std::list<CallbackI*>;
+
 struct Context {
     bool             mCreated;
     bool             mRequestShutdown;
@@ -308,11 +312,12 @@ struct Context {
     const char      *mWindowsTitle;
     SDLContext       mSDLContext;
     Style            mStyle;
-    Widget          *mRoot;
-    tui_log_func     mLogger;
-    EventDispatchMap mEventDispatchMap;
-    FontCache        mFontCache;
-    ImageCache       mImageCache;
+    Widget            *mRoot;
+    tui_log_func       mLogger;
+    EventDispatchMap   mEventDispatchMap;
+    FontCache          mFontCache;
+    ImageCache         mImageCache;
+    UpdateCallbackList mUpdateCallbackList;
 
     static Context &create(const char *title, Style &style);
     static void destroy(Context &ctx);
@@ -327,7 +332,8 @@ private:
             mSDLContext(),
             mStyle(),
             mRoot(nullptr),
-            mLogger(nullptr) {
+            mLogger(nullptr),
+            mUpdateCallbackList() {
         // empty
     }
 };

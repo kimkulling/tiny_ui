@@ -258,9 +258,6 @@ ret_code Widgets::treeView(Context &ctx, Id id, Id parentId, const char *title, 
     return ResultOk;
 }
 
-struct FilledState {
-    uint32_t filledState;
-};
 
 template<class T>
 inline void clamp(T min, T max, T &value) {
@@ -282,11 +279,18 @@ ret_code Widgets::progressBar(Context &ctx, Id id, Id parentId, const Rect &rect
     if (child == nullptr) {
         return ErrorCode;
     }
+
     FilledState *state = new FilledState;
     clamp(0, 100, fillRate);
     state->filledState = fillRate;
     child->mContent = new uint8_t[sizeof(FilledState)];
+    child->mCallback = callback;
     memcpy(child->mContent, state, sizeof(FilledState));
+    if (callback != nullptr) {
+        callback->mInstance = child;
+        ctx.mUpdateCallbackList.push_back(callback);
+    }
+ 
     
     return ResultOk;
 }

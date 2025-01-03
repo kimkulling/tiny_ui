@@ -91,6 +91,11 @@ ret_code TinyUi::getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
 }
 
 bool TinyUi::run(Context &ctx) {
+    if (!ctx.mUpdateCallbackList.empty()) {
+        for (auto it = ctx.mUpdateCallbackList.begin(); it != ctx.mUpdateCallbackList.end(); ++it) {
+            (*it)->mfuncCallback[Events::UpdateEvent](1, (*it)->mInstance);
+        }
+    }
     return Renderer::update(ctx);
 }
 

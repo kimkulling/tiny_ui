@@ -51,6 +51,10 @@ enum class LayoutPolicy {
     Count               ///< The number of layouts
 };
 
+struct FilledState {
+    uint32_t filledState;
+};
+
 /// @brief This enum is used to descripe the alignment of a widget.
 using Id = uint64_t;
 
