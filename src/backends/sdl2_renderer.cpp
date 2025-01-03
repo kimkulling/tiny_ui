@@ -31,7 +31,7 @@ SOFTWARE.
 namespace tinyui {
 namespace {
 
-static SDL_Color getSDLColor(const Color4 &col) {
+SDL_Color getSDLColor(const Color4 &col) {
     SDL_Color sdl_col = {};
     sdl_col.r = col.r;
     sdl_col.g = col.g;
@@ -41,11 +41,11 @@ static SDL_Color getSDLColor(const Color4 &col) {
     return sdl_col;
 }
 
-static void printDriverInfo(const SDL_RendererInfo &info) {
+void printDriverInfo(const SDL_RendererInfo &info) {
     printf("Driver : %s\n", info.name);
 }
 
-static void listAllRenderDivers(const Context &ctx) {
+void listAllRenderDivers(const Context &ctx) {
     const int numRenderDrivers = SDL_GetNumRenderDrivers();
     ctx.mLogger(LogSeverity::Message, "Available drivers:");
     for (int i = 0; i < numRenderDrivers; ++i) {
@@ -55,15 +55,16 @@ static void listAllRenderDivers(const Context &ctx) {
     }
 }
 
-static void showDriverInUse(const Context &ctx) {
+void showDriverInUse(const Context &ctx) {
     ctx.mLogger(LogSeverity::Message, "Driver in use:");
     SDL_RendererInfo info;
     SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
     printDriverInfo(info);
 }
 
-static int queryDriver(const Context &ctx, const char *type) {
-    if (type == nullptr) {
+int queryDriver(const Context &ctx, const char *driverType) {
+    if (driverType == nullptr) {
+        ctx.mLogger(LogSeverity::Error, "Driver type is a nullptr.");
         return -1;
     }
 
@@ -72,7 +73,7 @@ static int queryDriver(const Context &ctx, const char *type) {
     for (int i = 0; i < numRenderDrivers; ++i) {
         SDL_RendererInfo info;
         SDL_GetRenderDriverInfo(i, &info);
-        if (strncmp(type, info.name, strlen(type)) == 0) {
+        if (strncmp(driverType, info.name, strlen(driverType)) == 0) {
             found = i;
             break;
         }
@@ -81,14 +82,14 @@ static int queryDriver(const Context &ctx, const char *type) {
     return found;
 }
 
-static void loadFont(Context &ctx) {
+void loadFont(Context &ctx) {
     ctx.mSDLContext.mDefaultFont = new Font;
     ctx.mSDLContext.mDefaultFont->mFont = new FontImpl;
     ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
     ctx.mSDLContext.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
 }
 
-static MouseState getButtonState(const SDL_MouseButtonEvent &b) {
+MouseState getButtonState(const SDL_MouseButtonEvent &b) {
     MouseState state = MouseState::Invalid;
     switch (b.button) {
         case SDL_BUTTON_LEFT:
@@ -105,10 +106,11 @@ static MouseState getButtonState(const SDL_MouseButtonEvent &b) {
         default:
             break;
     }
+
     return state;
 }
 
-static int32_t getEventType(Uint32 sdlType) {
+int32_t getEventType(Uint32 sdlType) {
     switch (sdlType) {
         case SDL_QUIT:
             return Events::QuitEvent;
@@ -322,7 +324,7 @@ ret_code Renderer::beginRender(Context &ctx, Color4 bg, SDL_Texture *renderTarge
     SDL_SetRenderDrawColor(ctx.mSDLContext.mRenderer, sdl_bg.r, sdl_bg.g, sdl_bg.b, sdl_bg.a);
     SDL_RenderClear(ctx.mSDLContext.mRenderer);
 
-    return 0;
+    return ResultOk;
 }
 
 ret_code Renderer::drawRect(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, Color4 fg) {

@@ -41,9 +41,15 @@ struct SurfaceImpl {
     SDL_Surface *mSurface;
 
     ~SurfaceImpl() {
+        clear();
+    }
+
+    void clear() {
         if (mSurface != nullptr) {
             SDL_FreeSurface(mSurface);
+            mSurface = nullptr;
         }
+
     }
 };
 
