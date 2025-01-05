@@ -132,8 +132,6 @@ void Context::destroy(Context &ctx) {
     delete ptr;
 }
 
-void Context::enableExtensions(Context &ctx, const std::vector<tinyui::Extensions> &extensions) {}
-
 const Style &TinyUi::getDefaultStyle() {
     return DefaultStyle;
 }

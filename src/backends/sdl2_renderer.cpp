@@ -376,6 +376,15 @@ ret_code Renderer::endRender(Context &ctx) {
     return ResultOk;
 }
 
+ret_code Renderer::createRenderTexture(Context &ctx, int w, int h, SDL_Texture **texture) {
+    if (texture == nullptr) {
+        return ErrorCode;
+    }
+    *texture = SDL_CreateTexture(ctx.mSDLContext.mRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+
+    return ResultOk;
+}
+
 bool Renderer::update(Context &ctx) {
     if (!ctx.mCreated) {
         return false;
