@@ -208,39 +208,38 @@ struct Font {
 /// @brief The font cache.
 using FontCache = std::map<const char*, Font*>;
 
+/// @brief The style struct.
+///
+/// The style struct is used to describe the style of the tiny ui.
 struct Style {
-    Color4 mClearColor;
-    Color4 mFg;
-    Color4 mBg;
-    Color4 mTextColor;
-    Color4 mBorder;
-    int32_t mMargin;
-    Font mFont;
+    Color4  mClearColor;    ///< The clear color.
+    Color4  mFg;            ///< The foreground color.
+    Color4  mBg;            ///< The background color.
+    Color4  mTextColor;     ///< The text color.
+    Color4  mBorder;        ///< The border color.
+    int32_t mMargin;        ///< The margin.
+    Font    mFont;          ///< The font.
 };
 
+/// @brief The mouse state
 enum class MouseState {
-    Invalid = -1,
-    LeftButton = 0,
-    MiddleButton,
-    RightButton,
-    Count
+    Invalid = -1,       ///< The invalid state
+    LeftButton = 0,     ///< The left button
+    MiddleButton,       ///< The middle button
+    RightButton,        ///< The right button
+    Count               ///< The number of mouse states
 };
 
+/// @brief The log severity.
 enum class LogSeverity {
-    Invalid = -1,
-    Message = 0,
-    Trace,
-    Debug,
-    Info,
-    Warn,
-    Error,
-    Count
-};
-
-enum class Extensions {
-    Invalid = -1,
-    VerboseMode,
-    Count
+    Invalid = -1,   ///< Marks an invalid entry
+    Message = 0,    ///< A message
+    Trace,          ///< A trace message
+    Debug,          ///< A debug message
+    Info,           ///< An info message
+    Warn,           ///< A warning message
+    Error,          ///< An error message
+    Count           ///< The number of log severities
 };
 
 /// @brief The tiny ui events.
@@ -300,40 +299,51 @@ using EventDispatchMap = std::map<int32_t, EventCallbackArray>;
 /// @brief Function pointer declaration for callbacks.
 typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 
+/// @brief The SDL context.
 struct SDLContext {
-    SDL_Window   *mWindow;
-    SDL_Surface  *mSurface;
-    SDL_Renderer *mRenderer;
-    Font         *mDefaultFont;
-    Font         *mSelectedFont;
-    bool          mOwner;
+    SDL_Window   *mWindow;          ///< The window.
+    SDL_Surface  *mSurface;         ///< The surface.
+    SDL_Renderer *mRenderer;        ///< The renderer.
+    Font         *mDefaultFont;     ///< The default font.
+    Font         *mSelectedFont;    ///< The selected font.
+    bool          mOwner;           ///< The owner state.
 
+    /// @brief The default class constructor
     SDLContext() :
             mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr),
         mDefaultFont(nullptr), mSelectedFont(nullptr), mOwner(true) {}
 };
 
+/// @brief The update callback list.
 using UpdateCallbackList = std::list<CallbackI*>;
 
+/// @brief The tiny ui context.
 struct Context {
-    bool               mCreated;
-    bool               mRequestShutdown;
-    const char        *mAppTitle;
-    const char        *mWindowsTitle;
-    SDLContext         mSDLContext;
-    Style              mStyle;
-    Widget            *mRoot;
-    tui_log_func       mLogger = nullptr;
-    EventDispatchMap   mEventDispatchMap;
-    FontCache          mFontCache;
-    ImageCache         mImageCache;
-    UpdateCallbackList mUpdateCallbackList;
+    bool               mCreated;            ///< The created state.
+    bool               mRequestShutdown;    ///< The request shutdown state.
+    const char        *mAppTitle;           ///< The application title.
+    const char        *mWindowsTitle;       ///< The window title.
+    SDLContext         mSDLContext;         ///< The SDL context.
+    Style              mStyle;              ///< The active style.
+    Widget            *mRoot;               ///< The root widget.
+    tui_log_func       mLogger = nullptr;   ///< The logger function.
+    EventDispatchMap   mEventDispatchMap;   ///< The event dispatch map.
+    FontCache          mFontCache;          ///< The font cache.
+    ImageCache         mImageCache;         ///< The image cache.
+    UpdateCallbackList mUpdateCallbackList; ///< The update callback list.
 
+    /// @brief Will create a new tiny ui context.
+    /// @param title The title of the context.
+    /// @param style The style to use.
+    /// @return The created context.
     static Context &create(const char *title, Style &style);
+    
+    /// @brief Will destroy a valid tinyui context.
+    /// @param ctx  The context to destroy.
     static void destroy(Context &ctx);
-    static void enableExtensions(Context &ctx, const std::vector<tinyui::Extensions> &extensions);
 
 private:
+    /// @brief The default class constructor
     Context() :
             mCreated(false),
             mRequestShutdown(false),

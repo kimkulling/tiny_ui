@@ -24,22 +24,13 @@ SOFTWARE.
 #include <iostream>
 #include "widgets.h"
 
-#ifdef main
-#  undef main
-#endif
-
 using namespace tinyui;
 
 static constexpr Id RootPanelId = 1;
 
 static constexpr Id NextPanelId = 100;
 
-static void renderDialog(const char *title, Context &ctx) {
-    Rect r(240, 90, 120, 250);
-    Widgets::panel(ctx, NextPanelId, 0, title, r, nullptr);
-}
-
-int quit(uint32_t id, void *instance) {
+int quit(uint32_t, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
     }
@@ -50,7 +41,7 @@ int quit(uint32_t id, void *instance) {
     return ResultOk;
 }
 
-int updateProgressbar(uint32_t id, void *instance) {
+int updateProgressbar(uint32_t, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
     }
