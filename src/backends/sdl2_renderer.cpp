@@ -62,7 +62,7 @@ void showDriverInUse(const Context &ctx) {
     printDriverInfo(info);
 }
 
-int queryDriver(const Context &ctx, const char *driverType) {
+int queryDriver(const Context &ctx, const char *driverType, size_t maxLen) {
     if (driverType == nullptr) {
         ctx.mLogger(LogSeverity::Error, "Driver type is a nullptr.");
         return -1;
@@ -73,7 +73,11 @@ int queryDriver(const Context &ctx, const char *driverType) {
     for (int i = 0; i < numRenderDrivers; ++i) {
         SDL_RendererInfo info;
         SDL_GetRenderDriverInfo(i, &info);
-        if (strncmp(driverType, info.name, strlen(driverType)) == 0) {
+        size_t len = strlen(driverType);
+        if (len > maxLen) {
+            len = maxLen;
+        }
+        if (strncmp(driverType, info.name, len) == 0) {
             found = i;
             break;
         }
@@ -263,7 +267,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         return ErrorCode;
     }
 
-    const int driverIndex = queryDriver(ctx, "opengl");
+    const int driverIndex = queryDriver(ctx, "opengl", 256);
     if (driverIndex == -1) {
         ctx.mLogger(LogSeverity::Error, "Cannot open opengl driver");
         return ErrorCode;
