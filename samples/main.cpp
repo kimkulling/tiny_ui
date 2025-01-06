@@ -26,9 +26,7 @@ SOFTWARE.
 
 using namespace tinyui;
 
-static constexpr Id RootPanelId = 1;
-
-static constexpr Id NextPanelId = 100;
+static constexpr Id RootPanelId = 1; /// The id for the root panel
 
 int quit(uint32_t, void *instance) {
     if (instance == nullptr) {
