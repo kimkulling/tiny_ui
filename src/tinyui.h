@@ -189,6 +189,14 @@ struct Rect {
     }
 };
 
+enum class TextureAccessType {
+    Invalid = -1,  ///< The invalid access type.
+    Static = 0,     ///< The static access type.
+    Streaming,      ///< The streaming access type.
+    Target,         ///< The target access type.
+    Count           ///< The number of access types.
+};
+
 /// @brief The alignment enum.
 enum class Alignment : int32_t {
     Invalid = -1,   ///< The invalid alignment.
@@ -362,6 +370,15 @@ struct TinyUi {
     /// @param ctx The context to initialize.
     /// @return ResultOk if the initialization was successful, ErrorCode if not.
     static ret_code init(Context &ctx);
+
+    /// @brief Initialize the render target.
+    /// @param ctx The context to initialize.
+    /// @param x The x-coordinate of the render target.
+    /// @param y The y-coordinate of the render target.
+    /// @param w The width of the render target.
+    /// @param h The height of the render target.
+    /// @return ResultOk if the initialization was successful, ErrorCode if not.
+    static ret_code createRenderTarget(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
 
     /// @brief Initialize the screen.
     /// @param ctx The context to initialize.

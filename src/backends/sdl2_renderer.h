@@ -79,7 +79,7 @@ struct Renderer {
     static ret_code drawImage(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, Image *image);
     static ret_code beginRender(Context &ctx, Color4 bg, SDL_Texture *renderTarget = nullptr);
     static ret_code endRender(Context &ctx);
-    static ret_code createRenderTexture(Context &ctx, int w, int h, SDL_Texture **texture);
+    static ret_code createEmptyTexture(Context &ctx, int w, int h, TextureAccessType access, SDL_Texture **texture);
     static ret_code closeScreen(Context &ctx);
     static bool update(Context &ctx);
     static SurfaceImpl *createSurfaceImpl(unsigned char *data, int w, int h, int bytesPerPixel, int pitch);

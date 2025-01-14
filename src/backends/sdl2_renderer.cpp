@@ -376,11 +376,24 @@ ret_code Renderer::endRender(Context &ctx) {
     return ResultOk;
 }
 
-ret_code Renderer::createRenderTexture(Context &ctx, int w, int h, SDL_Texture **texture) {
+uint32_t getSdlTextureAccessType(TextureAccessType type) {
+    switch (type) {
+        case TextureAccessType::Static:
+            return SDL_TEXTUREACCESS_STATIC;
+        case TextureAccessType::Streaming:
+            return SDL_TEXTUREACCESS_STREAMING;
+        case TextureAccessType::Target:
+            return SDL_TEXTUREACCESS_TARGET;
+    }
+
+    return SDL_TEXTUREACCESS_STATIC;
+}
+ret_code Renderer::createEmptyTexture(Context &ctx, int w, int h, TextureAccessType access, SDL_Texture **texture) {
     if (texture == nullptr) {
         return ErrorCode;
     }
-    *texture = SDL_CreateTexture(ctx.mSDLContext.mRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+    
+    *texture = SDL_CreateTexture(ctx.mSDLContext.mRenderer, SDL_PIXELFORMAT_RGBA8888, getSdlTextureAccessType(access), w, h);
 
     return ResultOk;
 }
