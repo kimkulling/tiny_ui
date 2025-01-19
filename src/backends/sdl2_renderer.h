@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Kim Kulling
+Copyright (c) 2022-2025 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,9 +36,10 @@ struct SDL_Renderer;
 struct SDL_Texture;
 
 namespace tinyui {
-    
+
+/// @brief Implementation of a SDL2 surface.
 struct SurfaceImpl {
-    SDL_Surface *mSurface;
+    SDL_Surface *mSurface = nullptr;
 
     ~SurfaceImpl() {
         clear();
@@ -53,6 +54,7 @@ struct SurfaceImpl {
     }
 };
 
+/// @brief Implementation of a SDL2 TTF font.
 struct FontImpl {
     TTF_Font *mFontImpl;
     
