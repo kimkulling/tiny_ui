@@ -27,6 +27,7 @@ SOFTWARE.
 
 #include <cassert>
 #include <iostream>
+#include <string>
 
 namespace tinyui {
 namespace {
@@ -62,8 +63,8 @@ void showDriverInUse(const Context &ctx) {
     printDriverInfo(info);
 }
 
-int queryDriver(const Context &ctx, const char *driverType, size_t maxLen) {
-    if (driverType == nullptr) {
+int queryDriver(const Context &ctx, const std::string &driverType) {
+    if (driverType.empty()) {
         ctx.mLogger(LogSeverity::Error, "Driver type is a nullptr.");
         return -1;
     }
@@ -73,11 +74,7 @@ int queryDriver(const Context &ctx, const char *driverType, size_t maxLen) {
     for (int i = 0; i < numRenderDrivers; ++i) {
         SDL_RendererInfo info;
         SDL_GetRenderDriverInfo(i, &info);
-        size_t len = strlen(driverType);
-        if (len > maxLen) {
-            len = maxLen;
-        }
-        if (strncmp(driverType, info.name, len) == 0) {
+        if (strncmp(driverType.c_str(), info.name, driverType.size()) == 0) {
             found = i;
             break;
         }
@@ -267,7 +264,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         return ErrorCode;
     }
 
-    const int driverIndex = queryDriver(ctx, "opengl", 256);
+    const int driverIndex = queryDriver(ctx, std__string("opengl"));
     if (driverIndex == -1) {
         ctx.mLogger(LogSeverity::Error, "Cannot open opengl driver");
         return ErrorCode;
