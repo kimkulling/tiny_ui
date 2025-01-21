@@ -27,7 +27,7 @@ SOFTWARE.
 
 #include <cassert>
 #include <iostream>
-#include <string>
+#include <string_view>
 
 namespace tinyui {
 namespace {
@@ -63,7 +63,7 @@ void showDriverInUse(const Context &ctx) {
     printDriverInfo(info);
 }
 
-int queryDriver(const Context &ctx, const std::string &driverType) {
+int queryDriver(const Context &ctx, const std::string_view &driverType) {
     if (driverType.empty()) {
         ctx.mLogger(LogSeverity::Error, "Driver type is a nullptr.");
         return -1;
