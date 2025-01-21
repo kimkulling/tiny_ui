@@ -74,7 +74,7 @@ int queryDriver(const Context &ctx, const std::string_view &driverType) {
     for (int i = 0; i < numRenderDrivers; ++i) {
         SDL_RendererInfo info;
         SDL_GetRenderDriverInfo(i, &info);
-        if (strncmp(driverType.c_str(), info.name, driverType.size()) == 0) {
+        if (strncmp(driverType.data(), info.name, driverType.size()) == 0) {
             found = i;
             break;
         }
