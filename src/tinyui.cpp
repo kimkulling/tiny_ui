@@ -57,6 +57,7 @@ void log_message(LogSeverity severity, const char *message) {
 
 ret_code TinyUi::init(Context &ctx) {
     if (ctx.mCreated) {
+        printf("Error: Context is already inited\n");
         return ErrorCode;
     }
 
@@ -77,6 +78,7 @@ ret_code TinyUi::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32
 ret_code TinyUi::getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
     w = h = -1;
     if (!ctx.mCreated) {
+        printf("Error: Context is not inited\n");
         return ErrorCode;
     }
 
@@ -109,6 +111,7 @@ ret_code TinyUi::endRender(Context &ctx) {
 
 ret_code TinyUi::release(Context &ctx) {
     if (!ctx.mCreated) {
+        printf("Error: Context is not inited\n");
         return ErrorCode;
     }
     Renderer::releaseRenderer(ctx);
