@@ -230,6 +230,20 @@ ret_code Widgets::box(Context &ctx, Id id, Id parentId, const Rect &rect, bool f
     return ResultOk;
 }
 
+ret_code Widgets::toolbar(Context &ctx, Id id, Id parentId, const Rect &rect) {
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");
+        return ErrorCode;
+    }
+
+    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::ToolBar);
+    if (child == nullptr) {
+        return ErrorCode;
+    }
+
+    return ResultOk;
+}
+
 ret_code Widgets::panel(Context &ctx, Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");

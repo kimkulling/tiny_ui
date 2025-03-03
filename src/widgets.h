@@ -39,7 +39,8 @@ enum class WidgetType {
     Panel,              ///< A panel widget
     Box,                ///< A box widget
     TreeView,           ///< A treeeview widget
-    ProgressBar,          ///< A status bar widget
+    ProgressBar,        ///< A status bar widget
+    ToolBar,            ///< A toolbar, will contain a list of buttons
     Count               ///< The number of widgets
 };
 
@@ -169,6 +170,9 @@ struct Widgets {
     /// @param filled   The filled state of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static ret_code box(Context &ctx, Id id, Id parentId, const Rect &rect, bool filled);
+
+    
+    static ret_code toolbar(Context &ctx, Id id, Id parentId, const Rect &rect);
 
     /// @brief Will look for a widget by its id.
     /// @param id   The id of the widget to look for.
