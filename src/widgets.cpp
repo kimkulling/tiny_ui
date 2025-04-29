@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,16 +56,19 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
         return image;
     }
 
-    int w = 0;
-    int h = 0;
-    int bytesPerPixel = 0;
+    image = new Image;
+    if (image == nullptr) {
+        return nullptr;
+    }
+
+    int w, h, bytesPerPixel;
     unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
     if (data == nullptr) {
         return nullptr;
     }
-    
-    image = new Image;
-    int pitch = w * bytesPerPixel;
+
+
+    int32_t pitch = w * bytesPerPixel;
     pitch = (pitch + 3) & ~3;
     image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
     image->mX = w;
@@ -110,8 +113,18 @@ static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, 
     return widget;
 }
 
-void eventDispatcher() {
+void eventDispatcher(Context &ctx, int32_t eventId, EventData *eventData) {
+    if (ctx.mFocus == nullptr) {
+        return;
+    }
 
+    if (eventId == Events::KeyDownEvent || eventId == Events::KeyUpEvent) {
+        if (eventData != nullptr) {
+            if (ctx.mFocus->mType == WidgetType::TextField) {
+                ctx.mFocus->mText.append((const char*)eventData->data[0]);
+            }
+        }
+    }
 }
 
 ret_code Widgets::container(Context &ctx, Id id, Id parentId, const char *text, const Rect &rect) {
@@ -190,6 +203,22 @@ ret_code Widgets::label(Context &ctx, Id id, Id parentId, const char *text, cons
     return ResultOk;
 }
 
+ret_code Widgets::textfield(Context &ctx, Id id, Id parentId, const Rect &rect, Alignment alignment) {
+    if (ctx.mRoot == nullptr) {
+        return ErrorCode;
+    }
+
+    Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::TextField);
+    if (widget == nullptr) {
+        return ErrorCode;
+    }
+
+    widget->mAlignment = alignment;
+
+    return ResultOk;
+}
+
+
 ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text, const char *image, const Rect &rect, CallbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -223,20 +252,6 @@ ret_code Widgets::box(Context &ctx, Id id, Id parentId, const Rect &rect, bool f
     }
 
     child->mFilledRect = filled;
-
-    return ResultOk;
-}
-
-ret_code Widgets::toolbar(Context &ctx, Id id, Id parentId, const Rect &rect) {
-    if (ctx.mSDLContext.mRenderer == nullptr) {
-        ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");
-        return ErrorCode;
-    }
-
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::ToolBar);
-    if (child == nullptr) {
-        return ErrorCode;
-    }
 
     return ResultOk;
 }
@@ -302,7 +317,6 @@ ret_code Widgets::progressBar(Context &ctx, Id id, Id parentId, const Rect &rect
         ctx.mUpdateCallbackList.push_back(callback);
     }
  
-    
     return ResultOk;
 }
 
@@ -360,7 +374,15 @@ static void render(Context &ctx, Widget *currentWidget) {
                 const uint32_t fillRate = state->filledState;
                 const uint32_t width = r.width * fillRate / 100;
                 Renderer::drawRect(ctx, r.x1, r.y1, width, r.height, true, ctx.mStyle.mTextColor);                       
-            } break;
+            } 
+            break;
+
+        case WidgetType::TextField:
+        {
+            Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
+            Renderer::drawRect(ctx, r.x1+2, r.y1+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
+        }
+        break;
 
         case WidgetType::Container:
         case WidgetType::Box:
@@ -428,7 +450,12 @@ void Widgets::onKey(Context &ctx, const char *key, bool isDown) {
         return;
     }
 
-    eventDispatcher();
+    if (isDown) {
+        EventData eventData;
+        eventData.data[0] = *key;
+        eventDispatcher(ctx, Events::KeyDownEvent, &eventData);
+
+    }
 }
 
 void recursiveClear(Widget *current) {
@@ -473,6 +500,17 @@ bool Widgets::isEnabled(Context &ctx, Id id) {
     }
 
     return false;
+}
+
+ret_code Widgets::setFocus(Context &ctx, Id id)  {
+    Widget *widget = findWidget(id, ctx.mRoot);
+    if (widget == nullptr) {
+        return ErrorCode;
+    }
+
+    ctx.mFocus = widget;
+
+    return ResultOk;
 }
 
 Widget *Widgets::getWidgetById(Context &ctx, Id id) {

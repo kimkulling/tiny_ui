@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,11 +36,11 @@ enum class WidgetType {
     Container = 0,      ///< A container widget
     Button,             ///< A button widget
     Label,              ///< A label widget
+    TextField,          ///< 
     Panel,              ///< A panel widget
     Box,                ///< A box widget
     TreeView,           ///< A treeeview widget
-    ProgressBar,        ///< A status bar widget
-    ToolBar,            ///< A toolbar, will contain a list of buttons
+    ProgressBar,          ///< A status bar widget
     Count               ///< The number of widgets
 };
 
@@ -145,7 +145,7 @@ struct Widget {
 /// This class is used to create and manage widgets.
 struct Widgets {
     /// @brief The root item id.
-    static const Id RootItem = 0;
+    static constexpr Id RootItem = 0;
 
     /// @brief The default class constructor.
     Widgets() = default;
@@ -171,9 +171,6 @@ struct Widgets {
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static ret_code box(Context &ctx, Id id, Id parentId, const Rect &rect, bool filled);
 
-    
-    static ret_code toolbar(Context &ctx, Id id, Id parentId, const Rect &rect);
-
     /// @brief Will look for a widget by its id.
     /// @param id   The id of the widget to look for.
     /// @param root The root widget to start the search.
@@ -196,6 +193,8 @@ struct Widgets {
     /// @param alignment    The alignment of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static ret_code label(Context &ctx, Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment);
+
+    static ret_code textfield(Context &ctx, Id id, Id parentId, const Rect &rect, Alignment alignment);
 
     /// @brief Create a new widget from the type button.
     /// @param ctx      The context to create the widget in.
@@ -280,6 +279,8 @@ struct Widgets {
     /// @param id  The id of the widget to check.
     /// @return true if the widget is enabled, false if not.
     static bool isEnabled(Context &ctx, Id id);
+
+    static ret_code setFocus(Context &ctx, Id id);
 
     /// @brief Will return the widget by its id.
     /// @param ctx The context to get the widget from.

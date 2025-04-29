@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,6 @@ SOFTWARE.
 
 #include <cassert>
 #include <iostream>
-#include <string_view>
 
 namespace tinyui {
 namespace {
@@ -63,8 +62,8 @@ void showDriverInUse(const Context &ctx) {
     printDriverInfo(info);
 }
 
-int queryDriver(const Context &ctx, const std::string_view &driverType) {
-    if (driverType.empty()) {
+int queryDriver(const Context &ctx, const char *driverType, size_t maxLen) {
+    if (driverType == nullptr) {
         ctx.mLogger(LogSeverity::Error, "Driver type is a nullptr.");
         return -1;
     }
@@ -74,7 +73,11 @@ int queryDriver(const Context &ctx, const std::string_view &driverType) {
     for (int i = 0; i < numRenderDrivers; ++i) {
         SDL_RendererInfo info;
         SDL_GetRenderDriverInfo(i, &info);
-        if (driverType == std::string(info.name)) {
+        size_t len = strlen(driverType);
+        if (len > maxLen) {
+            len = maxLen;
+        }
+        if (strncmp(driverType, info.name, len) == 0) {
             found = i;
             break;
         }
@@ -264,7 +267,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         return ErrorCode;
     }
 
-    const int driverIndex = queryDriver(ctx, std::string("opengl"));
+    const int driverIndex = queryDriver(ctx, "opengl", 256);
     if (driverIndex == -1) {
         ctx.mLogger(LogSeverity::Error, "Cannot open opengl driver");
         return ErrorCode;
