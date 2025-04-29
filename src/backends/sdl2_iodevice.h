@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,12 +31,7 @@ namespace tinyui {
 ///
 /// IO-Devices are used to contrl any kind of input / output operations.
 struct IODevice {
-    /// @brief The class destructor.
     ~IODevice() = default;
-
-    /// @brief will do the update for the input states.
-    /// @param[out] event  The new event.
-    /// @return true, if successful, false if not.
     static bool update(SDL_Event &event);
 };
 

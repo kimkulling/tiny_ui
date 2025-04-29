@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,12 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <iostream>
 #include "widgets.h"
 
 using namespace tinyui;
 
-static constexpr Id RootPanelId = 1; /// The id for the root panel
+static constexpr Id RootPanelId = 1;
+
+static constexpr Id NextPanelId = 100;
 
 int quit(uint32_t, void *instance) {
     if (instance == nullptr) {
@@ -61,7 +62,7 @@ int main(int argc, char *argv[]) {
         return ErrorCode;
     }
 
-    Widgets::panel(ctx, RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 120, 400), nullptr);
+    Widgets::panel(ctx, RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 120, 500), nullptr);
     Widgets::label(ctx, 2, RootPanelId, "Title", Rect(100, 10, 100, 20), Alignment::Center);
     Widgets::button(ctx, 3, RootPanelId, "Test 1", nullptr, Rect(100, 50, 100, 40), nullptr);
     Widgets::button(ctx, 4, RootPanelId, "Test 2", nullptr, Rect(100, 100, 100, 40), nullptr);
@@ -73,6 +74,8 @@ int main(int argc, char *argv[]) {
 
     CallbackI updateProgressBarCallback(updateProgressbar, nullptr, Events::UpdateEvent);
     Widgets::progressBar(ctx, 8, RootPanelId, Rect(100, 300, 100, 40), 50, &updateProgressBarCallback);
+
+    Widgets::textfield(ctx, 9, RootPanelId, Rect(100, 350, 100, 40), Alignment::Left);
 
     while (TinyUi::run(ctx)) {
         TinyUi::beginRender(ctx, style.mClearColor);

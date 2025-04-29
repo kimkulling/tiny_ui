@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2024 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -250,8 +250,15 @@ struct Events {
     static constexpr int32_t MouseButtonUpEvent = 2;
     static constexpr int32_t MouseMoveEvent = 3;
     static constexpr int32_t MouseHoverEvent = 4;
-    static constexpr int32_t UpdateEvent = 5;
+    static constexpr int32_t KeyDownEvent = 5;
+    static constexpr int32_t KeyUpEvent = 6;
+    static constexpr int32_t UpdateEvent = 7;
     static constexpr int32_t NumEvents = UpdateEvent + 1;
+};
+
+struct EventData {
+    uint8_t data[16] = {};
+
 };
 
 /// @brief This interface is used to store all neede message handlers.
@@ -326,6 +333,7 @@ struct Context {
     SDLContext         mSDLContext;         ///< The SDL context.
     Style              mStyle;              ///< The active style.
     Widget            *mRoot;               ///< The root widget.
+    Widget            *mFocus;              ///< The widget which is in focus.
     tui_log_func       mLogger = nullptr;   ///< The logger function.
     EventDispatchMap   mEventDispatchMap;   ///< The event dispatch map.
     FontCache          mFontCache;          ///< The font cache.
@@ -351,7 +359,8 @@ private:
             mWindowsTitle(nullptr),
             mSDLContext(),
             mStyle(),
-            mRoot(nullptr) {
+            mRoot(nullptr),
+            mFocus(nullptr) {
         // empty
     }
 };
