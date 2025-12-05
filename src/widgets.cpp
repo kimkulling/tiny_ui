@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Kim Kulling
+Copyright (c) 2022-2025 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -121,7 +121,7 @@ void eventDispatcher(Context &ctx, int32_t eventId, EventData *eventData) {
     if (eventId == Events::KeyDownEvent || eventId == Events::KeyUpEvent) {
         if (eventData != nullptr) {
             if (ctx.mFocus->mType == WidgetType::TextField) {
-                ctx.mFocus->mText.append((const char*)eventData->data[0]);
+                ctx.mFocus->mText.append((const char*)eventData->payload[0]);
             }
         }
     }
@@ -218,7 +218,6 @@ ret_code Widgets::textfield(Context &ctx, Id id, Id parentId, const Rect &rect, 
     return ResultOk;
 }
 
-
 ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text, const char *image, const Rect &rect, CallbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
@@ -306,12 +305,14 @@ ret_code Widgets::progressBar(Context &ctx, Id id, Id parentId, const Rect &rect
         return ErrorCode;
     }
 
-    FilledState *state = new FilledState;
     clamp(0, 100, fillRate);
-    state->filledState = fillRate;
-    child->mContent = new uint8_t[sizeof(FilledState)];
+    FilledState state;
+    state.filledState = fillRate;
+    child->mContent = new uint8_t[sizeof(EventData)];
     child->mCallback = callback;
-    memcpy(child->mContent, state, sizeof(FilledState));
+    EventData data;
+    data.type = EventDataType::FillState;
+    memcpy(child->mContent, &data, sizeof(EventData));
     if (callback != nullptr) {
         callback->mInstance = child;
         ctx.mUpdateCallbackList.push_back(callback);
@@ -370,9 +371,19 @@ static void render(Context &ctx, Widget *currentWidget) {
         case WidgetType::ProgressBar:
             {
                 Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
-                FilledState *state = reinterpret_cast<FilledState *>(currentWidget->mContent);
-                const uint32_t fillRate = state->filledState;
-                const uint32_t width = r.width * fillRate / 100;
+                EventData *data = reinterpret_cast<EventData *>(currentWidget->mContent);
+                if (data == nullptr) {
+                    break;
+                }
+                FilledState *state = reinterpret_cast<FilledState *>(data->payload);
+                if (state == nullptr) {
+                    break;
+                }
+                const uint32_t fillRate{ state->filledState };
+                uint32_t width{ 0 };
+                if (fillRate != 0) {
+                    width = r.width * fillRate / 100;
+                }
                 Renderer::drawRect(ctx, r.x1, r.y1, width, r.height, true, ctx.mStyle.mTextColor);                       
             } 
             break;
@@ -450,12 +461,17 @@ void Widgets::onKey(Context &ctx, const char *key, bool isDown) {
         return;
     }
 
+    EventData eventData;
+    eventData.payload[0] = *key;
+    int32_t eventId = -1;
     if (isDown) {
-        EventData eventData;
-        eventData.data[0] = *key;
-        eventDispatcher(ctx, Events::KeyDownEvent, &eventData);
-
+        eventId = Events::KeyDownEvent;
+        eventData.type = EventDataType::KeyDownState;
+    } else {
+        eventId = Events::KeyUpEvent;
+        eventData.type = EventDataType::KeyUpState;
     }
+    eventDispatcher(ctx, eventId, &eventData);
 }
 
 void recursiveClear(Widget *current) {

@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Kim Kulling
+Copyright (c) 2022-2025 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,11 +31,11 @@ SOFTWARE.
 
 #include "stb_image.h"
 
-/*
+/*=========================================================================
  *  Changelog:
  *  ==========
  *  0.0.1: Initial version.
- */
+ =========================================================================*/
 
 // Forward declarations
 struct SDL_Window;
@@ -49,33 +49,30 @@ struct SurfaceImpl;
 struct FontImpl;
 struct Widget;
 
-/// @brief The return code.
+/// @brief The return code type used in the ui library.
 using ret_code = int32_t;
 
-/// @brief The invalid handle.
+/// @brief The invalid handle return code.
 static constexpr ret_code InvalidHandle = -2;
-/// @brief The error code.
+/// @brief The general error code. This will indicate an error, which was not related to a special operation.
 static constexpr ret_code ErrorCode = -1;
-/// @brief The ok code.
+/// @brief The ok code, everythink was fine.
 static constexpr ret_code ResultOk  = 0;
 
 /// @brief The default color type with 4 components.
 struct Color4 {
-    uint8_t r;      ///< The red component.
-    uint8_t g;      ///< The green component.
-    uint8_t b;      ///< The blue component.
-    uint8_t a;      ///< The alpha component.
+    uint8_t r{ 1 };                         ///< The red component.
+    uint8_t g{ 1 };                         ///< The green component.
+    uint8_t b{ 1 };                         ///< The blue component.
+    uint8_t a{ 1 };                         ///< The alpha component.
 };
 
 /// @brief The image data.
 struct Image {
-    SurfaceImpl *mSurfaceImpl;
-    int32_t mX;     ///< The width of the image.
-    int32_t mY;     ///< The height of the image.
-    int32_t mComp;  ///< The number of components.
-
-    /// @brief The default class constructor
-    Image() : mSurfaceImpl(nullptr), mX(0), mY(0), mComp(0) {}
+    SurfaceImpl *mSurfaceImpl{ nullptr };   ///< The surface implementation. 
+    int32_t mX{ 0 };                        ///< The width of the image.
+    int32_t mY{ 0 };                        ///< The height of the image.
+    int32_t mComp{ 0 };                     ///< The number of components.
 };
 
 /// @brief The image cache.
@@ -84,11 +81,8 @@ using ImageCache = std::map<const char*, Image*>;
 /// @brief The point in 2D.
 template<class T>
 struct Point2 {
-    T x; ///< The x-coordinate.
-    T y; ///< The y-coordinate.
-
-    /// @brief The default class constructor.
-    Point2() : x(0), y(0) {}
+    T x{ 0 };                               ///< The x-coordinate.
+    T y{ 0 };                               ///< The y-coordinate.
 
     /// @brief The class constructor
     /// @param x_ The x-coordinate.
@@ -244,21 +238,32 @@ enum class LogSeverity {
 
 /// @brief The tiny ui events.
 struct Events {
-    static constexpr int32_t InvalidEvent = -1;
-    static constexpr int32_t QuitEvent = 0;
-    static constexpr int32_t MouseButtonDownEvent = 1;
-    static constexpr int32_t MouseButtonUpEvent = 2;
-    static constexpr int32_t MouseMoveEvent = 3;
-    static constexpr int32_t MouseHoverEvent = 4;
-    static constexpr int32_t KeyDownEvent = 5;
-    static constexpr int32_t KeyUpEvent = 6;
-    static constexpr int32_t UpdateEvent = 7;
-    static constexpr int32_t NumEvents = UpdateEvent + 1;
+    static constexpr int32_t InvalidEvent = -1;             ///< The invalid event.
+    static constexpr int32_t QuitEvent = 0;                 ///< The quit event.
+    static constexpr int32_t MouseButtonDownEvent = 1;      ///< The mouse button down event.
+    static constexpr int32_t MouseButtonUpEvent = 2;        ///< The mouse button up event.
+    static constexpr int32_t MouseMoveEvent = 3;            ///< The mouse move event.
+    static constexpr int32_t MouseHoverEvent = 4;           ///< The mouse hover event.
+    static constexpr int32_t KeyDownEvent = 5;              ///< The key down event.
+    static constexpr int32_t KeyUpEvent = 6;                ///< The key up event.
+    static constexpr int32_t UpdateEvent = 7;               ///< The update event.
+    static constexpr int32_t NumEvents = UpdateEvent + 1;   ///< The number of events.
 };
 
-struct EventData {
-    uint8_t data[16] = {};
+/// @brief The payload identifier for the events.
+enum class EventDataType : int32_t {
+    Invalid = -1,   ///< The invalid event data type.
+    FillState,      ///< The fill state.    
+    KeyDownState,   ///< The key down state.
+    KeyUpState,     ///< The key up state.
+    Count           ///< The number of event data types.
+};
 
+/// @brief The event data struct.
+struct EventData {
+    static constexpr size_t EventDataSize = 16;     ///< The size of the event data.
+    EventDataType type{ EventDataType::Invalid };   ///< The event data type.
+    uint8_t payload[EventDataSize] = {};            ///< The event data payload.
 };
 
 /// @brief This interface is used to store all neede message handlers.
@@ -271,8 +276,7 @@ struct CallbackI {
     void *mInstance;
 
     /// @brief The default class constructor.
-    CallbackI() :
-            mfuncCallback{ nullptr }, mInstance(nullptr) {
+    CallbackI() : mfuncCallback{ nullptr }, mInstance(nullptr) {
         clear();
     }
 
@@ -308,17 +312,12 @@ typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 
 /// @brief The SDL context.
 struct SDLContext {
-    SDL_Window   *mWindow;          ///< The window.
-    SDL_Surface  *mSurface;         ///< The surface.
-    SDL_Renderer *mRenderer;        ///< The renderer.
-    Font         *mDefaultFont;     ///< The default font.
-    Font         *mSelectedFont;    ///< The selected font.
-    bool          mOwner;           ///< The owner state.
-
-    /// @brief The default class constructor
-    SDLContext() :
-            mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr),
-        mDefaultFont(nullptr), mSelectedFont(nullptr), mOwner(true) {}
+    SDL_Window      *mWindow{nullptr};              ///< The window.
+    SDL_Surface     *mSurface{ nullptr };           ///< The surface.
+    SDL_Renderer    *mRenderer{ nullptr };          ///< The renderer.
+    Font            *mDefaultFont{ nullptr };       ///< The default font.
+    Font            *mSelectedFont{ nullptr };      ///< The selected font.
+    bool            mOwner{ false };                ///< The owner state.
 };
 
 /// @brief The update callback list.
@@ -426,6 +425,8 @@ struct TinyUi {
     /// @param style The style to use.
     /// @return The created context.
     static Context *createContext(const char *title, Style &style);
+
+    static uint32_t getTicks();
 };
 
 } // Namespace TinyUi

@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "widgets.h"
+#include <cmath>
+#include <iostream>
 
 using namespace tinyui;
 
@@ -40,15 +42,37 @@ int quit(uint32_t, void *instance) {
     return ResultOk;
 }
 
+static uint32_t LastTick = 0;
+static uint32_t Diff = 0;
+static constexpr uint32_t TimeDiff = 10;
+
 int updateProgressbar(uint32_t, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
     }
     
+    if (LastTick == 0) {
+        LastTick = TinyUi::getTicks();
+        return ResultOk;
+    }
+
     auto *widget = (Widget*) instance;
-    auto *state = (FilledState*) widget->mContent;
-    state->filledState++;
-    if (state->filledState > 100) state->filledState = 0;
+    auto *eventData = (EventData*) widget->mContent;
+    if (eventData->type == EventDataType::FillState) {
+        FilledState *state = (FilledState*) (eventData->payload);
+        uint32_t tick = TinyUi::getTicks();
+        uint32_t diff = tick - LastTick;
+        Diff += diff;
+        std::cout << "Tick Diff: " << Diff << std::endl;
+        if (Diff > TimeDiff) {
+            state->filledState++;
+            Diff = 0;
+            if (state->filledState > 100) {
+                state->filledState = 0;
+            }
+        }
+        LastTick = tick;
+    }
 
     return ResultOk;
 }

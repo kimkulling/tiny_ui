@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Kim Kulling
+Copyright (c) 2022-2025 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,7 @@ enum class WidgetType {
     Panel,              ///< A panel widget
     Box,                ///< A box widget
     TreeView,           ///< A treeeview widget
-    ProgressBar,          ///< A status bar widget
+    ProgressBar,        ///< A status bar widget
     Count               ///< The number of widgets
 };
 
@@ -139,6 +139,11 @@ struct Widget {
 
     Widget(const Widget &) = delete;
     Widget &operator=(const Widget &) = delete;
+};
+
+struct TreeNode {
+    Id mWidgetId;   ///< The unique id of the widget
+    bool mExpanded; ///< The expanded state of the tree item
 };
 
 /// @brief The widgets access wrapper class.

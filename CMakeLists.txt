@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 
 option(TINY_UI_SAMPLES "The build will create the samples." ON)
 
