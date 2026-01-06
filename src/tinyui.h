@@ -78,6 +78,20 @@ struct Image {
 /// @brief The image cache.
 using ImageCache = std::map<const char*, Image*>;
 
+/// @brief  A 2-dimensional vector 
+/// @tparam T The pod template type
+template<class T>
+struct Vec2 {
+    /// @brief The constructor with the components.
+    /// @param[in] x_    The x-component
+    /// @param[in] y_    The y-component
+    Vec2(T x_, T y_) : x(x_), y(y_) {}
+    T x{0};     ///< The x-component
+    T y{0};     ///< The y-component
+};
+
+using Vec2i = Vec2<int32_t>;
+
 /// @brief The point in 2D.
 template<class T>
 struct Point2 {
@@ -106,20 +120,17 @@ using Point2i = Point2<int32_t>;
 
 /// @brief The rectangle in 2D.
 struct Rect {
-    int32_t x1;     ///< The x-coordinate of the upper left corner.
-    int32_t y1;     ///< The y-coordinate of the upper left corner.
+    Vec2i top;      ///< The upper left corner.
     int32_t width;  ///< The width of the rectangle.
     int32_t height; ///< The height of the rectangle.
-    int32_t x2;     ///< The x-coordinate of the lower right corner.
-    int32_t y2;     ///< The y-coordinate of the lower right corner.
+    Vec2i bottom;   ///< The lower right corner.
 
     /// @brief The default class constructor
-    Rect() :
-            x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
+    Rect() : top(-1, -1), width(-1), height(-1), bottom(-1, -1) {}
 
     /// @brief The class constructor
     Rect(int32_t x, int32_t y, int32_t w, int32_t h) :
-            x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {
+            top(-1, -1), width(-1), height(-1), bottom(-1, -1) {
         set(x, y, w, h);
     }
 
@@ -138,7 +149,7 @@ struct Rect {
     /// @param y_ The y-coordinate of the point.
     /// @return true if the point is inside the rectangle, false if not.
     bool isIn(int x_, int y_) const {
-        if (x_ >= x1 && y_ >= y1 && x_ <=x2 && y_ <= y2) {
+        if (x_ >= top.x && y_ >= top.y && x_ <= bottom.x && y_ <= bottom.y) {
             return true;
         }
         return false;
@@ -150,34 +161,34 @@ struct Rect {
     /// @param w The width of the rectangle.
     /// @param h The height of the rectangle.
     void set(int32_t x, int32_t y, int32_t w, int32_t h) {
-        x1 = x;
-        y1 = y;
+        top.x = x;
+        top.y = y;
         width = w;
         height = h;
-        x2 = x + w;
-        y2 = y + h;
+        bottom.x = x + w;
+        bottom.y = y + h;
     }
 
     /// @brief Merge the rectangle with another rectangle.
     /// @param r The rectangle to merge with.
     void mergeWithRect(const Rect &r) {
-        if (x1 > r.x1 || x1 == -1) {
-            x1 = r.x1;
+        if (top.x > r.top.x || top.x == -1) {
+            top.x = r.top.x;
         }
 
-        if (y1 > r.y1 || y1 == -1) {
-            y1 = r.y1;
+        if (top.y > r.top.y || top.y == -1) {
+            top.y = r.top.y;
         }
 
-        const int x2_ = r.x1 + r.width;
-        if (x2 < x2_) {
-            x2 = x2_;
+        const int x2_ = top.x + r.width;
+        if (bottom.x < x2_) {
+            bottom.x = x2_;
             width = r.width;
         }
 
-        const int y2_ = r.y1 + r.height;
-        if (y2 < y2_) {
-            y2 = y2_;
+        const int y2_ = bottom.y + r.height;
+        if (bottom.y < y2_) {
+            bottom.y = y2_;
             height = r.height;
         }
     }

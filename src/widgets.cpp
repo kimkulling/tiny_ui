@@ -340,9 +340,9 @@ static void render(Context &ctx, Widget *currentWidget) {
     switch( currentWidget->mType) {
         case WidgetType::Button:
             {
-                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
                 if (currentWidget->mImage != nullptr) {
-                    Renderer::drawImage(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mImage);
+                    Renderer::drawImage(ctx, r.top.x, r.top.y, r.width, r.height, currentWidget->mImage);
                 }
                 if (!currentWidget->mText.empty()) {
                     Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
@@ -364,13 +364,13 @@ static void render(Context &ctx, Widget *currentWidget) {
 
         case WidgetType::Panel:
             {
-                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, false, ctx.mStyle.mBorder);
             }
             break;
 
         case WidgetType::ProgressBar:
             {
-                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
                 EventData *data = reinterpret_cast<EventData *>(currentWidget->mContent);
                 if (data == nullptr) {
                     break;
@@ -384,21 +384,21 @@ static void render(Context &ctx, Widget *currentWidget) {
                 if (fillRate != 0) {
                     width = r.width * fillRate / 100;
                 }
-                Renderer::drawRect(ctx, r.x1, r.y1, width, r.height, true, ctx.mStyle.mTextColor);                       
+                Renderer::drawRect(ctx, r.top.x, r.top.y, width, r.height, true, ctx.mStyle.mTextColor);                       
             } 
             break;
 
         case WidgetType::TextField:
         {
-            Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
-            Renderer::drawRect(ctx, r.x1+2, r.y1+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
+            Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
+            Renderer::drawRect(ctx, r.top.x+2, r.top.y+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
         }
         break;
 
         case WidgetType::Container:
         case WidgetType::Box:
             {
-                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
             }
             break;
     }

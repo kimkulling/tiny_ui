@@ -208,8 +208,8 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         return ErrorCode;
     }
 
-    SDL_Texture *message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
-    if (message == nullptr) {
+    SDL_Texture *messageTexture = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
+    if (messageTexture == nullptr) {
         const std::string msg = "Cannot create texture: " + std::string(SDL_GetError()) + ".";
         ctx.mLogger(LogSeverity::Error, msg.c_str());
         return ErrorCode;
@@ -219,26 +219,26 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
     SDL_Rect Message_rect = {};
     switch (alignment) {
         case Alignment::Left:
-            Message_rect.x = r.x1 + margin;
-            Message_rect.y = r.y1 + margin;
+            Message_rect.x = r.top.x + margin;
+            Message_rect.y = r.top.y + margin;
             Message_rect.w = font->mSize;
             Message_rect.h = font->mSize;
             break;
         case Alignment::Center:
-            Message_rect.x = r.x1 + 2 * margin + surfaceMessage->clip_rect.w / 2;
-            Message_rect.y = r.y1 + margin;
+            Message_rect.x = r.top.x + 2 * margin + surfaceMessage->clip_rect.w / 2;
+            Message_rect.y = r.top.y + margin;
             Message_rect.w = font->mSize;
             Message_rect.h = font->mSize;
             break;
         case Alignment::Right:
-            Message_rect.x = r.x1 + surfaceMessage->clip_rect.w - font->mSize * strlen(string);
-            Message_rect.y = r.y1 + margin;
+            Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - font->mSize * strlen(string);
+            Message_rect.y = r.top.y + margin;
             Message_rect.w = font->mSize;
             Message_rect.h = font->mSize;
             break;
     }
 
-    SDL_RenderCopy(ctx.mSDLContext.mRenderer, message, NULL, &Message_rect);
+    SDL_RenderCopy(ctx.mSDLContext.mRenderer, messageTexture, NULL, &Message_rect);
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(message);
 
