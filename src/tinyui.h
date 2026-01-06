@@ -270,8 +270,7 @@ enum class EventDataType : int32_t {
     FillState,      ///< The fill state.    
     KeyDownState,   ///< The key down state.
     KeyUpState,     ///< The key up state.
-    Count           ///< The number of event data        if (Diff > TimeDiff) {
- types.
+    Count           ///< The number of event data        
 };
 
 /// @brief The event data struct.
