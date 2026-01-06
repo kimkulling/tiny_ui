@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2026 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -240,7 +240,7 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
 
     SDL_RenderCopy(ctx.mSDLContext.mRenderer, messageTexture, NULL, &Message_rect);
     SDL_FreeSurface(surfaceMessage);
-    SDL_DestroyTexture(message);
+    SDL_DestroyTexture(messageTexture);
 
     return ResultOk;
 }

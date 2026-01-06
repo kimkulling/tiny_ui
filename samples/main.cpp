@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Kim Kulling
+Copyright (c) 2022-2026 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,6 @@ int updateProgressbar(uint32_t, void *instance) {
         uint32_t tick = TinyUi::getTicks();
         uint32_t diff = tick - LastTick;
         Diff += diff;
-        std::cout << "Tick Diff: " << Diff << std::endl;
         if (Diff > TimeDiff) {
             state->filledState++;
             Diff = 0;

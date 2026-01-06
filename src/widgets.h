@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2026 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -199,6 +199,13 @@ struct Widgets {
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static ret_code label(Context &ctx, Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment);
 
+    /// @brief Creates a new widget from the type textfield.
+    /// @param ctx        The context to create the widget in.
+    /// @param id         The unique id of the widget.
+    /// @param parentId   The parent id of the widget.
+    /// @param rect       The rect of the widget.
+    /// @param alignment  The alignment of the widget.
+    /// @return ResultOk if the widget was created, ErrorCode if not.
     static ret_code textfield(Context &ctx, Id id, Id parentId, const Rect &rect, Alignment alignment);
 
     /// @brief Create a new widget from the type button.
@@ -285,6 +292,10 @@ struct Widgets {
     /// @return true if the widget is enabled, false if not.
     static bool isEnabled(Context &ctx, Id id);
 
+    /// @brief Will set the focus to the widget by its id.
+    /// @param ctx The context to set the focus in.
+    /// @param id  The id of the widget to set the focus to.
+    /// @return ResultOk if the focus was set, ErrorCode if not.
     static ret_code setFocus(Context &ctx, Id id);
 
     /// @brief Will return the widget by its id.

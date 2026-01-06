@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2026 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,9 @@ SOFTWARE.
 /*=========================================================================
  *  Changelog:
  *  ==========
+ *  0.0.2: New features:
+ *         - Added mouse hover event support.
+ *         - Added progress bar widget.
  *  0.0.1: Initial version.
  =========================================================================*/
 
@@ -267,7 +270,8 @@ enum class EventDataType : int32_t {
     FillState,      ///< The fill state.    
     KeyDownState,   ///< The key down state.
     KeyUpState,     ///< The key up state.
-    Count           ///< The number of event data types.
+    Count           ///< The number of event data        if (Diff > TimeDiff) {
+ types.
 };
 
 /// @brief The event data struct.

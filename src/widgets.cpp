@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2025 Kim Kulling
+Copyright (c) 2022-2026 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -218,7 +218,8 @@ ret_code Widgets::textfield(Context &ctx, Id id, Id parentId, const Rect &rect, 
     return ResultOk;
 }
 
-ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text, const char *image, const Rect &rect, CallbackI *callback) {
+ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text, const char *image, 
+        const Rect &rect, CallbackI *callback) {
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return ErrorCode;
     }
