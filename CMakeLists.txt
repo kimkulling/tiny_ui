@@ -37,8 +37,6 @@ SET(tinyui_backends_src
     src/backends/sdl2_iodevice.cpp
 )
 
-SET(tinyui_contrib_stb_image_src
-)
 SOURCE_GROUP( Backends  FILES ${tinyui_backends_src} )
 
 ADD_LIBRARY(tiny_ui
@@ -58,10 +56,12 @@ if( TINY_UI_SAMPLES)
     ADD_EXECUTABLE(tiny_ui_sample
         samples/main.cpp
     )
+    
     target_link_libraries(tiny_ui_sample
-     tiny_ui
-     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-     $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
-     $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
+        tiny_ui
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+        $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
+        $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
+    )
 
 endif()
