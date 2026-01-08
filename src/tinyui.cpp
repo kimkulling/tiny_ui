@@ -26,7 +26,6 @@ SOFTWARE.
 #include "backends/sdl2_renderer.h"
 #include "backends/sdl2_iodevice.h"
 
-#include <cassert>
 #include <iostream>
 #include <cstring>
 
@@ -56,7 +55,50 @@ void log_message(LogSeverity severity, const char *message) {
     std::cout << SeverityToken[static_cast<size_t>(severity)] << " " << message <<"\n.";
 }
 
-ret_code TinyUi::init(Context &ctx) {
+Context *gCtx = nullptr;
+
+Context *Context::create(const char *title, Style &style) {
+    Context *ctx = new Context;
+    ctx->mLogger = log_message;
+    ctx->mAppTitle = title;
+    ctx->mWindowsTitle = title;
+    ctx->mStyle = style;
+
+    return ctx;
+}
+
+void Context::destroy(Context *ctx) {
+    delete ctx;
+}
+
+bool TinyUi::createContext(const char *title, Style &style) {
+    if (gCtx != nullptr) {
+        return false;
+    }
+
+    gCtx = Context::create(title,  style);
+
+    return true;
+}
+
+bool TinyUi::destroyContext() {
+    if (gCtx == nullptr) {
+        return false;
+    }
+
+    Context::destroy(gCtx);
+    gCtx = nullptr;
+
+    return true;
+}
+
+Context &TinyUi::getContext() {
+    assert(nullptr != gCtx);
+    return *gCtx;
+}
+
+ret_code TinyUi::init() {
+    auto &ctx = TinyUi::getContext();
     if (ctx.mCreated) {
         return ErrorCode;
     }
@@ -66,7 +108,8 @@ ret_code TinyUi::init(Context &ctx) {
     return ResultOk;
 }
 
-ret_code TinyUi::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
+ret_code TinyUi::initScreen(int32_t x, int32_t y, int32_t w, int32_t h) {
+    auto &ctx = TinyUi::getContext();
     if (Renderer::initRenderer(ctx) == ErrorCode) {
         printf("Error: Cannot init renderer\n");
         return ErrorCode;
@@ -75,7 +118,8 @@ ret_code TinyUi::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32
     return Renderer::initScreen(ctx, x, y, w, h);
 }
 
-ret_code TinyUi::getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
+ret_code TinyUi::getSurfaceInfo(int32_t &w, int32_t &h) {
+    auto &ctx = TinyUi::getContext();
     w = h = -1;
     if (!ctx.mCreated) {
         return ErrorCode;
@@ -91,7 +135,8 @@ ret_code TinyUi::getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
     return ResultOk;
 }
 
-bool TinyUi::run(Context &ctx) {
+bool TinyUi::run() {
+    auto &ctx = TinyUi::getContext();
     if (!ctx.mUpdateCallbackList.empty()) {
         for (auto it = ctx.mUpdateCallbackList.begin(); it != ctx.mUpdateCallbackList.end(); ++it) {
             (*it)->mfuncCallback[Events::UpdateEvent](1, (*it)->mInstance);
@@ -100,15 +145,18 @@ bool TinyUi::run(Context &ctx) {
     return Renderer::update(ctx);
 }
 
-ret_code TinyUi::beginRender(Context &ctx, Color4 bg) {
+ret_code TinyUi::beginRender(Color4 bg) {
+    auto &ctx = TinyUi::getContext();
     return Renderer::beginRender(ctx, bg);
 }
 
-ret_code TinyUi::endRender(Context &ctx) {
+ret_code TinyUi::endRender() {
+    auto &ctx = TinyUi::getContext();
     return Renderer::endRender(ctx);
 }
 
-ret_code TinyUi::release(Context &ctx) {
+ret_code TinyUi::release() {
+    auto &ctx = TinyUi::getContext();
     if (!ctx.mCreated) {
         return ErrorCode;
     }
@@ -116,21 +164,6 @@ ret_code TinyUi::release(Context &ctx) {
     ctx.mCreated = false;
 
     return ResultOk;
-}
-
-Context &Context::create(const char *title, Style &style) {
-    Context *ctx = new Context;
-    ctx->mLogger = log_message;
-    ctx->mAppTitle = title;
-    ctx->mWindowsTitle = title;
-    ctx->mStyle = style;
-
-    return *ctx;
-}
-
-void Context::destroy(Context &ctx) {
-    Context *ptr = &ctx;
-    delete ptr;
 }
 
 const Style &TinyUi::getDefaultStyle() {
@@ -145,13 +178,8 @@ void TinyUi::setDefaultStyle(const Style &style) {
     DefaultStyle.mMargin = style.mMargin;
 }
 
-Context *TinyUi::createContext(const char *title, Style &style) {
-    Context *ctx = &Context::create(title, style);
-
-    return ctx;
-}
-
-void TinyUi::setDefaultFont(Context &ctx, const char *defaultFont) {
+void TinyUi::setDefaultFont(const char *defaultFont) {
+    auto &ctx = TinyUi::getContext();
     if (defaultFont == nullptr) {
         return;
     }

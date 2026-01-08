@@ -24,6 +24,7 @@ SOFTWARE.
 #pragma once
 
 #include <cstdint>
+#include <cassert>
 #include <vector>
 #include <list>
 #include <string>
@@ -31,16 +32,23 @@ SOFTWARE.
 
 #include "stb_image.h"
 
-/*=========================================================================
+/*
+ ==============================================================================
  *  Changelog:
  *  ==========
  *  0.0.2: New features:
  *         - Added mouse hover event support.
  *         - Added progress bar widget.
  *  0.0.1: Initial version.
- =========================================================================*/
+ ==============================================================================
+ */
 
-// Forward declarations
+// Compiler configurations ----------------------------------------------------
+#if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
+#   define _CRT_SECURE_NO_WARNINGS
+#endif
+
+// Forward declarations -------------------------------------------------------
 struct SDL_Window;
 struct SDL_Surface;
 struct SDL_Renderer;
@@ -52,9 +60,13 @@ struct SurfaceImpl;
 struct FontImpl;
 struct Widget;
 
+// Type declarations ----------------------------------------------------------
+
 /// @brief The return code type used in the ui library.
 using ret_code = int32_t;
 
+/// @brief The invalid render handle return code.
+static constexpr ret_code InvalidRenderHandle = -3;
 /// @brief The invalid handle return code.
 static constexpr ret_code InvalidHandle = -2;
 /// @brief The general error code. This will indicate an error, which was not related to a special operation.
@@ -85,21 +97,27 @@ using ImageCache = std::map<const char*, Image*>;
 /// @tparam T The pod template type
 template<class T>
 struct Vec2 {
+    T x{ -1 };     ///< The x-component
+    T y{ -1 };     ///< The y-component
+
+    /// @brief The default class constructor.
+    Vec2() = default;
+
     /// @brief The constructor with the components.
     /// @param[in] x_    The x-component
     /// @param[in] y_    The y-component
     Vec2(T x_, T y_) : x(x_), y(y_) {}
-    T x{0};     ///< The x-component
-    T y{0};     ///< The y-component
 };
 
+/// @brief 2D vector for signed 32-bit integer.
 using Vec2i = Vec2<int32_t>;
 
 /// @brief The point in 2D.
+/// @tparam T The pod template type
 template<class T>
 struct Point2 {
-    T x{ 0 };                               ///< The x-coordinate.
-    T y{ 0 };                               ///< The y-coordinate.
+    T x{ 0 };           ///< The x-coordinate.
+    T y{ 0 };           ///< The y-coordinate.
 
     /// @brief The class constructor
     /// @param x_ The x-coordinate.
@@ -123,17 +141,16 @@ using Point2i = Point2<int32_t>;
 
 /// @brief The rectangle in 2D.
 struct Rect {
-    Vec2i top;      ///< The upper left corner.
-    int32_t width;  ///< The width of the rectangle.
-    int32_t height; ///< The height of the rectangle.
-    Vec2i bottom;   ///< The lower right corner.
+    Vec2i   top;        ///< The upper left corner.
+    int32_t width{-1};  ///< The width of the rectangle.
+    int32_t height{-1}; ///< The height of the rectangle.
+    Vec2i   bottom;     ///< The lower right corner.
 
     /// @brief The default class constructor
-    Rect() : top(-1, -1), width(-1), height(-1), bottom(-1, -1) {}
+    Rect() = default;
 
     /// @brief The class constructor
-    Rect(int32_t x, int32_t y, int32_t w, int32_t h) :
-            top(-1, -1), width(-1), height(-1), bottom(-1, -1) {
+    Rect(int32_t x, int32_t y, int32_t w, int32_t h) {
         set(x, y, w, h);
     }
 
@@ -229,7 +246,7 @@ struct Style {
     Font    mFont;          ///< The font.
 };
 
-/// @brief The mouse state
+/// @brief The mouse state, used to describe different mouse events.
 enum class MouseState {
     Invalid = -1,       ///< The invalid state
     LeftButton = 0,     ///< The left button
@@ -274,7 +291,7 @@ enum class EventDataType : int32_t {
 };
 
 /// @brief The event data struct.
-struct EventData {
+struct EventPayload {
     static constexpr size_t EventDataSize = 16;     ///< The size of the event data.
     EventDataType type{ EventDataType::Invalid };   ///< The event data type.
     uint8_t payload[EventDataSize] = {};            ///< The event data payload.
@@ -339,51 +356,56 @@ using UpdateCallbackList = std::list<CallbackI*>;
 
 /// @brief The tiny ui context.
 struct Context {
-    bool               mCreated;            ///< The created state.
-    bool               mRequestShutdown;    ///< The request shutdown state.
-    const char        *mAppTitle;           ///< The application title.
-    const char        *mWindowsTitle;       ///< The window title.
-    SDLContext         mSDLContext;         ///< The SDL context.
-    Style              mStyle;              ///< The active style.
-    Widget            *mRoot;               ///< The root widget.
-    Widget            *mFocus;              ///< The widget which is in focus.
-    tui_log_func       mLogger = nullptr;   ///< The logger function.
-    EventDispatchMap   mEventDispatchMap;   ///< The event dispatch map.
-    FontCache          mFontCache;          ///< The font cache.
-    ImageCache         mImageCache;         ///< The image cache.
-    UpdateCallbackList mUpdateCallbackList; ///< The update callback list.
+    bool               mCreated{false};             ///< The created state.
+    bool               mRequestShutdown{false};     ///< The request shutdown state.
+    const char        *mAppTitle{nullptr};          ///< The application title.
+    const char        *mWindowsTitle{nullptr};      ///< The window title.
+    SDLContext         mSDLContext;                 ///< The SDL context.
+    Style              mStyle{};                    ///< The active style.
+    Widget            *mRoot{nullptr};              ///< The root widget.
+    Widget            *mFocus{nullptr};             ///< The widget which is in focus.
+    tui_log_func       mLogger{};                   ///< The logger function.
+    EventDispatchMap   mEventDispatchMap;           ///< The event dispatch map.
+    FontCache          mFontCache{};                ///< The font cache.
+    ImageCache         mImageCache{};               ///< The image cache.
+    UpdateCallbackList mUpdateCallbackList{};       ///< The update callback list.
 
     /// @brief Will create a new tiny ui context.
     /// @param title The title of the context.
     /// @param style The style to use.
     /// @return The created context.
-    static Context &create(const char *title, Style &style);
+    static Context *create(const char *title, Style &style);
     
     /// @brief Will destroy a valid tinyui context.
     /// @param ctx  The context to destroy.
-    static void destroy(Context &ctx);
+    static void destroy(Context *ctx);
 
 private:
     /// @brief The default class constructor
-    Context() :
-            mCreated(false),
-            mRequestShutdown(false),
-            mAppTitle(nullptr),
-            mWindowsTitle(nullptr),
-            mSDLContext(),
-            mStyle(),
-            mRoot(nullptr),
-            mFocus(nullptr) {
-        // empty
-    }
+    Context() = default;
+
+    /// @brief The class destructor.
+    ~Context() = default;
 };
 
 /// @brief The tiny ui interface.
 struct TinyUi {
+    /// @brief Will create the tinyui context.
+    /// @param title    The app title.
+    /// @param style    The style to use.
+    /// @return true if successful.
+    static bool createContext(const char *title, Style &style);
+    
+    /// @brief Will destroy the context.
+    /// @return true if successful.
+    static bool destroyContext();
+
+    static Context &getContext();
+
     /// @brief Initialize the tiny ui.
     /// @param ctx The context to initialize.
     /// @return ResultOk if the initialization was successful, ErrorCode if not.
-    static ret_code init(Context &ctx);
+    static ret_code init();
 
     /// @brief Initialize the screen.
     /// @param ctx The context to initialize.
@@ -392,34 +414,34 @@ struct TinyUi {
     /// @param w The width of the screen.
     /// @param h The height of the screen.
     /// @return ResultOk if the initialization was successful, ErrorCode if not.
-    static ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
+    static ret_code initScreen(int32_t x, int32_t y, int32_t w, int32_t h);
 
     /// @brief Get the surface information.
     /// @param ctx The context to get the surface information from.
     /// @param w The width of the surface.
     /// @param h The height of the surface.
     /// @return ResultOk if the information was retrieved, ErrorCode if not.
-    static ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h);
+    static ret_code getSurfaceInfo(int32_t &w, int32_t &h);
 
     /// @brief Run the tiny ui.
     /// @param ctx The context to run.
     /// @return true if the tiny ui is running, false if not.
-    static bool run(Context &ctx);
+    static bool run();
 
     /// @brief Begins the rendering.
     /// @param ctx The context to begin the rendering.
     /// @param bg The background color for clearing.
     /// @return ResultOk if the rendering was started, ErrorCode if not.
-    static ret_code beginRender(Context &ctx, Color4 bg);
+    static ret_code beginRender(Color4 bg);
 
     /// @brief Ends the rendering.
     /// @param ctx The context to end the rendering.
-    static ret_code endRender(Context &ctx);
+    static ret_code endRender();
     
     /// @brief Release the tiny ui context.
     /// @param ctx The context to release.
     /// @return ResultOk if the context was released, ErrorCode if not.
-    static ret_code release(Context &ctx);
+    static ret_code release();
 
     /// @brief Get the default style.
     /// @return The default style.
@@ -432,14 +454,10 @@ struct TinyUi {
     /// @brief Get the default font.
     /// @param ctx The context to end the rendering.
     /// @param defaultFont The default font to set.
-    static void setDefaultFont(Context &ctx, const char *defaultFont);
+    static void setDefaultFont(const char *defaultFont);
     
-    /// @brief Will create a new context.
-    /// @param title The title of the context.
-    /// @param style The style to use.
-    /// @return The created context.
-    static Context *createContext(const char *title, Style &style);
-
+    /// @brief Will return the current counted ticks in ms.
+    /// @return The ticks in ms.
     static uint32_t getTicks();
 };
 

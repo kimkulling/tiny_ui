@@ -338,11 +338,7 @@ ret_code Renderer::beginRender(Context &ctx, Color4 bg, SDL_Texture *renderTarge
 }
 
 ret_code Renderer::drawRect(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, Color4 fg) {
-    SDL_Rect r = {};
-    r.x = x;
-    r.y = y;
-    r.w = w;
-    r.h = h;
+    SDL_Rect r = {x, y, w, h};
     SDL_SetRenderDrawColor(ctx.mSDLContext.mRenderer, fg.r, fg.g, fg.b, fg.a);
     if (filled) {
         SDL_RenderFillRect(ctx.mSDLContext.mRenderer, &r);
@@ -358,8 +354,7 @@ ret_code Renderer::drawImage(Context &ctx, int32_t x, int32_t y, int32_t w, int3
         return ErrorCode;
     }
 
-    SDL_Rect imageRect = {x,y, w,h};
-    
+    SDL_Rect imageRect = {x, y, w, h};
     SDL_Texture *tex = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, image->mSurfaceImpl->mSurface);
     SDL_RenderCopy(ctx.mSDLContext.mRenderer, tex, nullptr, &imageRect);
     SDL_DestroyTexture(tex);
@@ -413,7 +408,7 @@ bool Renderer::update(Context &ctx) {
                 {
                     const int32_t x = event.button.x;
                     const int32_t y = event.button.y;
-                    Widgets::onMouseButton(ctx, x, y, getEventType(event.type), getButtonState(event.button));
+                    Widgets::onMouseButton(x, y, getEventType(event.type), getButtonState(event.button));
                 } break;
 
             case SDL_MOUSEMOTION:
@@ -426,14 +421,14 @@ bool Renderer::update(Context &ctx) {
                 {
                     const char *key = SDL_GetKeyName(event.key.keysym.sym);
                     assert(key != nullptr);
-                    Widgets::onKey(ctx, key, true);
+                    Widgets::onKey(key, true);
                 } break;
 
             case SDL_KEYUP: 
                 {
                     const char *key = SDL_GetKeyName(event.key.keysym.sym);
                     assert(key != nullptr);
-                    Widgets::onKey(ctx, key, false);
+                    Widgets::onKey(key, false);
                 } break;
         }
     }
