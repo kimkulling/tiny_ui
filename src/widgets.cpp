@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Kim Kulling
+Copyright (c) 2022-2026 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -67,7 +67,6 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
         return nullptr;
     }
 
-
     int32_t pitch = w * bytesPerPixel;
     pitch = (pitch + 3) & ~3;
     image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
@@ -81,7 +80,7 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
 }
 
 static Widget *setParent(Context &ctx, Widget *child, Id parentId) {
-    Widget *parent = nullptr;
+    Widget *parent{nullptr};
     if (parentId == 0) {
         if (ctx.mRoot == nullptr) {
             ctx.mRoot = new Widget;
@@ -113,21 +112,22 @@ static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, 
     return widget;
 }
 
-void eventDispatcher(Context &ctx, int32_t eventId, EventData *eventData) {
+void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) {
     if (ctx.mFocus == nullptr) {
         return;
     }
 
     if (eventId == Events::KeyDownEvent || eventId == Events::KeyUpEvent) {
-        if (eventData != nullptr) {
-            if (ctx.mFocus->mType == WidgetType::TextField) {
-                ctx.mFocus->mText.append((const char*)eventData->data[0]);
+        if (eventPayload != nullptr) {
+            if (ctx.mFocus->mType == WidgetType::InputField) {
+                ctx.mFocus->mText.append((const char*)eventPayload->payload[0]);
             }
         }
     }
 }
 
-ret_code Widgets::container(Context &ctx, Id id, Id parentId, const char *text, const Rect &rect) {
+ret_code Widgets::container(Id id, Id parentId, const char *text, const Rect &rect) {
+    auto &ctx = TinyUi::getContext();
     if (ctx.mRoot != nullptr) {
         return ErrorCode;
     }
@@ -186,7 +186,12 @@ void Widgets::findSelectedWidget(int x, int y, Widget *currentChild, Widget **fo
     }
 }
 
-ret_code Widgets::label(Context &ctx, Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment) {
+ret_code Widgets::label(Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment) {
+    auto &ctx = TinyUi::getContext();
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        return InvalidRenderHandle;
+    }
+
     if (ctx.mRoot == nullptr) {
         return ErrorCode;
     }
@@ -203,12 +208,17 @@ ret_code Widgets::label(Context &ctx, Id id, Id parentId, const char *text, cons
     return ResultOk;
 }
 
-ret_code Widgets::textfield(Context &ctx, Id id, Id parentId, const Rect &rect, Alignment alignment) {
-    if (ctx.mRoot == nullptr) {
-        return ErrorCode;
+ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alignment) {
+    auto &ctx = TinyUi::getContext();
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        return InvalidRenderHandle;
     }
 
-    Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::TextField);
+    if (ctx.mRoot == nullptr) {
+        return InvalidRenderHandle;
+    }
+
+    Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::InputField);
     if (widget == nullptr) {
         return ErrorCode;
     }
@@ -218,10 +228,14 @@ ret_code Widgets::textfield(Context &ctx, Id id, Id parentId, const Rect &rect, 
     return ResultOk;
 }
 
-
-ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text, const char *image, const Rect &rect, CallbackI *callback) {
+ret_code Widgets::button(Id id, Id parentId, const char *text, const Rect &rect, CallbackI *callback) {
+    auto &ctx = TinyUi::getContext();
     if (ctx.mSDLContext.mRenderer == nullptr) {
-        return ErrorCode;
+        return InvalidRenderHandle;
+    }
+
+    if (ctx.mRoot == nullptr) {
+        return InvalidRenderHandle;
     }
 
     Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Button);
@@ -234,16 +248,40 @@ ret_code Widgets::button(Context &ctx, Id id, Id parentId, const char *text, con
         child->mText.assign(text);
     }
 
-    if (image != nullptr) {
-        child->mImage = loadIntoImageCache(ctx, image);
-    }
-
     return ResultOk;
 }
 
-ret_code Widgets::box(Context &ctx, Id id, Id parentId, const Rect &rect, bool filled) {
+ret_code Widgets::imageButton(Id id, Id parentId, const char *image, const Rect &rect, CallbackI *callback) {
+    auto &ctx = TinyUi::getContext();
     if (ctx.mSDLContext.mRenderer == nullptr) {
+        return InvalidRenderHandle;
+    }
+
+    if (ctx.mRoot == nullptr) {
+        return InvalidRenderHandle;
+    }
+
+    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Button);
+    if (child == nullptr) {
         return ErrorCode;
+    }
+    
+    child->mCallback = callback;
+    if (image != nullptr) {
+        child->mImage = loadIntoImageCache(ctx, image);
+    }
+    
+    return ResultOk;
+}
+
+ret_code Widgets::box(Id id, Id parentId, const Rect &rect, bool filled) {
+    auto &ctx = TinyUi::getContext();
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        return InvalidRenderHandle;
+    }
+
+    if (ctx.mRoot == nullptr) {
+        return InvalidRenderHandle;
     }
 
     Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Box);
@@ -256,10 +294,10 @@ ret_code Widgets::box(Context &ctx, Id id, Id parentId, const Rect &rect, bool f
     return ResultOk;
 }
 
-ret_code Widgets::panel(Context &ctx, Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback) {
+ret_code Widgets::panel(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback) {
+    auto &ctx = TinyUi::getContext();
     if (ctx.mSDLContext.mRenderer == nullptr) {
-        ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");
-        return ErrorCode;
+        return InvalidRenderHandle;
     }
 
     Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Panel);
@@ -270,10 +308,14 @@ ret_code Widgets::panel(Context &ctx, Id id, Id parentId, const char *title, con
     return ResultOk;
 }
 
-ret_code Widgets::treeView(Context &ctx, Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback) {
+ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback) {
+    auto &ctx = TinyUi::getContext();
     if (ctx.mSDLContext.mRenderer == nullptr) {
-        ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");
-        return ErrorCode;
+        return InvalidRenderHandle;
+    }
+
+    if (ctx.mRoot == nullptr) {
+        return InvalidRenderHandle;
     }
 
     Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::TreeView);
@@ -295,10 +337,14 @@ inline void clamp(T min, T max, T &value) {
     }
 }
 
-ret_code Widgets::progressBar(Context &ctx, Id id, Id parentId, const Rect &rect, int fillRate, CallbackI *callback) {
+ret_code Widgets::progressBar(Id id, Id parentId, const Rect &rect, int fillRate, CallbackI *callback) {
+    auto &ctx = TinyUi::getContext();
     if (ctx.mSDLContext.mRenderer == nullptr) {
-        ctx.mLogger(LogSeverity::Error, "TUI-Renderer is nullptr.");
-        return ErrorCode;
+        return InvalidRenderHandle;
+    }
+
+    if (ctx.mRoot == nullptr) {
+        return InvalidRenderHandle;
     }
 
     Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::ProgressBar);
@@ -306,12 +352,14 @@ ret_code Widgets::progressBar(Context &ctx, Id id, Id parentId, const Rect &rect
         return ErrorCode;
     }
 
-    FilledState *state = new FilledState;
     clamp(0, 100, fillRate);
-    state->filledState = fillRate;
-    child->mContent = new uint8_t[sizeof(FilledState)];
+    FilledState state;
+    state.filledState = fillRate;
+    child->mContent = new uint8_t[sizeof(EventPayload)];
     child->mCallback = callback;
-    memcpy(child->mContent, state, sizeof(FilledState));
+    EventPayload payload;
+    payload.type = EventDataType::FillState;
+    memcpy(child->mContent, &payload, sizeof(EventPayload));
     if (callback != nullptr) {
         callback->mInstance = child;
         ctx.mUpdateCallbackList.push_back(callback);
@@ -319,7 +367,6 @@ ret_code Widgets::progressBar(Context &ctx, Id id, Id parentId, const Rect &rect
  
     return ResultOk;
 }
-
 
 static void render(Context &ctx, Widget *currentWidget) {
     if (currentWidget == nullptr) {
@@ -330,18 +377,14 @@ static void render(Context &ctx, Widget *currentWidget) {
         return;
     }
 
-    if (currentWidget == nullptr) {
-        return;
-    }
-
     // Render the widget
     const Rect &r = currentWidget->mRect;
     switch( currentWidget->mType) {
         case WidgetType::Button:
             {
-                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
                 if (currentWidget->mImage != nullptr) {
-                    Renderer::drawImage(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mImage);
+                    Renderer::drawImage(ctx, r.top.x, r.top.y, r.width, r.height, currentWidget->mImage);
                 }
                 if (!currentWidget->mText.empty()) {
                     Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
@@ -363,31 +406,41 @@ static void render(Context &ctx, Widget *currentWidget) {
 
         case WidgetType::Panel:
             {
-                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, false, ctx.mStyle.mBorder);
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, false, ctx.mStyle.mBorder);
             }
             break;
 
         case WidgetType::ProgressBar:
             {
-                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
-                FilledState *state = reinterpret_cast<FilledState *>(currentWidget->mContent);
-                const uint32_t fillRate = state->filledState;
-                const uint32_t width = r.width * fillRate / 100;
-                Renderer::drawRect(ctx, r.x1, r.y1, width, r.height, true, ctx.mStyle.mTextColor);                       
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
+                auto *payload = reinterpret_cast<EventPayload *>(currentWidget->mContent);
+                if (payload == nullptr) {
+                    break;
+                }
+                FilledState *state = reinterpret_cast<FilledState *>(payload->payload);
+                if (state == nullptr) {
+                    break;
+                }
+                const uint32_t fillRate{ state->filledState };
+                uint32_t width{ 0 };
+                if (fillRate != 0) {
+                    width = r.width * fillRate / 100;
+                }
+                Renderer::drawRect(ctx, r.top.x, r.top.y, width, r.height, true, ctx.mStyle.mTextColor);                       
             } 
             break;
 
-        case WidgetType::TextField:
+        case WidgetType::InputField:
         {
-            Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, true, ctx.mStyle.mFg);
-            Renderer::drawRect(ctx, r.x1+2, r.y1+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
+            Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
+            Renderer::drawRect(ctx, r.top.x+2, r.top.y+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
         }
         break;
 
         case WidgetType::Container:
         case WidgetType::Box:
             {
-                Renderer::drawRect(ctx, r.x1, r.y1, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
             }
             break;
     }
@@ -397,14 +450,16 @@ static void render(Context &ctx, Widget *currentWidget) {
     }
 }
 
-void Widgets::renderWidgets(Context &ctx) {
+void Widgets::renderWidgets() {
+    auto &ctx = TinyUi::getContext();
     if (ctx.mRoot == nullptr) {
         return;
     }
     render(ctx, ctx.mRoot);
 }
 
-void Widgets::onMouseButton(Context &ctx, int x, int y, int eventType, MouseState state) {
+void Widgets::onMouseButton(int x, int y, int eventType, MouseState state) {
+    auto &ctx = TinyUi::getContext();
     assert(eventType >= 0);
     assert(eventType < Events::NumEvents);
 
@@ -426,7 +481,8 @@ void Widgets::onMouseButton(Context &ctx, int x, int y, int eventType, MouseStat
     } 
 }
 
-void Widgets::onMouseMove(Context &ctx, int x, int y, int eventType, MouseState state) {
+void Widgets::onMouseMove(int x, int y, int eventType, MouseState state) {
+    auto &ctx = TinyUi::getContext();
     assert(eventType >= 0);
     assert(eventType < Events::NumEvents);
 
@@ -434,7 +490,7 @@ void Widgets::onMouseMove(Context &ctx, int x, int y, int eventType, MouseState 
         return;
     }
 
-    Widget *found = nullptr;
+    Widget *found{nullptr};
     findSelectedWidget(x, y, ctx.mRoot, &found);
     if (found != nullptr) {
         if (found->mCallback != nullptr) {
@@ -445,17 +501,23 @@ void Widgets::onMouseMove(Context &ctx, int x, int y, int eventType, MouseState 
     }
 }
 
-void Widgets::onKey(Context &ctx, const char *key, bool isDown) {
+void Widgets::onKey(const char *key, bool isDown) {
+    auto &ctx = TinyUi::getContext();
     if (key == nullptr) {
         return;
     }
 
+    EventPayload eventPayload;
+    eventPayload.payload[0] = *key;
+    int32_t eventId = -1;
     if (isDown) {
-        EventData eventData;
-        eventData.data[0] = *key;
-        eventDispatcher(ctx, Events::KeyDownEvent, &eventData);
-
+        eventId = Events::KeyDownEvent;
+        eventPayload.type = EventDataType::KeyDownState;
+    } else {
+        eventId = Events::KeyUpEvent;
+        eventPayload.type = EventDataType::KeyUpState;
     }
+    eventDispatcher(ctx, eventId, &eventPayload);
 }
 
 void recursiveClear(Widget *current) {
@@ -472,17 +534,18 @@ void recursiveClear(Widget *current) {
     delete current;
 }
 
-void Widgets::clear(Context &ctx) {
+void Widgets::clear() {
+    auto &ctx = TinyUi::getContext();
     if (ctx.mRoot == nullptr) {
         return;
     }
 
-    Widget *current = ctx.mRoot;
+    Widget *current{ctx.mRoot};
     recursiveClear(current);
 }
 
-
-void Widgets::setEnableState(Context &ctx, Id id, bool enabled) {
+void Widgets::setEnableState(Id id, bool enabled) {
+    auto &ctx = TinyUi::getContext();
     Widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
         if (enabled) {
@@ -493,7 +556,8 @@ void Widgets::setEnableState(Context &ctx, Id id, bool enabled) {
     }
 }
 
-bool Widgets::isEnabled(Context &ctx, Id id) {
+bool Widgets::isEnabled(Id id) {
+    auto &ctx = TinyUi::getContext();
     Widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
         return widget->isEnabled();
@@ -502,7 +566,8 @@ bool Widgets::isEnabled(Context &ctx, Id id) {
     return false;
 }
 
-ret_code Widgets::setFocus(Context &ctx, Id id)  {
+ret_code Widgets::setFocus(Id id)  {
+    auto &ctx = TinyUi::getContext();
     Widget *widget = findWidget(id, ctx.mRoot);
     if (widget == nullptr) {
         return ErrorCode;
@@ -513,7 +578,8 @@ ret_code Widgets::setFocus(Context &ctx, Id id)  {
     return ResultOk;
 }
 
-Widget *Widgets::getWidgetById(Context &ctx, Id id) {
+Widget *Widgets::getWidgetById(Id id) {
+    auto &ctx = TinyUi::getContext();
     return findWidget(id, ctx.mRoot);
 }
 

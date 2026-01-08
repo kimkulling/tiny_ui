@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Kim Kulling
+Copyright (c) 2022-2026 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,102 +29,104 @@ SOFTWARE.
 #include <iostream>
 
 namespace tinyui {
+
 namespace {
 
-SDL_Color getSDLColor(const Color4 &col) {
-    SDL_Color sdl_col = {};
-    sdl_col.r = col.r;
-    sdl_col.g = col.g;
-    sdl_col.b = col.b;
-    sdl_col.a = col.a;
+    SDL_Color getSDLColor(const Color4 &col) {
+        SDL_Color sdl_col = {};
+        sdl_col.r = col.r;
+        sdl_col.g = col.g;
+        sdl_col.b = col.b;
+        sdl_col.a = col.a;
 
-    return sdl_col;
-}
+        return sdl_col;
+    }
 
-void printDriverInfo(const SDL_RendererInfo &info) {
-    printf("Driver : %s\n", info.name);
-}
+    void printDriverInfo(const SDL_RendererInfo &info) {
+        printf("Driver : %s\n", info.name);
+    }
 
-void listAllRenderDivers(const Context &ctx) {
-    const int numRenderDrivers = SDL_GetNumRenderDrivers();
-    ctx.mLogger(LogSeverity::Message, "Available drivers:");
-    for (int i = 0; i < numRenderDrivers; ++i) {
+    void listAllRenderDivers(const Context &ctx) {
+        const int numRenderDrivers = SDL_GetNumRenderDrivers();
+        ctx.mLogger(LogSeverity::Message, "Available drivers:");
+        for (int i = 0; i < numRenderDrivers; ++i) {
+            SDL_RendererInfo info;
+            SDL_GetRenderDriverInfo(i, &info);
+            printDriverInfo(info);
+        }
+    }
+
+    void showDriverInUse(const Context &ctx) {
+        ctx.mLogger(LogSeverity::Message, "Driver in use:");
         SDL_RendererInfo info;
-        SDL_GetRenderDriverInfo(i, &info);
+        SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
         printDriverInfo(info);
     }
-}
 
-void showDriverInUse(const Context &ctx) {
-    ctx.mLogger(LogSeverity::Message, "Driver in use:");
-    SDL_RendererInfo info;
-    SDL_GetRendererInfo(ctx.mSDLContext.mRenderer, &info);
-    printDriverInfo(info);
-}
-
-int queryDriver(const Context &ctx, const char *driverType, size_t maxLen) {
-    if (driverType == nullptr) {
-        ctx.mLogger(LogSeverity::Error, "Driver type is a nullptr.");
-        return -1;
-    }
-
-    const int numRenderDrivers = SDL_GetNumRenderDrivers();
-    int found = -1;
-    for (int i = 0; i < numRenderDrivers; ++i) {
-        SDL_RendererInfo info;
-        SDL_GetRenderDriverInfo(i, &info);
-        size_t len = strlen(driverType);
-        if (len > maxLen) {
-            len = maxLen;
+    int32_t queryDriver(const Context &ctx, const char *driverType, size_t maxLen) {
+        if (driverType == nullptr) {
+            ctx.mLogger(LogSeverity::Error, "Driver type is a nullptr.");
+            return -1;
         }
-        if (strncmp(driverType, info.name, len) == 0) {
-            found = i;
-            break;
+
+        const int numRenderDrivers = SDL_GetNumRenderDrivers();
+        int found = -1;
+        for (int i = 0; i < numRenderDrivers; ++i) {
+            SDL_RendererInfo info;
+            SDL_GetRenderDriverInfo(i, &info);
+            size_t len = strlen(driverType);
+            if (len > maxLen) {
+                len = maxLen;
+            }
+            if (strncmp(driverType, info.name, len) == 0) {
+                found = i;
+                break;
+            }
         }
+
+        return found;
     }
 
-    return found;
-}
-
-void loadFont(Context &ctx) {
-    ctx.mSDLContext.mDefaultFont = new Font;
-    ctx.mSDLContext.mDefaultFont->mFont = new FontImpl;
-    ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
-    ctx.mSDLContext.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
-}
-
-MouseState getButtonState(const SDL_MouseButtonEvent &b) {
-    MouseState state = MouseState::Invalid;
-    switch (b.button) {
-        case SDL_BUTTON_LEFT:
-            state = MouseState::LeftButton;
-            break;
-        case SDL_BUTTON_MIDDLE:
-            state = MouseState::MiddleButton;
-            break;
-        case SDL_BUTTON_RIGHT:
-            state = MouseState::RightButton;
-            break;
-        case SDL_BUTTON_X1:
-        case SDL_BUTTON_X2:
-        default:
-            break;
+    void loadFont(Context &ctx) {
+        ctx.mSDLContext.mDefaultFont = new Font;
+        ctx.mSDLContext.mDefaultFont->mFont = new FontImpl;
+        ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
+        ctx.mSDLContext.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
     }
 
-    return state;
-}
+    MouseState getButtonState(const SDL_MouseButtonEvent &b) {
+        MouseState state = MouseState::Invalid;
+        switch (b.button) {
+            case SDL_BUTTON_LEFT:
+                state = MouseState::LeftButton;
+                break;
+            case SDL_BUTTON_MIDDLE:
+                state = MouseState::MiddleButton;
+                break;
+            case SDL_BUTTON_RIGHT:
+                state = MouseState::RightButton;
+                break;
+            case SDL_BUTTON_X1:
+            case SDL_BUTTON_X2:
+            default:
+                // empty
+                break;
+        }
 
-int32_t getEventType(Uint32 sdlType) {
-    switch (sdlType) {
-        case SDL_QUIT:
-            return Events::QuitEvent;
-        case SDL_MOUSEBUTTONDOWN:
-            return Events::MouseButtonDownEvent;
-        case SDL_MOUSEBUTTONUP:
-            return Events::MouseButtonUpEvent;
+        return state;
     }
-    return Events::InvalidEvent;
-}
+
+    int32_t getEventType(Uint32 sdlType) {
+        switch (sdlType) {
+            case SDL_QUIT:
+                return Events::QuitEvent;
+            case SDL_MOUSEBUTTONDOWN:
+                return Events::MouseButtonDownEvent;
+            case SDL_MOUSEBUTTONUP:
+                return Events::MouseButtonUpEvent;
+        }
+        return Events::InvalidEvent;
+    }
 
 } // namespace
 
@@ -206,8 +208,8 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         return ErrorCode;
     }
 
-    SDL_Texture *message = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
-    if (message == nullptr) {
+    SDL_Texture *messageTexture = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, surfaceMessage);
+    if (messageTexture == nullptr) {
         const std::string msg = "Cannot create texture: " + std::string(SDL_GetError()) + ".";
         ctx.mLogger(LogSeverity::Error, msg.c_str());
         return ErrorCode;
@@ -217,28 +219,28 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
     SDL_Rect Message_rect = {};
     switch (alignment) {
         case Alignment::Left:
-            Message_rect.x = r.x1 + margin;
-            Message_rect.y = r.y1 + margin;
+            Message_rect.x = r.top.x + margin;
+            Message_rect.y = r.top.y + margin;
             Message_rect.w = font->mSize;
             Message_rect.h = font->mSize;
             break;
         case Alignment::Center:
-            Message_rect.x = r.x1 + 2 * margin + surfaceMessage->clip_rect.w / 2;
-            Message_rect.y = r.y1 + margin;
+            Message_rect.x = r.top.x + 2 * margin + surfaceMessage->clip_rect.w / 2;
+            Message_rect.y = r.top.y + margin;
             Message_rect.w = font->mSize;
             Message_rect.h = font->mSize;
             break;
         case Alignment::Right:
-            Message_rect.x = r.x1 + surfaceMessage->clip_rect.w - font->mSize * strlen(string);
-            Message_rect.y = r.y1 + margin;
+            Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - font->mSize * strlen(string);
+            Message_rect.y = r.top.y + margin;
             Message_rect.w = font->mSize;
             Message_rect.h = font->mSize;
             break;
     }
 
-    SDL_RenderCopy(ctx.mSDLContext.mRenderer, message, NULL, &Message_rect);
+    SDL_RenderCopy(ctx.mSDLContext.mRenderer, messageTexture, NULL, &Message_rect);
     SDL_FreeSurface(surfaceMessage);
-    SDL_DestroyTexture(message);
+    SDL_DestroyTexture(messageTexture);
 
     return ResultOk;
 }
@@ -254,10 +256,14 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         return ErrorCode;
     }
 
-    TTF_Init();
+    if (TTF_Init() == -1) {
+        ctx.mLogger(LogSeverity::Error, "TTF init failed.");
+        return ErrorCode;
+    }
+
     const char *title = ctx.mWindowsTitle;
     if (ctx.mWindowsTitle == nullptr) {
-        title = "untitled";
+        title = "TinyUI Window";
     }
 
     ctx.mSDLContext.mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
@@ -267,7 +273,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         return ErrorCode;
     }
 
-    const int driverIndex = queryDriver(ctx, "opengl", 256);
+    const int32_t driverIndex = queryDriver(ctx, "opengl", 256);
     if (driverIndex == -1) {
         ctx.mLogger(LogSeverity::Error, "Cannot open opengl driver");
         return ErrorCode;
@@ -332,11 +338,7 @@ ret_code Renderer::beginRender(Context &ctx, Color4 bg, SDL_Texture *renderTarge
 }
 
 ret_code Renderer::drawRect(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, Color4 fg) {
-    SDL_Rect r = {};
-    r.x = x;
-    r.y = y;
-    r.w = w;
-    r.h = h;
+    SDL_Rect r = {x, y, w, h};
     SDL_SetRenderDrawColor(ctx.mSDLContext.mRenderer, fg.r, fg.g, fg.b, fg.a);
     if (filled) {
         SDL_RenderFillRect(ctx.mSDLContext.mRenderer, &r);
@@ -352,8 +354,7 @@ ret_code Renderer::drawImage(Context &ctx, int32_t x, int32_t y, int32_t w, int3
         return ErrorCode;
     }
 
-    SDL_Rect imageRect = {x,y, w,h};
-    
+    SDL_Rect imageRect = {x, y, w, h};
     SDL_Texture *tex = SDL_CreateTextureFromSurface(ctx.mSDLContext.mRenderer, image->mSurfaceImpl->mSurface);
     SDL_RenderCopy(ctx.mSDLContext.mRenderer, tex, nullptr, &imageRect);
     SDL_DestroyTexture(tex);
@@ -407,7 +408,7 @@ bool Renderer::update(Context &ctx) {
                 {
                     const int32_t x = event.button.x;
                     const int32_t y = event.button.y;
-                    Widgets::onMouseButton(ctx, x, y, getEventType(event.type), getButtonState(event.button));
+                    Widgets::onMouseButton(x, y, getEventType(event.type), getButtonState(event.button));
                 } break;
 
             case SDL_MOUSEMOTION:
@@ -420,14 +421,14 @@ bool Renderer::update(Context &ctx) {
                 {
                     const char *key = SDL_GetKeyName(event.key.keysym.sym);
                     assert(key != nullptr);
-                    Widgets::onKey(ctx, key, true);
+                    Widgets::onKey(key, true);
                 } break;
 
             case SDL_KEYUP: 
                 {
                     const char *key = SDL_GetKeyName(event.key.keysym.sym);
                     assert(key != nullptr);
-                    Widgets::onKey(ctx, key, false);
+                    Widgets::onKey(key, false);
                 } break;
         }
     }

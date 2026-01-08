@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 
 option(TINY_UI_SAMPLES "The build will create the samples." ON)
 
@@ -6,7 +6,7 @@ PROJECT(tiny_ui)
 set(CMAKE_CXX_STANDARD 17)
 SET( TUI_VERSION_MAJOR 0 )
 SET( TUI_VERSION_MINOR 0 )
-SET( TUI_VERSION_PATCH 1 )
+SET( TUI_VERSION_PATCH 2 )
 SET( TUI_VERSION ${TUI_VERSION_MAJOR}.${TUI_VERSION_MINOR}.${TUI_VERSION_PATCH} )
 SET( PROJECT_VERSION "${OSRE_VERSION}" )
 

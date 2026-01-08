@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Kim Kulling
+Copyright (c) 2022-2026 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "sdl2_iodevice.h"
+#include "SDL_timer.h"
 
 namespace tinyui {
 
 bool IODevice::update(SDL_Event &event) {
      return SDL_PollEvent(&event);
+}
+
+uint32_t IODevice::getTicks() {
+     return SDL_GetTicks();
 }
 
 } // namespace tinyui

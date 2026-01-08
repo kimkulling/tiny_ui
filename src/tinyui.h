@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Kim Kulling
+Copyright (c) 2022-2026 Kim Kulling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@ SOFTWARE.
 #pragma once
 
 #include <cstdint>
+#include <cassert>
 #include <vector>
 #include <list>
 #include <string>
@@ -32,12 +33,22 @@ SOFTWARE.
 #include "stb_image.h"
 
 /*
+ ==============================================================================
  *  Changelog:
  *  ==========
+ *  0.0.2: New features:
+ *         - Added mouse hover event support.
+ *         - Added progress bar widget.
  *  0.0.1: Initial version.
+ ==============================================================================
  */
 
-// Forward declarations
+// Compiler configurations ----------------------------------------------------
+#if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
+#   define _CRT_SECURE_NO_WARNINGS
+#endif
+
+// Forward declarations -------------------------------------------------------
 struct SDL_Window;
 struct SDL_Surface;
 struct SDL_Renderer;
@@ -49,46 +60,64 @@ struct SurfaceImpl;
 struct FontImpl;
 struct Widget;
 
-/// @brief The return code.
+// Type declarations ----------------------------------------------------------
+
+/// @brief The return code type used in the ui library.
 using ret_code = int32_t;
 
-/// @brief The invalid handle.
+/// @brief The invalid render handle return code.
+static constexpr ret_code InvalidRenderHandle = -3;
+/// @brief The invalid handle return code.
 static constexpr ret_code InvalidHandle = -2;
-/// @brief The error code.
+/// @brief The general error code. This will indicate an error, which was not related to a special operation.
 static constexpr ret_code ErrorCode = -1;
-/// @brief The ok code.
+/// @brief The ok code, everythink was fine.
 static constexpr ret_code ResultOk  = 0;
 
 /// @brief The default color type with 4 components.
 struct Color4 {
-    uint8_t r;      ///< The red component.
-    uint8_t g;      ///< The green component.
-    uint8_t b;      ///< The blue component.
-    uint8_t a;      ///< The alpha component.
+    uint8_t r{ 1 };                         ///< The red component.
+    uint8_t g{ 1 };                         ///< The green component.
+    uint8_t b{ 1 };                         ///< The blue component.
+    uint8_t a{ 1 };                         ///< The alpha component.
 };
 
 /// @brief The image data.
 struct Image {
-    SurfaceImpl *mSurfaceImpl;
-    int32_t mX;     ///< The width of the image.
-    int32_t mY;     ///< The height of the image.
-    int32_t mComp;  ///< The number of components.
-
-    /// @brief The default class constructor
-    Image() : mSurfaceImpl(nullptr), mX(0), mY(0), mComp(0) {}
+    SurfaceImpl *mSurfaceImpl{ nullptr };   ///< The surface implementation. 
+    int32_t mX{ 0 };                        ///< The width of the image.
+    int32_t mY{ 0 };                        ///< The height of the image.
+    int32_t mComp{ 0 };                     ///< The number of components.
 };
 
 /// @brief The image cache.
 using ImageCache = std::map<const char*, Image*>;
 
-/// @brief The point in 2D.
+/// @brief  A 2-dimensional vector 
+/// @tparam T The pod template type
 template<class T>
-struct Point2 {
-    T x; ///< The x-coordinate.
-    T y; ///< The y-coordinate.
+struct Vec2 {
+    T x{ -1 };     ///< The x-component
+    T y{ -1 };     ///< The y-component
 
     /// @brief The default class constructor.
-    Point2() : x(0), y(0) {}
+    Vec2() = default;
+
+    /// @brief The constructor with the components.
+    /// @param[in] x_    The x-component
+    /// @param[in] y_    The y-component
+    Vec2(T x_, T y_) : x(x_), y(y_) {}
+};
+
+/// @brief 2D vector for signed 32-bit integer.
+using Vec2i = Vec2<int32_t>;
+
+/// @brief The point in 2D.
+/// @tparam T The pod template type
+template<class T>
+struct Point2 {
+    T x{ 0 };           ///< The x-coordinate.
+    T y{ 0 };           ///< The y-coordinate.
 
     /// @brief The class constructor
     /// @param x_ The x-coordinate.
@@ -112,20 +141,16 @@ using Point2i = Point2<int32_t>;
 
 /// @brief The rectangle in 2D.
 struct Rect {
-    int32_t x1;     ///< The x-coordinate of the upper left corner.
-    int32_t y1;     ///< The y-coordinate of the upper left corner.
-    int32_t width;  ///< The width of the rectangle.
-    int32_t height; ///< The height of the rectangle.
-    int32_t x2;     ///< The x-coordinate of the lower right corner.
-    int32_t y2;     ///< The y-coordinate of the lower right corner.
+    Vec2i   top;        ///< The upper left corner.
+    int32_t width{-1};  ///< The width of the rectangle.
+    int32_t height{-1}; ///< The height of the rectangle.
+    Vec2i   bottom;     ///< The lower right corner.
 
     /// @brief The default class constructor
-    Rect() :
-            x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {}
+    Rect() = default;
 
     /// @brief The class constructor
-    Rect(int32_t x, int32_t y, int32_t w, int32_t h) :
-            x1(-1), y1(-1), width(-1), height(-1), x2(-1), y2(-1) {
+    Rect(int32_t x, int32_t y, int32_t w, int32_t h) {
         set(x, y, w, h);
     }
 
@@ -144,7 +169,7 @@ struct Rect {
     /// @param y_ The y-coordinate of the point.
     /// @return true if the point is inside the rectangle, false if not.
     bool isIn(int x_, int y_) const {
-        if (x_ >= x1 && y_ >= y1 && x_ <=x2 && y_ <= y2) {
+        if (x_ >= top.x && y_ >= top.y && x_ <= bottom.x && y_ <= bottom.y) {
             return true;
         }
         return false;
@@ -156,34 +181,34 @@ struct Rect {
     /// @param w The width of the rectangle.
     /// @param h The height of the rectangle.
     void set(int32_t x, int32_t y, int32_t w, int32_t h) {
-        x1 = x;
-        y1 = y;
+        top.x = x;
+        top.y = y;
         width = w;
         height = h;
-        x2 = x + w;
-        y2 = y + h;
+        bottom.x = x + w;
+        bottom.y = y + h;
     }
 
     /// @brief Merge the rectangle with another rectangle.
     /// @param r The rectangle to merge with.
     void mergeWithRect(const Rect &r) {
-        if (x1 > r.x1 || x1 == -1) {
-            x1 = r.x1;
+        if (top.x > r.top.x || top.x == -1) {
+            top.x = r.top.x;
         }
 
-        if (y1 > r.y1 || y1 == -1) {
-            y1 = r.y1;
+        if (top.y > r.top.y || top.y == -1) {
+            top.y = r.top.y;
         }
 
-        const int x2_ = r.x1 + r.width;
-        if (x2 < x2_) {
-            x2 = x2_;
+        const int x2_ = top.x + r.width;
+        if (bottom.x < x2_) {
+            bottom.x = x2_;
             width = r.width;
         }
 
-        const int y2_ = r.y1 + r.height;
-        if (y2 < y2_) {
-            y2 = y2_;
+        const int y2_ = bottom.y + r.height;
+        if (bottom.y < y2_) {
+            bottom.y = y2_;
             height = r.height;
         }
     }
@@ -221,7 +246,7 @@ struct Style {
     Font    mFont;          ///< The font.
 };
 
-/// @brief The mouse state
+/// @brief The mouse state, used to describe different mouse events.
 enum class MouseState {
     Invalid = -1,       ///< The invalid state
     LeftButton = 0,     ///< The left button
@@ -244,21 +269,32 @@ enum class LogSeverity {
 
 /// @brief The tiny ui events.
 struct Events {
-    static constexpr int32_t InvalidEvent = -1;
-    static constexpr int32_t QuitEvent = 0;
-    static constexpr int32_t MouseButtonDownEvent = 1;
-    static constexpr int32_t MouseButtonUpEvent = 2;
-    static constexpr int32_t MouseMoveEvent = 3;
-    static constexpr int32_t MouseHoverEvent = 4;
-    static constexpr int32_t KeyDownEvent = 5;
-    static constexpr int32_t KeyUpEvent = 6;
-    static constexpr int32_t UpdateEvent = 7;
-    static constexpr int32_t NumEvents = UpdateEvent + 1;
+    static constexpr int32_t InvalidEvent = -1;             ///< The invalid event.
+    static constexpr int32_t QuitEvent = 0;                 ///< The quit event.
+    static constexpr int32_t MouseButtonDownEvent = 1;      ///< The mouse button down event.
+    static constexpr int32_t MouseButtonUpEvent = 2;        ///< The mouse button up event.
+    static constexpr int32_t MouseMoveEvent = 3;            ///< The mouse move event.
+    static constexpr int32_t MouseHoverEvent = 4;           ///< The mouse hover event.
+    static constexpr int32_t KeyDownEvent = 5;              ///< The key down event.
+    static constexpr int32_t KeyUpEvent = 6;                ///< The key up event.
+    static constexpr int32_t UpdateEvent = 7;               ///< The update event.
+    static constexpr int32_t NumEvents = UpdateEvent + 1;   ///< The number of events.
 };
 
-struct EventData {
-    uint8_t data[16] = {};
+/// @brief The payload identifier for the events.
+enum class EventDataType : int32_t {
+    Invalid = -1,   ///< The invalid event data type.
+    FillState,      ///< The fill state.    
+    KeyDownState,   ///< The key down state.
+    KeyUpState,     ///< The key up state.
+    Count           ///< The number of event data        
+};
 
+/// @brief The event data struct.
+struct EventPayload {
+    static constexpr size_t EventDataSize = 16;     ///< The size of the event data.
+    EventDataType type{ EventDataType::Invalid };   ///< The event data type.
+    uint8_t payload[EventDataSize] = {};            ///< The event data payload.
 };
 
 /// @brief This interface is used to store all neede message handlers.
@@ -271,8 +307,7 @@ struct CallbackI {
     void *mInstance;
 
     /// @brief The default class constructor.
-    CallbackI() :
-            mfuncCallback{ nullptr }, mInstance(nullptr) {
+    CallbackI() : mfuncCallback{ nullptr }, mInstance(nullptr) {
         clear();
     }
 
@@ -308,17 +343,12 @@ typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 
 /// @brief The SDL context.
 struct SDLContext {
-    SDL_Window   *mWindow;          ///< The window.
-    SDL_Surface  *mSurface;         ///< The surface.
-    SDL_Renderer *mRenderer;        ///< The renderer.
-    Font         *mDefaultFont;     ///< The default font.
-    Font         *mSelectedFont;    ///< The selected font.
-    bool          mOwner;           ///< The owner state.
-
-    /// @brief The default class constructor
-    SDLContext() :
-            mWindow(nullptr), mSurface(nullptr), mRenderer(nullptr),
-        mDefaultFont(nullptr), mSelectedFont(nullptr), mOwner(true) {}
+    SDL_Window      *mWindow{nullptr};              ///< The window.
+    SDL_Surface     *mSurface{ nullptr };           ///< The surface.
+    SDL_Renderer    *mRenderer{ nullptr };          ///< The renderer.
+    Font            *mDefaultFont{ nullptr };       ///< The default font.
+    Font            *mSelectedFont{ nullptr };      ///< The selected font.
+    bool            mOwner{ false };                ///< The owner state.
 };
 
 /// @brief The update callback list.
@@ -326,51 +356,56 @@ using UpdateCallbackList = std::list<CallbackI*>;
 
 /// @brief The tiny ui context.
 struct Context {
-    bool               mCreated;            ///< The created state.
-    bool               mRequestShutdown;    ///< The request shutdown state.
-    const char        *mAppTitle;           ///< The application title.
-    const char        *mWindowsTitle;       ///< The window title.
-    SDLContext         mSDLContext;         ///< The SDL context.
-    Style              mStyle;              ///< The active style.
-    Widget            *mRoot;               ///< The root widget.
-    Widget            *mFocus;              ///< The widget which is in focus.
-    tui_log_func       mLogger = nullptr;   ///< The logger function.
-    EventDispatchMap   mEventDispatchMap;   ///< The event dispatch map.
-    FontCache          mFontCache;          ///< The font cache.
-    ImageCache         mImageCache;         ///< The image cache.
-    UpdateCallbackList mUpdateCallbackList; ///< The update callback list.
+    bool               mCreated{false};             ///< The created state.
+    bool               mRequestShutdown{false};     ///< The request shutdown state.
+    const char        *mAppTitle{nullptr};          ///< The application title.
+    const char        *mWindowsTitle{nullptr};      ///< The window title.
+    SDLContext         mSDLContext;                 ///< The SDL context.
+    Style              mStyle{};                    ///< The active style.
+    Widget            *mRoot{nullptr};              ///< The root widget.
+    Widget            *mFocus{nullptr};             ///< The widget which is in focus.
+    tui_log_func       mLogger{};                   ///< The logger function.
+    EventDispatchMap   mEventDispatchMap;           ///< The event dispatch map.
+    FontCache          mFontCache{};                ///< The font cache.
+    ImageCache         mImageCache{};               ///< The image cache.
+    UpdateCallbackList mUpdateCallbackList{};       ///< The update callback list.
 
     /// @brief Will create a new tiny ui context.
     /// @param title The title of the context.
     /// @param style The style to use.
     /// @return The created context.
-    static Context &create(const char *title, Style &style);
+    static Context *create(const char *title, Style &style);
     
     /// @brief Will destroy a valid tinyui context.
     /// @param ctx  The context to destroy.
-    static void destroy(Context &ctx);
+    static void destroy(Context *ctx);
 
 private:
     /// @brief The default class constructor
-    Context() :
-            mCreated(false),
-            mRequestShutdown(false),
-            mAppTitle(nullptr),
-            mWindowsTitle(nullptr),
-            mSDLContext(),
-            mStyle(),
-            mRoot(nullptr),
-            mFocus(nullptr) {
-        // empty
-    }
+    Context() = default;
+
+    /// @brief The class destructor.
+    ~Context() = default;
 };
 
 /// @brief The tiny ui interface.
 struct TinyUi {
+    /// @brief Will create the tinyui context.
+    /// @param title    The app title.
+    /// @param style    The style to use.
+    /// @return true if successful.
+    static bool createContext(const char *title, Style &style);
+    
+    /// @brief Will destroy the context.
+    /// @return true if successful.
+    static bool destroyContext();
+
+    static Context &getContext();
+
     /// @brief Initialize the tiny ui.
     /// @param ctx The context to initialize.
     /// @return ResultOk if the initialization was successful, ErrorCode if not.
-    static ret_code init(Context &ctx);
+    static ret_code init();
 
     /// @brief Initialize the screen.
     /// @param ctx The context to initialize.
@@ -379,34 +414,34 @@ struct TinyUi {
     /// @param w The width of the screen.
     /// @param h The height of the screen.
     /// @return ResultOk if the initialization was successful, ErrorCode if not.
-    static ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
+    static ret_code initScreen(int32_t x, int32_t y, int32_t w, int32_t h);
 
     /// @brief Get the surface information.
     /// @param ctx The context to get the surface information from.
     /// @param w The width of the surface.
     /// @param h The height of the surface.
     /// @return ResultOk if the information was retrieved, ErrorCode if not.
-    static ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h);
+    static ret_code getSurfaceInfo(int32_t &w, int32_t &h);
 
     /// @brief Run the tiny ui.
     /// @param ctx The context to run.
     /// @return true if the tiny ui is running, false if not.
-    static bool run(Context &ctx);
+    static bool run();
 
     /// @brief Begins the rendering.
     /// @param ctx The context to begin the rendering.
     /// @param bg The background color for clearing.
     /// @return ResultOk if the rendering was started, ErrorCode if not.
-    static ret_code beginRender(Context &ctx, Color4 bg);
+    static ret_code beginRender(Color4 bg);
 
     /// @brief Ends the rendering.
     /// @param ctx The context to end the rendering.
-    static ret_code endRender(Context &ctx);
+    static ret_code endRender();
     
     /// @brief Release the tiny ui context.
     /// @param ctx The context to release.
     /// @return ResultOk if the context was released, ErrorCode if not.
-    static ret_code release(Context &ctx);
+    static ret_code release();
 
     /// @brief Get the default style.
     /// @return The default style.
@@ -419,13 +454,11 @@ struct TinyUi {
     /// @brief Get the default font.
     /// @param ctx The context to end the rendering.
     /// @param defaultFont The default font to set.
-    static void setDefaultFont(Context &ctx, const char *defaultFont);
+    static void setDefaultFont(const char *defaultFont);
     
-    /// @brief Will create a new context.
-    /// @param title The title of the context.
-    /// @param style The style to use.
-    /// @return The created context.
-    static Context *createContext(const char *title, Style &style);
+    /// @brief Will return the current counted ticks in ms.
+    /// @return The ticks in ms.
+    static uint32_t getTicks();
 };
 
 } // Namespace TinyUi
