@@ -40,6 +40,8 @@ namespace tinyui {
 struct SurfaceImpl {
     SDL_Surface *mSurface;
 
+    SurfaceImpl() = default;
+
     ~SurfaceImpl() {
         clear();
     }
@@ -49,12 +51,11 @@ struct SurfaceImpl {
             SDL_FreeSurface(mSurface);
             mSurface = nullptr;
         }
-
     }
 };
 
 struct FontImpl {
-    TTF_Font *mFontImpl;
+    TTF_Font *mFontImpl{nullptr};
     
     void clear() {
         if (mFontImpl != nullptr) {
@@ -63,6 +64,8 @@ struct FontImpl {
         }
     }
     
+    FontImpl() = default;
+
     ~FontImpl() {
         clear();
     }
@@ -74,6 +77,7 @@ struct Renderer {
     static ret_code releaseRenderer(Context &ctx);
     static ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
     static ret_code initScreen(Context &ctx, SDL_Window *mWindow, SDL_Renderer *mRenderer);
+    static ret_code releaseScreen(Context &ctx);
     static ret_code drawText(Context &ctx, const char *string, Font *font, const Rect &r, const Color4 &fgC, const Color4 &bgC, Alignment alignment);
     static ret_code drawRect(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, Color4 fg);
     static ret_code drawImage(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, Image *image);

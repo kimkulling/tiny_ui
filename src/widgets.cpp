@@ -326,17 +326,6 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
     return ResultOk;
 }
 
-
-template<class T>
-inline void clamp(T min, T max, T &value) {
-    if (value < min) {
-        value = min;
-    }
-    if (value > max) {
-        value = max;
-    }
-}
-
 ret_code Widgets::progressBar(Id id, Id parentId, const Rect &rect, int fillRate, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mSDLContext.mRenderer == nullptr) {
@@ -467,11 +456,15 @@ void Widgets::onMouseButton(int x, int y, int eventType, MouseState state) {
         return;
     }
 
-    Widget *found = nullptr;
+    Widget *found{nullptr};
     findSelectedWidget(x, y, ctx.mRoot, &found);
     if (found != nullptr) {
 #ifdef _DEBUG
-        std::cout << "Clicked " << found->mId << "\n";
+        if (eventType == Events::MouseButtonDownEvent) {
+            std::cout << "Clicked " << found->mId << "\n";
+        }  else {
+            std::cout << "Released " << found->mId << "\n";
+        }
 #endif // _DEBUG
         if (found->mCallback != nullptr) {
             if (found->mCallback->mfuncCallback[eventType] != nullptr) {

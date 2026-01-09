@@ -161,6 +161,8 @@ ret_code TinyUi::release() {
         return ErrorCode;
     }
     Renderer::releaseRenderer(ctx);
+    Renderer::releaseScreen(ctx);
+    
     ctx.mCreated = false;
 
     return ResultOk;
