@@ -23,6 +23,8 @@ SOFTWARE.
 */
 #pragma once
 
+#include "tinyui_config.h"
+
 #include <cstdint>
 #include <cassert>
 #include <vector>
@@ -125,7 +127,7 @@ struct Point2 {
     Point2(T x_, T y_) : x(x_), y(y_) {}
 
     /// @brief The class destructor.
-    ~Point2() = default;
+    ~Point2() = default ;
 
     /// @brief Set the point.
     /// @param x_ The x-coordinate.
@@ -150,6 +152,10 @@ struct Rect {
     Rect() = default;
 
     /// @brief The class constructor
+    /// @param x    The x-coordinate of the upper left corner.
+    /// @param y    The y-coordinate of the upper left corner.
+    /// @param w    The width of the rectangle.
+    /// @param h    The height of the rectangle.
     Rect(int32_t x, int32_t y, int32_t w, int32_t h) {
         set(x, y, w, h);
     }
@@ -158,15 +164,15 @@ struct Rect {
     ~Rect() = default;
 
     /// @brief Check if a point is inside the rectangle.
-    /// @param pt The point to check.
+    /// @param pt   The point to check.
     /// @return true if the point is inside the rectangle, false if not.
     bool isIn(const Point2i &pt) const {
         return isIn(pt.x, pt.y);
     }
 
     /// @brief Check if a point is inside the rectangle.
-    /// @param x_ The x-coordinate of the point.
-    /// @param y_ The y-coordinate of the point.
+    /// @param x_   The x-coordinate of the point.
+    /// @param y_   The y-coordinate of the point.
     /// @return true if the point is inside the rectangle, false if not.
     bool isIn(int x_, int y_) const {
         if (x_ >= top.x && y_ >= top.y && x_ <= bottom.x && y_ <= bottom.y) {
@@ -176,10 +182,10 @@ struct Rect {
     }
 
     /// @brief Set the rectangle.
-    /// @param x The x-coordinate of the upper left corner.
-    /// @param y The y-coordinate of the upper left corner.
-    /// @param w The width of the rectangle.
-    /// @param h The height of the rectangle.
+    /// @param x    The x-coordinate of the upper left corner.
+    /// @param y    The y-coordinate of the upper left corner.
+    /// @param w    The width of the rectangle.
+    /// @param h    The height of the rectangle.
     void set(int32_t x, int32_t y, int32_t w, int32_t h) {
         top.x = x;
         top.y = y;
@@ -460,5 +466,21 @@ struct TinyUi {
     /// @return The ticks in ms.
     static uint32_t getTicks();
 };
+
+// Utilities ------------------------------------------------------------------
+
+/// @brief  Function to clamp the value in the given limits.
+/// @param min      The lower bound for the value.
+/// @param max      The upper bound for the value.
+/// @param value    The value to clamp.
+template<class T>
+inline void clamp(T min, T max, T &value) {
+    if (value < min) {
+        value = min;
+    }
+    if (value > max) {
+        value = max;
+    }
+}
 
 } // Namespace TinyUi

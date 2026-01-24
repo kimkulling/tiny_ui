@@ -128,7 +128,7 @@ namespace {
         return Events::InvalidEvent;
     }
 
-} // namespace
+} // Anonymous namespace
 
 ret_code Renderer::initRenderer(Context &ctx) {
     if (ctx.mCreated) {
@@ -144,13 +144,9 @@ ret_code Renderer::initRenderer(Context &ctx) {
 
     ctx.mCreated = true;
 
-    const int numRenderDrivers = SDL_GetNumRenderDrivers();
-    ctx.mLogger(LogSeverity::Message, "Available drivers:");
-    for (int i=0; i<numRenderDrivers; ++i) {
-        SDL_RendererInfo info;
-        SDL_GetRenderDriverInfo(i, &info);
-        printDriverInfo(info);
-    }
+#ifdef TINYUI_TRACE_ENABLED
+    listAllRenderDivers(ctx);
+#endif
 
     int imgFlags = IMG_INIT_PNG;
     if (!IMG_Init(imgFlags))  {
@@ -174,8 +170,6 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
 
     SDL_DestroyRenderer(ctx.mSDLContext.mRenderer);
     ctx.mSDLContext.mRenderer = nullptr;
-    SDL_DestroyWindow(ctx.mSDLContext.mWindow);
-    ctx.mSDLContext.mWindow = nullptr;
     SDL_Quit();
 
     return ResultOk;
@@ -286,7 +280,9 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         return ErrorCode;
     }
 
+#ifdef TINYUI_TRACE_ENABLED
     listAllRenderDivers(ctx);
+#endif
 
     showDriverInUse(ctx);
 
@@ -301,7 +297,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
 
 ret_code Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
     if (!ctx.mCreated) {
-        ctx.mLogger(LogSeverity::Error, "Renderer already initialized.");
+        ctx.mLogger(LogSeverity::Error, "Not initialzed.");
         return ErrorCode;
     }
 
@@ -320,6 +316,18 @@ ret_code Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *re
     ctx.mSDLContext.mSurface = SDL_GetWindowSurface(ctx.mSDLContext.mWindow);
     ctx.mSDLContext.mOwner = false;
     ctx.mCreated = true;
+
+    return ResultOk;
+}
+
+ret_code Renderer::releaseScreen(Context &ctx) {
+    if (!ctx.mCreated) {
+        ctx.mLogger(LogSeverity::Error, "Not initialzed.");
+        return ErrorCode;
+    }
+
+    SDL_DestroyWindow(ctx.mSDLContext.mWindow);
+    ctx.mSDLContext.mWindow = nullptr;
 
     return ResultOk;
 }
