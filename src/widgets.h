@@ -61,7 +61,7 @@ using Id = uint64_t;
 
 /// @brief This enum is used to descripe the alignment of a widget.
 enum class WidgetStyle : uint32_t {
-    tui_border_style = 1 ///< The widget has a border
+    tui_border_style = 1       ///< The widget has a border
 };
 
 /// @brief This enum is used to descripe the alignment of a widget.
@@ -124,11 +124,6 @@ struct Widget {
 
     Widget(const Widget &) = delete;
     Widget &operator=(const Widget &) = delete;
-};
-
-struct TreeNode {
-    Id mWidgetId;   ///< The unique id of the widget
-    bool mExpanded; ///< The expanded state of the tree item
 };
 
 /// @brief The widgets access wrapper class.
@@ -232,6 +227,12 @@ struct Widgets {
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static ret_code treeView(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback);
+
+    /// @brief Creates a new tree item.
+    /// @param id           The unique id of the tree item.
+    /// @param parentItemId The parent item id of the tree item.
+    /// @param title        The title of the tree item.
+    static ret_code treeItem(Id id, Id parentItemId, const char *title);
 
     /// @brief Creates a new widget from the type status bar.
     /// @param ctx      The context to create the widget in.

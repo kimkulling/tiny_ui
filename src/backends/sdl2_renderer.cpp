@@ -193,7 +193,6 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         return InvalidHandle;
     }
 
-
     SDL_Color text_color = getSDLColor(fgC);
     SDL_Surface *surfaceMessage = TTF_RenderText_Solid(font->mFont->mFontImpl, string, text_color);
     if (surfaceMessage == nullptr) {
