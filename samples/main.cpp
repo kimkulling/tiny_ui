@@ -108,9 +108,7 @@ int main(int argc, char *argv[]) {
     Widgets::treeView(7, RootPanelId, "tree", Rect(100, 400, 100, 40), nullptr);
 
     while (TinyUi::run()) {
-        TinyUi::beginRender(style.mClearColor);
-        Widgets::renderWidgets();
-        TinyUi::endRender();
+        TinyUi::render();
     }
 
     TinyUi::release();

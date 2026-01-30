@@ -155,6 +155,13 @@ ret_code TinyUi::endRender() {
     return Renderer::endRender(ctx);
 }
 
+void TinyUi::render() {
+    auto &ctx = TinyUi::getContext();
+    TinyUi::beginRender(ctx.mStyle.mClearColor);
+    Widgets::renderWidgets();
+    TinyUi::endRender();
+}
+
 ret_code TinyUi::release() {
     auto &ctx = TinyUi::getContext();
     if (!ctx.mCreated) {

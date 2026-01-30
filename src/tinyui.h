@@ -448,7 +448,10 @@ struct TinyUi {
     /// @brief Ends the rendering.
     /// @param ctx The context to end the rendering.
     static ret_code endRender();
-    
+
+    /// @brief Render the ui.
+    static void render();
+
     /// @brief Release the tiny ui context.
     /// @param ctx The context to release.
     /// @return ResultOk if the context was released, ErrorCode if not.
