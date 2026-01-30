@@ -53,15 +53,17 @@ enum class LayoutPolicy {
 };
 
 struct FilledState {
-    uint32_t filledState;
+    uint32_t filledState{0};    ///< The filled state in percent (0-100)
 };
 
 /// @brief This enum is used to descripe the alignment of a widget.
 using Id = uint64_t;
 
 /// @brief This enum is used to descripe the alignment of a widget.
-enum class WidgetStyle : uint32_t {
-    tui_border_style = 1       ///< The widget has a border
+enum class WidgetStyle {
+    Invalid = -1,
+    BorderStyle,        ///< The widget has a border
+    Count
 };
 
 /// @brief This enum is used to descripe the alignment of a widget.

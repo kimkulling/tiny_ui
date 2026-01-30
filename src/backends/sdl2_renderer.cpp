@@ -31,7 +31,25 @@ SOFTWARE.
 namespace tinyui {
 
 namespace {
+    
+    void loadFont(Context &ctx) {
+        ctx.mSDLContext.mDefaultFont = new Font;
+        ctx.mSDLContext.mDefaultFont->mFont = new FontImpl;
+        ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
+        ctx.mSDLContext.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
+    }
 
+    Font *loadFefaultFont(Context &ctx) {
+        Font *font = nullptr;
+        if (ctx.mSDLContext.mDefaultFont == nullptr) {
+            if (ctx.mStyle.mFont.mName != nullptr) {
+                loadFont(ctx);
+                font = ctx.mSDLContext.mDefaultFont;
+            }
+        }
+        return font;
+    }
+    
     SDL_Color getSDLColor(const Color4 &col) {
         SDL_Color sdl_col = {};
         sdl_col.r = col.r;
@@ -85,13 +103,6 @@ namespace {
         }
 
         return found;
-    }
-
-    void loadFont(Context &ctx) {
-        ctx.mSDLContext.mDefaultFont = new Font;
-        ctx.mSDLContext.mDefaultFont->mFont = new FontImpl;
-        ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
-        ctx.mSDLContext.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
     }
 
     MouseState getButtonState(const SDL_MouseButtonEvent &b) {
@@ -188,6 +199,7 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
             }
         }
     }
+    font = ctx.mSDLContext.mDefaultFont;
 
     if (font == nullptr) {
         return InvalidHandle;
@@ -224,7 +236,7 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
             Message_rect.h = font->mSize;
             break;
         case Alignment::Right:
-            Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - font->mSize * strlen(string);
+            Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - font->mSize * static_cast<int>(strlen(string));
             Message_rect.y = r.top.y + margin;
             Message_rect.w = font->mSize;
             Message_rect.h = font->mSize;
@@ -253,6 +265,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         ctx.mLogger(LogSeverity::Error, "TTF init failed.");
         return ErrorCode;
     }
+    loadFefaultFont(ctx);
 
     const char *title = ctx.mWindowsTitle;
     if (ctx.mWindowsTitle == nullptr) {
