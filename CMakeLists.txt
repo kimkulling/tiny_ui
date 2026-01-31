@@ -28,8 +28,6 @@ find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 
-SET(CMAKE_CXX_FLAGS "${}")
-
 SET(tinyui_backends_src
     src/backends/sdl2_renderer.cpp
     src/backends/sdl2_renderer.h
