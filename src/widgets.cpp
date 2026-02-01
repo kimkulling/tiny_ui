@@ -318,9 +318,50 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
         return InvalidRenderHandle;
     }
 
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::TreeView);
+    Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::TreeView);
+    if (widget == nullptr) {
+        return ErrorCode;
+    }
+
+    if (title != nullptr) {
+        widget->mText.assign(title);
+    }   
+
+    return ResultOk;
+}
+
+ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
+    auto &ctx = TinyUi::getContext();
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        return InvalidRenderHandle;
+    }
+
+    if (ctx.mRoot == nullptr) {
+        return InvalidRenderHandle;
+    }
+
+    Widget *parentWidget = Widgets::findWidget(parentItemId, ctx.mRoot);
+    if (parentWidget == nullptr) {
+        return ErrorCode;
+    }
+
+    auto &parentRect = parentWidget->mRect;
+    const int32_t margin = ctx.mStyle.mMargin;
+    int32_t w = parentRect.width;
+    if (text != nullptr) {
+        const size_t numGlyphs = strlen(text);
+        w = numGlyphs * ctx.mSDLContext.mDefaultFont->mSize;
+    }
+
+    const int32_t h = parentRect.height;
+    const Rect rect(parentRect.top.x + margin, parentRect.top.y + margin, w, h);
+    Widget *child = createWidget(ctx, id, parentItemId, rect, WidgetType::Label);
     if (child == nullptr) {
         return ErrorCode;
+    }
+
+    if (text != nullptr) {
+        child->mText.assign(text);
     }
 
     return ResultOk;
@@ -383,10 +424,20 @@ static void render(Context &ctx, Widget *currentWidget) {
             }
             break;
 
-        case WidgetType::Label:
+            case WidgetType::TreeView:
+            {
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, false, ctx.mStyle.mFg);
+                if (!currentWidget->mText.empty()) {
+                    Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, 
+                        currentWidget->mRect, fg, bg, currentWidget->mAlignment);
+                }
+            }
+            break;
+            case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
-                Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
+                    Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }

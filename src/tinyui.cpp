@@ -31,17 +31,17 @@ SOFTWARE.
 
 namespace tinyui {
 
-static Style DefaultStyle = {
-    Color4{   0, 0, 0, 0 },
+static Style DefaultStyle {
+    Color4{   0,   0,   0, 0 },
     Color4{ 255, 255, 255, 0 },
-    Color4{ 20, 20, 20, 0 },
+    Color4{  20,  20,  20, 0 },
     Color4{ 100, 100, 100, 0 },
     Color4{ 200, 200, 200, 0 },
     2,
     { "Arial.ttf", 35, nullptr }
 };
 
-static const char *SeverityToken[] = {
+static constexpr char *SeverityToken[] = {
     "",
     "*TRACE*",
     "*DEBUG*",
@@ -155,6 +155,13 @@ ret_code TinyUi::endRender() {
     return Renderer::endRender(ctx);
 }
 
+void TinyUi::render() {
+    auto &ctx = TinyUi::getContext();
+    TinyUi::beginRender(ctx.mStyle.mClearColor);
+    Widgets::renderWidgets();
+    TinyUi::endRender();
+}
+
 ret_code TinyUi::release() {
     auto &ctx = TinyUi::getContext();
     if (!ctx.mCreated) {
@@ -162,7 +169,7 @@ ret_code TinyUi::release() {
     }
     Renderer::releaseRenderer(ctx);
     Renderer::releaseScreen(ctx);
-    
+
     ctx.mCreated = false;
 
     return ResultOk;

@@ -121,6 +121,9 @@ struct Point2 {
     T x{ 0 };           ///< The x-coordinate.
     T y{ 0 };           ///< The y-coordinate.
 
+    /// @brief The default class constructor.
+    Point2() = default;
+
     /// @brief The class constructor
     /// @param x_ The x-coordinate.
     /// @param y_ The y-coordinate.
@@ -222,18 +225,18 @@ struct Rect {
 
 /// @brief The alignment enum.
 enum class Alignment : int32_t {
-    Invalid = -1,   ///< The invalid alignment.
-    Left = 0,       ///< The left alignment.
-    Center,         ///< The center alignment.
-    Right,          ///< The right alignment.
-    Count           ///< The number of alignments.
+    Invalid = -1,           ///< The invalid alignment.
+    Left = 0,               ///< The left alignment.
+    Center,                 ///< The center alignment.
+    Right,                 ///< The right alignment.
+    Count                   ///< The number of alignments.
 };
 
 /// @brief The font description struct.
 struct Font {
-    const char *mName;  ///< The name of the font.
-    uint32_t mSize;     ///< The size of the font.
-    FontImpl *mFont;    ///< The font implementation.
+    const char *mName;      ///< The name of the font.
+    uint32_t mSize;         ///< The size of the font.
+    FontImpl *mFont;        ///< The font implementation.
 };
 
 /// @brief The font cache.
@@ -248,7 +251,7 @@ struct Style {
     Color4  mBg;            ///< The background color.
     Color4  mTextColor;     ///< The text color.
     Color4  mBorder;        ///< The border color.
-    int32_t mMargin;        ///< The margin.
+    int32_t mMargin{2};     ///< The margin.
     Font    mFont;          ///< The font.
 };
 
@@ -310,10 +313,10 @@ struct CallbackI {
     /// The function callback array, not handled callbacks are marked as a nullptr.
     funcCallback mfuncCallback[Events::NumEvents];
     /// The data instance.
-    void *mInstance;
+    void *mInstance{nullptr};
 
     /// @brief The default class constructor.
-    CallbackI() : mfuncCallback{ nullptr }, mInstance(nullptr) {
+    CallbackI() : mfuncCallback{ nullptr } {
         clear();
     }
 
@@ -406,6 +409,8 @@ struct TinyUi {
     /// @return true if successful.
     static bool destroyContext();
 
+    /// @brief Will return the current tiny ui context.
+    /// @return The current tiny ui context.
     static Context &getContext();
 
     /// @brief Initialize the tiny ui.
@@ -443,7 +448,10 @@ struct TinyUi {
     /// @brief Ends the rendering.
     /// @param ctx The context to end the rendering.
     static ret_code endRender();
-    
+
+    /// @brief Render the ui.
+    static void render();
+
     /// @brief Release the tiny ui context.
     /// @param ctx The context to release.
     /// @return ResultOk if the context was released, ErrorCode if not.

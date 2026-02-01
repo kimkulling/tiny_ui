@@ -95,6 +95,7 @@ int main(int argc, char *argv[]) {
     Widgets::button(5, RootPanelId, "Test 3", Rect(100, 150, 100, 40), nullptr);
     Widgets::imageButton(6, RootPanelId, "button_test.png", Rect(100, 200, 100, 40), nullptr);
 
+
     auto &ctx = TinyUi::getContext();
     CallbackI quitCallback(quit, (void*) &ctx);
     Widgets::button(7, RootPanelId, "Quit", Rect(100, 250, 100, 40), &quitCallback);
@@ -104,10 +105,13 @@ int main(int argc, char *argv[]) {
 
     Widgets::inputText(9, RootPanelId, Rect(100, 350, 100, 40), Alignment::Left);
 
-    while (TinyUi::run()) {
-        TinyUi::beginRender(style.mClearColor);
-        Widgets::renderWidgets();
-        TinyUi::endRender();
+    Widgets::treeView(10, RootPanelId, "tree", Rect(100, 400, 100, 40), nullptr);
+    Widgets::treeItem(11, 10, "Item 1");
+    Widgets::treeItem(12, 10, "Item 2");
+    
+
+     while (TinyUi::run()) {
+        TinyUi::render();
     }
 
     TinyUi::release();
