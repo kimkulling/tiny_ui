@@ -373,6 +373,7 @@ struct Context {
     Style              mStyle{};                    ///< The active style.
     Widget            *mRoot{nullptr};              ///< The root widget.
     Widget            *mFocus{nullptr};             ///< The widget which is in focus.
+    Widget            *mCurrentParent{ nullptr };   ///< The current parent widget for new widgets.
     tui_log_func       mLogger{};                   ///< The logger function.
     EventDispatchMap   mEventDispatchMap;           ///< The event dispatch map.
     FontCache          mFontCache{};                ///< The font cache.

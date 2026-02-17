@@ -79,14 +79,20 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
     return image;
 }
 
+static Widget *getValidRoot(Context &ctx) {
+    if (ctx.mRoot != nullptr) {
+        return ctx.mRoot;
+    }
+    
+    ctx.mRoot = new Widget;
+    ctx.mRoot->mType = WidgetType::Container;
+    return ctx.mRoot;
+}
+
 static Widget *setParent(Context &ctx, Widget *child, Id parentId) {
     Widget *parent{nullptr};
     if (parentId == 0) {
-        if (ctx.mRoot == nullptr) {
-            ctx.mRoot = new Widget;
-            ctx.mRoot->mType = WidgetType::Container;
-        }
-        parent = ctx.mRoot;
+        parent = getValidRoot(ctx);
     } else {
         parent = Widgets::findWidget(parentId, ctx.mRoot);
     }
@@ -290,6 +296,28 @@ ret_code Widgets::box(Id id, Id parentId, const Rect &rect, bool filled) {
     }
 
     child->mFilledRect = filled;
+
+    return ResultOk;
+}
+
+ret_code Widgets::imageBox(Id id, Id parentId, const char* image, const Rect& rect, bool filled) {
+    auto &ctx = TinyUi::getContext();
+    if (ctx.mSDLContext.mRenderer == nullptr) {
+        return InvalidRenderHandle;
+    }
+
+    if (ctx.mRoot == nullptr) {
+        return InvalidRenderHandle;
+    }
+    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Box);
+    if (child == nullptr) {
+        return ErrorCode;
+    }
+
+    child->mFilledRect = filled;
+    if (image != nullptr) {
+        child->mImage = loadIntoImageCache(ctx, image);
+    }
 
     return ResultOk;
 }
@@ -625,6 +653,16 @@ ret_code Widgets::setFocus(Id id)  {
 Widget *Widgets::getWidgetById(Id id) {
     auto &ctx = TinyUi::getContext();
     return findWidget(id, ctx.mRoot);
+}
+
+bool Widgets::beginChild() {
+    auto &ctx = TinyUi::getContext();
+    return true;
+}
+
+bool Widgets::endChild() {
+    auto &ctx = TinyUi::getContext();
+    return true;
 }
 
 } // namespace tinyui
