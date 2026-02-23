@@ -274,10 +274,15 @@ struct Widgets {
     /// @param isDown The key state.
     static void onKey(const char *key, bool isDown);
 
-    /// @brief The on-char event handler.
-    /// @param ctx The context to handle the event in.
+    /// @brief Will clear all widgets.
     static void clear();
 
+    /// @brief Will clear a widget by its id.
+    /// @param id        The id of the widget to clear.
+    /// @param recursive If true, all child widgets will also be cleared.
+    /// @return true if the widget was cleared, false if not.
+    static bool clearItem(Id id, bool recursive);
+    
     /// @brief The widget enabler
     /// @param ctx     The context to enable the widget in.
     /// @param id      The id of the widget to enable.

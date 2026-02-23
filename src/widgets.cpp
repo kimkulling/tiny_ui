@@ -104,7 +104,17 @@ static Widget *setParent(Context &ctx, Widget *child, Id parentId) {
 }
 
 static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, WidgetType type) {
-    Widget *widget = new Widget;
+    Widget *widget = Widgets::findWidget(id, ctx.mRoot);
+    if (widget != nullptr) {
+        if (widget->mType == type) {
+            return widget;
+        } else {
+            ctx.mLogger(LogSeverity::Error, "A widget with the same id but different type already exists.");
+            return nullptr;
+        } 
+    }
+
+    widget = new Widget;
     if (widget == nullptr) {
         ctx.mLogger(LogSeverity::Error, "TUI-Widget cannot be created.");
         return nullptr;
@@ -378,7 +388,7 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
     int32_t w = parentRect.width;
     if (text != nullptr) {
         const size_t numGlyphs = strlen(text);
-        w = numGlyphs * ctx.mSDLContext.mDefaultFont->mSize;
+        w = static_cast<int32_t>(numGlyphs) * static_cast<int32_t>(ctx.mSDLContext.mDefaultFont->mSize);
     }
 
     const int32_t h = parentRect.height;
@@ -554,21 +564,23 @@ void Widgets::onMouseButton(int x, int y, int eventType, MouseState state) {
 }
 
 void Widgets::onMouseMove(int x, int y, int eventType, MouseState state) {
-    auto &ctx = TinyUi::getContext();
     assert(eventType >= 0);
     assert(eventType < Events::NumEvents);
 
+    auto &ctx = TinyUi::getContext();
     if (ctx.mRoot == nullptr) {
         return;
     }
 
     Widget *found{nullptr};
     findSelectedWidget(x, y, ctx.mRoot, &found);
-    if (found != nullptr) {
-        if (found->mCallback != nullptr) {
-            if (found->mCallback->mfuncCallback[eventType] != nullptr) {
-                found->mCallback->mfuncCallback[eventType](found->mId, found->mCallback->mInstance);
-            }
+    if (found == nullptr) {
+        return;
+    }
+
+    if (found->mCallback != nullptr) {
+        if (found->mCallback->mfuncCallback[eventType] != nullptr) {
+            found->mCallback->mfuncCallback[eventType](found->mId, found->mCallback->mInstance);
         }
     }
 }
@@ -614,6 +626,32 @@ void Widgets::clear() {
 
     Widget *current{ctx.mRoot};
     recursiveClear(current);
+}
+
+bool Widgets::clearItem(Id id, bool recursive) {
+    auto &ctx = TinyUi::getContext();
+    Widget *widget = findWidget(id, ctx.mRoot);
+    if (widget == nullptr) {
+        return false;
+    }
+    
+    if (widget->mParent == nullptr) {
+        return false;
+    }
+    
+    auto &siblings = widget->mParent->mChildren;
+    auto it = std::find(siblings.begin(), siblings.end(), widget);
+    bool result{ false };
+    if (it != siblings.end()) {
+        siblings.erase(it);
+        delete widget;
+        if (recursive) {
+            recursiveClear(widget);
+        }
+        result = true;
+    }
+    
+    return result;
 }
 
 void Widgets::setEnableState(Id id, bool enabled) {
