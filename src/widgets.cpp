@@ -347,6 +347,17 @@ ret_code Widgets::panel(Id id, Id parentId, const char *title, const Rect &rect,
 }
 
 static int onTreeViewItemClicked(uint32_t id, void *data) {
+    Widget *treeView = Widgets::findWidget(id, TinyUi::getContext().mRoot);
+    if (treeView == nullptr) {
+        return ErrorCode;
+    }
+    for (size_t i = 0; i < treeView->mChildren.size(); ++i ) {
+        Widget *child = treeView->mChildren[i];
+        if (child == nullptr) {
+            continue;
+        }
+        child->mEnabled = !child->mEnabled;
+    }
     std::cout << "TreeView item clicked: " << id << std::endl;
     return 0;
 }
