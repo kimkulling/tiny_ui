@@ -84,6 +84,7 @@ struct Widget {
     WidgetArray mChildren{};                    ///< The children of the widget
     CallbackI  *mCallback{nullptr};             ///< The callback of the widget
     uint8_t    *mContent{nullptr};              ///< The content of the widget
+    uint32_t    mIntention{0};                  ///< The interaction intention. 
 
     /// @brief The default class constructor.
     Widget() = default;

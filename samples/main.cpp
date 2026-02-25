@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
         return ErrorCode;
     }
 
-    Widgets::panel(RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 120, 500), nullptr);
+    Widgets::panel(RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 120, 600), nullptr);
     Widgets::label(2, RootPanelId, "Title", Rect(100, 10, 100, 20), Alignment::Center);
     Widgets::button(3, RootPanelId, "Test 1", Rect(100, 50, 100, 40), nullptr);
     Widgets::button(4, RootPanelId, "Test 2", Rect(100, 100, 100, 40), nullptr);
@@ -109,8 +109,7 @@ int main(int argc, char *argv[]) {
     Widgets::treeItem(11, 10, "Item 1");
     Widgets::treeItem(12, 10, "Item 2");
     
-
-     while (TinyUi::run()) {
+    while (TinyUi::run()) {
         TinyUi::render();
     }
 

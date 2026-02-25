@@ -344,8 +344,9 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
     if (parentWidget == nullptr) {
         return ErrorCode;
     }
-
+    
     auto &parentRect = parentWidget->mRect;
+    
     const int32_t margin = ctx.mStyle.mMargin;
     int32_t w = parentRect.width;
     if (text != nullptr) {
@@ -354,12 +355,14 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
     }
 
     const int32_t h = parentRect.height;
-    const Rect rect(parentRect.top.x + margin, parentRect.top.y + margin, w, h);
+    size_t numChildren = parentWidget->mChildren.size() + 1;
+    const Rect rect(parentRect.top.x + margin, parentRect.top.y + numChildren * margin + numChildren * h, w, h);
     Widget *child = createWidget(ctx, id, parentItemId, rect, WidgetType::Label);
     if (child == nullptr) {
         return ErrorCode;
     }
-
+    
+    child->mIntention = parentWidget->mIntention + 1;
     if (text != nullptr) {
         child->mText.assign(text);
     }
@@ -434,6 +437,7 @@ static void render(Context &ctx, Widget *currentWidget) {
                 }
             }
             break;
+            
             case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
