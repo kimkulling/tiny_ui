@@ -158,6 +158,7 @@ struct Widgets {
     /// @param filled   The filled state of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static ret_code box(Id id, Id parentId, const Rect &rect, bool filled);
+    static ret_code imageBox(Id id, Id parentId, const char *image, const Rect &rect, bool filled);
 
     /// @brief Will look for a widget by its id.
     /// @param id   The id of the widget to look for.
@@ -274,10 +275,15 @@ struct Widgets {
     /// @param isDown The key state.
     static void onKey(const char *key, bool isDown);
 
-    /// @brief The on-char event handler.
-    /// @param ctx The context to handle the event in.
+    /// @brief Will clear all widgets.
     static void clear();
 
+    /// @brief Will clear a widget by its id.
+    /// @param id        The id of the widget to clear.
+    /// @param recursive If true, all child widgets will also be cleared.
+    /// @return true if the widget was cleared, false if not.
+    static bool clearItem(Id id, bool recursive);
+    
     /// @brief The widget enabler
     /// @param ctx     The context to enable the widget in.
     /// @param id      The id of the widget to enable.
@@ -301,6 +307,9 @@ struct Widgets {
     /// @param id  The id of the widget to get.
     /// @return The widget or nullptr if not found.
     static Widget *getWidgetById(Id id);
+
+    static bool beginChild();
+    static bool endChild();
 };
 
 } // namespace tinyui
