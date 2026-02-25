@@ -105,9 +105,10 @@ int main(int argc, char *argv[]) {
 
     Widgets::inputText(9, RootPanelId, Rect(100, 350, 100, 40), Alignment::Left);
 
-    Widgets::treeView(10, RootPanelId, "tree", Rect(100, 400, 100, 40), nullptr);
+    Widgets::treeView(10, RootPanelId, "tree", Rect(100, 400, 100, 40));
     Widgets::treeItem(11, 10, "Item 1");
     Widgets::treeItem(12, 10, "Item 2");
+    Widgets::setEnableState(12, false);
     
     while (TinyUi::run()) {
         TinyUi::render();

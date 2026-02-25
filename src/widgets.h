@@ -27,7 +27,7 @@ SOFTWARE.
 
 namespace tinyui {
 
-// Forward declarations
+// Forward declarations -------------------------------------------------------
 struct Context;
 
 /// @brief  This enum is used to descripe the widget type-
@@ -230,7 +230,7 @@ struct Widgets {
     /// @param rect     The rect of the widget.
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code treeView(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback);
+    static ret_code treeView(Id id, Id parentId, const char *title, const Rect &rect);
 
     /// @brief Creates a new tree item.
     /// @param id           The unique id of the tree item.

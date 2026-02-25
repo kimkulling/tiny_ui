@@ -346,7 +346,12 @@ ret_code Widgets::panel(Id id, Id parentId, const char *title, const Rect &rect,
     return ResultOk;
 }
 
-ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback) {
+static int onTreeViewItemClicked(uint32_t id, void *data) {
+    std::cout << "TreeView item clicked: " << id << std::endl;
+    return 0;
+}
+
+ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &rect) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return InvalidRenderHandle;
@@ -361,9 +366,13 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
         return ErrorCode;
     }
 
+    
     if (title != nullptr) {
         widget->mText.assign(title);
-    }   
+    }
+
+    CallbackI *callback = new CallbackI(onTreeViewItemClicked, nullptr, Events::MouseButtonDownEvent);
+    widget->mCallback = callback;
 
     return ResultOk;
 }
@@ -386,12 +395,7 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
     auto &parentRect = parentWidget->mRect;
     
     const int32_t margin = ctx.mStyle.mMargin;
-    int32_t w = parentRect.width;
-    if (text != nullptr) {
-        const size_t numGlyphs = strlen(text);
-        w = static_cast<int32_t>(numGlyphs) * static_cast<int32_t>(ctx.mSDLContext.mDefaultFont->mSize);
-    }
-
+    const int32_t w = parentRect.width;
     const int32_t h = parentRect.height;
     size_t numChildren = parentWidget->mChildren.size() + 1;
     const Rect rect(parentRect.top.x + margin, parentRect.top.y + numChildren * margin + numChildren * h, w, h);
