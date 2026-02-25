@@ -251,7 +251,7 @@ struct Style {
     Color4  mBg;            ///< The background color.
     Color4  mTextColor;     ///< The text color.
     Color4  mBorder;        ///< The border color.
-    int32_t mMargin{2};     ///< The margin.
+    int32_t mMargin{8};     ///< The margin.
     Font    mFont;          ///< The font.
 };
 

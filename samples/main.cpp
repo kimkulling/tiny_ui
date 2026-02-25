@@ -107,7 +107,9 @@ int main(int argc, char *argv[]) {
 
     Widgets::treeView(10, RootPanelId, "tree", Rect(100, 400, 100, 40));
     Widgets::treeItem(11, 10, "Item 1");
-    Widgets::treeItem(12, 10, "Item 2");
+    //Widgets::treeItem(12, 11, "Item 1");
+    Widgets::treeItem(13, 10, "Item 2");
+    Widgets::treeItem(14, 13, "Item 2.1");
     
     while (TinyUi::run()) {
         TinyUi::render();
