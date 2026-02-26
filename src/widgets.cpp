@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include <iostream>
 #include <cassert>
+#include <algorithm>
 
 namespace tinyui {
 
