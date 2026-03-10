@@ -74,11 +74,21 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
     image->mX = w;
     image->mY = h;
     image->mComp = bytesPerPixel;
-
     ctx.mImageCache[filename] = image;
 
     return image;
 }
+
+static void releaseImageCache(Context &ctx) {
+    for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
+        Image *image = it->second;
+        if (image != nullptr) {
+            Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
+            delete image;
+        }
+    }
+    ctx.mImageCache.clear();
+} 
 
 static Widget *getValidRoot(Context &ctx) {
     if (ctx.mRoot != nullptr) {
@@ -646,6 +656,7 @@ void Widgets::clear() {
 
     Widget *current{ctx.mRoot};
     recursiveClear(current);
+    releaseImageCache(ctx);
 }
 
 bool Widgets::clearItem(Id id, bool recursive) {

@@ -38,7 +38,7 @@ struct SDL_Texture;
 namespace tinyui {
     
 struct SurfaceImpl {
-    SDL_Surface *mSurface;
+    SDL_Surface *mSurface{nullptr};
 
     SurfaceImpl() = default;
 
@@ -87,6 +87,7 @@ struct Renderer {
     static ret_code closeScreen(Context &ctx);
     static bool update(Context &ctx);
     static SurfaceImpl *createSurfaceImpl(unsigned char *data, int w, int h, int bytesPerPixel, int pitch);
+    static void releaseSurfaceImpl(SurfaceImpl *surfaceImpl);
 };
 
 } //  namespace tinyui

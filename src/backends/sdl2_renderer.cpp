@@ -179,6 +179,7 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
         ctx.mSDLContext.mDefaultFont = nullptr;
     }
 
+    IMG_Quit();
     SDL_DestroyRenderer(ctx.mSDLContext.mRenderer);
     ctx.mSDLContext.mRenderer = nullptr;
     SDL_Quit();
@@ -483,6 +484,13 @@ SurfaceImpl *Renderer::createSurfaceImpl(unsigned char *data, int w, int h, int 
     surfaceImpl->mSurface = surface;
 
     return surfaceImpl;
+}
+
+void Renderer::releaseSurfaceImpl(SurfaceImpl *surfaceImpl) {
+    if (surfaceImpl != nullptr) {
+        surfaceImpl->clear();
+        delete surfaceImpl;
+    }
 }
 
 } // namespace tinyui
