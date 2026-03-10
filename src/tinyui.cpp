@@ -97,17 +97,6 @@ Context &TinyUi::getContext() {
     return *gCtx;
 }
 
-ret_code TinyUi::init() {
-    auto &ctx = TinyUi::getContext();
-    if (ctx.mCreated) {
-        return ErrorCode;
-    }
-
-    ctx.mCreated = true;
-
-    return ResultOk;
-}
-
 ret_code TinyUi::initScreen(int32_t x, int32_t y, int32_t w, int32_t h) {
     auto &ctx = TinyUi::getContext();
     if (Renderer::initRenderer(ctx) == ErrorCode) {
@@ -169,6 +158,9 @@ ret_code TinyUi::release() {
     }
     Renderer::releaseRenderer(ctx);
     Renderer::releaseScreen(ctx);
+    ctx.mSDLContext.mRenderer = nullptr;
+    ctx.mSDLContext.mWindow = nullptr;
+    ctx.mRoot = nullptr;
 
     ctx.mCreated = false;
 

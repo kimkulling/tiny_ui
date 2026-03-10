@@ -414,11 +414,6 @@ struct TinyUi {
     /// @return The current tiny ui context.
     static Context &getContext();
 
-    /// @brief Initialize the tiny ui.
-    /// @param ctx The context to initialize.
-    /// @return ResultOk if the initialization was successful, ErrorCode if not.
-    static ret_code init();
-
     /// @brief Initialize the screen.
     /// @param ctx The context to initialize.
     /// @param x The x-coordinate of the screen.
