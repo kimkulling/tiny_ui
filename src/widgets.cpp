@@ -698,7 +698,7 @@ bool Widgets::clearItem(Id id, bool recursive) {
         if (recursive) {
             recursiveClear(widget);
         }
-        delete widget;
+//        delete widget;
         result = true;
     }
     
