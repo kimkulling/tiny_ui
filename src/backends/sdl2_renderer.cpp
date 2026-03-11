@@ -39,7 +39,7 @@ namespace {
         ctx.mSDLContext.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
     }
 
-    Font *loadFefaultFont(Context &ctx) {
+    Font *loadDefaultFont(Context &ctx) {
         Font *font = nullptr;
         if (ctx.mSDLContext.mDefaultFont == nullptr) {
             if (ctx.mStyle.mFont.mName != nullptr) {
@@ -179,6 +179,7 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
         ctx.mSDLContext.mDefaultFont = nullptr;
     }
 
+    IMG_Quit();
     SDL_DestroyRenderer(ctx.mSDLContext.mRenderer);
     ctx.mSDLContext.mRenderer = nullptr;
     SDL_Quit();
@@ -265,7 +266,11 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         ctx.mLogger(LogSeverity::Error, "TTF init failed.");
         return ErrorCode;
     }
-    loadFefaultFont(ctx);
+    
+    if (loadDefaultFont(ctx) == nullptr) {
+        ctx.mLogger(LogSeverity::Error, "Cannot load default font.");
+        return ErrorCode;
+    }
 
     const char *title = ctx.mWindowsTitle;
     if (ctx.mWindowsTitle == nullptr) {
@@ -472,14 +477,20 @@ SurfaceImpl *Renderer::createSurfaceImpl(unsigned char *data, int w, int h, int 
     SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(data, w, h, bytesPerPixel * 8, pitch, Rmask, Gmask, Bmask, Amask);
     if (surface == nullptr) {
         const char *errorMsg = SDL_GetError();
-        std::cerr << "*ERR*: %s\n"
-                  << errorMsg << "\n";
+        std::cerr << "*ERR*: %s\n" << errorMsg << "\n";
         return nullptr;
     }
     SurfaceImpl *surfaceImpl = new SurfaceImpl;
     surfaceImpl->mSurface = surface;
 
     return surfaceImpl;
+}
+
+void Renderer::releaseSurfaceImpl(SurfaceImpl *surfaceImpl) {
+    if (surfaceImpl != nullptr) {
+        surfaceImpl->clear();
+        delete surfaceImpl;
+    }
 }
 
 } // namespace tinyui

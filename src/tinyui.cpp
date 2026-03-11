@@ -37,7 +37,7 @@ static Style DefaultStyle {
     Color4{  20,  20,  20, 0 },
     Color4{ 100, 100, 100, 0 },
     Color4{ 200, 200, 200, 0 },
-    2,
+    8,
     { "Arial.ttf", 35, nullptr }
 };
 
@@ -95,17 +95,6 @@ bool TinyUi::destroyContext() {
 Context &TinyUi::getContext() {
     assert(nullptr != gCtx);
     return *gCtx;
-}
-
-ret_code TinyUi::init() {
-    auto &ctx = TinyUi::getContext();
-    if (ctx.mCreated) {
-        return ErrorCode;
-    }
-
-    ctx.mCreated = true;
-
-    return ResultOk;
 }
 
 ret_code TinyUi::initScreen(int32_t x, int32_t y, int32_t w, int32_t h) {
@@ -169,6 +158,9 @@ ret_code TinyUi::release() {
     }
     Renderer::releaseRenderer(ctx);
     Renderer::releaseScreen(ctx);
+    ctx.mSDLContext.mRenderer = nullptr;
+    ctx.mSDLContext.mWindow = nullptr;
+    ctx.mRoot = nullptr;
 
     ctx.mCreated = false;
 

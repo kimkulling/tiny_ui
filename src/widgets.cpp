@@ -31,6 +31,7 @@ SOFTWARE.
 #include <iostream>
 #include <cassert>
 #include <cstring>
+#include <algorithm>
 
 namespace tinyui {
 
@@ -74,12 +75,21 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
     image->mX = w;
     image->mY = h;
     image->mComp = bytesPerPixel;
-
-    stbi_image_free(data);
     ctx.mImageCache[filename] = image;
 
     return image;
 }
+
+static void releaseImageCache(Context &ctx) {
+    for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
+        Image *image = it->second;
+        if (image != nullptr) {
+            Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
+            delete image;
+        }
+    }
+    ctx.mImageCache.clear();
+} 
 
 static Widget *getValidRoot(Context &ctx) {
     if (ctx.mRoot != nullptr) {
@@ -268,6 +278,9 @@ ret_code Widgets::button(Id id, Id parentId, const char *text, const Rect &rect,
     }
 
     child->mCallback = callback;
+    if (callback != nullptr) {
+        callback->incRef();
+    }
     if (text != nullptr) {
         child->mText.assign(text);
     }
@@ -291,6 +304,10 @@ ret_code Widgets::imageButton(Id id, Id parentId, const char *image, const Rect 
     }
     
     child->mCallback = callback;
+    if (callback != nullptr) {
+        callback->incRef();
+    }
+
     if (image != nullptr) {
         child->mImage = loadIntoImageCache(ctx, image);
     }
@@ -354,7 +371,23 @@ ret_code Widgets::panel(Id id, Id parentId, const char *title, const Rect &rect,
     return ResultOk;
 }
 
-ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback) {
+static int onTreeViewItemClicked(uint32_t id, void *data) {
+    Widget *treeView = Widgets::findWidget(id, TinyUi::getContext().mRoot);
+    if (treeView == nullptr) {
+        return ErrorCode;
+    }
+    for (size_t i = 0; i < treeView->mChildren.size(); ++i ) {
+        Widget *child = treeView->mChildren[i];
+        if (child == nullptr) {
+            continue;
+        }
+        child->mEnabled = !child->mEnabled;
+    }
+    std::cout << "TreeView item clicked: " << id << std::endl;
+    return 0;
+}
+
+ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &rect) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mSDLContext.mRenderer == nullptr) {
         return InvalidRenderHandle;
@@ -369,9 +402,16 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
         return ErrorCode;
     }
 
+    
     if (title != nullptr) {
         widget->mText.assign(title);
-    }   
+    }
+
+    CallbackI *callback = new CallbackI(onTreeViewItemClicked, nullptr, Events::MouseButtonDownEvent);
+    widget->mCallback = callback;
+    if (callback != nullptr) {
+        callback->incRef();
+    }
 
     return ResultOk;
 }
@@ -390,22 +430,20 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
     if (parentWidget == nullptr) {
         return ErrorCode;
     }
-
+    
     auto &parentRect = parentWidget->mRect;
+    
     const int32_t margin = ctx.mStyle.mMargin;
-    int32_t w = parentRect.width;
-    if (text != nullptr) {
-        const size_t numGlyphs = strlen(text);
-        w = static_cast<int32_t>(numGlyphs) * static_cast<int32_t>(ctx.mSDLContext.mDefaultFont->mSize);
-    }
-
+    const int32_t w = parentRect.width;
     const int32_t h = parentRect.height;
-    const Rect rect(parentRect.top.x + margin, parentRect.top.y + margin, w, h);
+    size_t numChildren = parentWidget->mChildren.size() + 1;
+    const Rect rect(parentRect.top.x + margin, parentRect.top.y + numChildren * margin + numChildren * h, w, h);
     Widget *child = createWidget(ctx, id, parentItemId, rect, WidgetType::Label);
     if (child == nullptr) {
         return ErrorCode;
     }
-
+    
+    child->mIntention = parentWidget->mIntention + 1;
     if (text != nullptr) {
         child->mText.assign(text);
     }
@@ -480,6 +518,7 @@ static void render(Context &ctx, Widget *currentWidget) {
                 }
             }
             break;
+            
             case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
@@ -637,6 +676,7 @@ void Widgets::clear() {
     Widget *current{ctx.mRoot};
     recursiveClear(current);
     ctx.mRoot = nullptr;
+    releaseImageCache(ctx);
 }
 
 bool Widgets::clearItem(Id id, bool recursive) {

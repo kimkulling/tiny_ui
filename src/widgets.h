@@ -27,7 +27,7 @@ SOFTWARE.
 
 namespace tinyui {
 
-// Forward declarations
+// Forward declarations -------------------------------------------------------
 struct Context;
 
 /// @brief  This enum is used to descripe the widget type-
@@ -84,6 +84,7 @@ struct Widget {
     WidgetArray mChildren{};                    ///< The children of the widget
     CallbackI  *mCallback{nullptr};             ///< The callback of the widget
     uint8_t    *mContent{nullptr};              ///< The content of the widget
+    uint32_t    mIntention{0};                  ///< The interaction intention. 
 
     /// @brief The default class constructor.
     Widget() = default;
@@ -93,6 +94,10 @@ struct Widget {
         if (mContent != nullptr) {
             delete [] mContent;
         } 
+        
+        if (mCallback != nullptr) {
+            mCallback->decRef();
+        }
     }
 
     /// @brief Check if the widget has a specific style.
@@ -229,7 +234,7 @@ struct Widgets {
     /// @param rect     The rect of the widget.
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code treeView(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback);
+    static ret_code treeView(Id id, Id parentId, const char *title, const Rect &rect);
 
     /// @brief Creates a new tree item.
     /// @param id           The unique id of the tree item.

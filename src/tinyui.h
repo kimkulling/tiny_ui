@@ -251,7 +251,7 @@ struct Style {
     Color4  mBg;            ///< The background color.
     Color4  mTextColor;     ///< The text color.
     Color4  mBorder;        ///< The border color.
-    int32_t mMargin{2};     ///< The margin.
+    int32_t mMargin{8};     ///< The margin.
     Font    mFont;          ///< The font.
 };
 
@@ -314,6 +314,8 @@ struct CallbackI {
     funcCallback mfuncCallback[Events::NumEvents];
     /// The data instance.
     void *mInstance{nullptr};
+    /// The reference count for the callback interface, used for memory management.
+    uint32_t mNumRefs{ 0 };
 
     /// @brief The default class constructor.
     CallbackI() : mfuncCallback{ nullptr } {
@@ -337,6 +339,21 @@ struct CallbackI {
     void clear() {
         for (size_t i = 0; i < Events::NumEvents; ++i) {
             mfuncCallback[i] = nullptr;
+        }
+    }
+
+    /// @brief Increment the reference count.
+    void incRef() {
+        ++mNumRefs;
+    }
+
+    /// @brief Decrement the reference count.
+    void decRef() {
+        if (mNumRefs > 0) {
+            --mNumRefs;
+            if (mNumRefs == 0) {
+                delete this;
+            }
         }
     }
 };
@@ -413,11 +430,6 @@ struct TinyUi {
     /// @brief Will return the current tiny ui context.
     /// @return The current tiny ui context.
     static Context &getContext();
-
-    /// @brief Initialize the tiny ui.
-    /// @param ctx The context to initialize.
-    /// @return ResultOk if the initialization was successful, ErrorCode if not.
-    static ret_code init();
 
     /// @brief Initialize the screen.
     /// @param ctx The context to initialize.
