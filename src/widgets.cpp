@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include <iostream>
 #include <cassert>
+#include <cstring>
 
 namespace tinyui {
 
@@ -74,6 +75,7 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
     image->mY = h;
     image->mComp = bytesPerPixel;
 
+    stbi_image_free(data);
     ctx.mImageCache[filename] = image;
 
     return image;
@@ -86,6 +88,7 @@ static Widget *getValidRoot(Context &ctx) {
     
     ctx.mRoot = new Widget;
     ctx.mRoot->mType = WidgetType::Container;
+    
     return ctx.mRoot;
 }
 
@@ -95,6 +98,10 @@ static Widget *setParent(Context &ctx, Widget *child, Id parentId) {
         parent = getValidRoot(ctx);
     } else {
         parent = Widgets::findWidget(parentId, ctx.mRoot);
+    }
+
+    if (parent == nullptr) {
+        return nullptr;
     }
 
     parent->mChildren.emplace_back(child);
@@ -136,7 +143,8 @@ void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) 
     if (eventId == Events::KeyDownEvent || eventId == Events::KeyUpEvent) {
         if (eventPayload != nullptr) {
             if (ctx.mFocus->mType == WidgetType::InputField) {
-                ctx.mFocus->mText.append((const char*)eventPayload->payload[0]);
+                char buffer[2] = { eventPayload->payload[0], '\0' };
+                ctx.mFocus->mText.append(buffer);
             }
         }
     }
@@ -608,12 +616,14 @@ void recursiveClear(Widget *current) {
     if (current == nullptr) {
         return;
     }
-    if (current->mChildren.empty()) {
-        return;
-    }
 
     for (size_t i = 0; i < current->mChildren.size(); ++i) {
         recursiveClear(current->mChildren[i]);
+    }
+
+    if (current->mCallback) {
+        delete current->mCallback;
+        current->mCallback = nullptr;
     }
     delete current;
 }
@@ -626,6 +636,7 @@ void Widgets::clear() {
 
     Widget *current{ctx.mRoot};
     recursiveClear(current);
+    ctx.mRoot = nullptr;
 }
 
 bool Widgets::clearItem(Id id, bool recursive) {
@@ -644,10 +655,10 @@ bool Widgets::clearItem(Id id, bool recursive) {
     bool result{ false };
     if (it != siblings.end()) {
         siblings.erase(it);
-        delete widget;
         if (recursive) {
             recursiveClear(widget);
         }
+        delete widget;
         result = true;
     }
     
