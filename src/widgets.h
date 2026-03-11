@@ -94,6 +94,10 @@ struct Widget {
         if (mContent != nullptr) {
             delete [] mContent;
         } 
+        
+        if (mCallback != nullptr) {
+            mCallback->decRef();
+        }
     }
 
     /// @brief Check if the widget has a specific style.

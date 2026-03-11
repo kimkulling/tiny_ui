@@ -314,6 +314,8 @@ struct CallbackI {
     funcCallback mfuncCallback[Events::NumEvents];
     /// The data instance.
     void *mInstance{nullptr};
+    /// The reference count for the callback interface, used for memory management.
+    uint32_t mNumRefs{ 0 };
 
     /// @brief The default class constructor.
     CallbackI() : mfuncCallback{ nullptr } {
@@ -337,6 +339,21 @@ struct CallbackI {
     void clear() {
         for (size_t i = 0; i < Events::NumEvents; ++i) {
             mfuncCallback[i] = nullptr;
+        }
+    }
+
+    /// @brief Increment the reference count.
+    void incRef() {
+        ++mNumRefs;
+    }
+
+    /// @brief Decrement the reference count.
+    void decRef() {
+        if (mNumRefs > 0) {
+            --mNumRefs;
+            if (mNumRefs == 0) {
+                delete this;
+            }
         }
     }
 };
