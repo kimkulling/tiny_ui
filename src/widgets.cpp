@@ -271,6 +271,9 @@ ret_code Widgets::button(Id id, Id parentId, const char *text, const Rect &rect,
     }
 
     child->mCallback = callback;
+    if (callback != nullptr) {
+        callback->incRef();
+    }
     if (text != nullptr) {
         child->mText.assign(text);
     }
@@ -294,6 +297,10 @@ ret_code Widgets::imageButton(Id id, Id parentId, const char *image, const Rect 
     }
     
     child->mCallback = callback;
+    if (callback != nullptr) {
+        callback->incRef();
+    }
+
     if (image != nullptr) {
         child->mImage = loadIntoImageCache(ctx, image);
     }
@@ -395,6 +402,9 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
 
     CallbackI *callback = new CallbackI(onTreeViewItemClicked, nullptr, Events::MouseButtonDownEvent);
     widget->mCallback = callback;
+    if (callback != nullptr) {
+        callback->incRef();
+    }
 
     return ResultOk;
 }
