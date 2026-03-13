@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/kimkulling/tiny_ui/blob/main/assets/images/tinyui_logo.webp" />
+  <img src="https://github.com/kimkulling/tiny_ui/blob/main/assets/images/tinyui_logo.png" />
 </p>
 
 # tiny_ui
