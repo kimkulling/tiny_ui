@@ -8,8 +8,15 @@ A lightweight C++17 UI library for Windows and Linux, using SDL2 as the renderer
 
 ## Features
 
-- **Widgets**: Panel, Button, Label, Progress Bar (experimental)
-- **Platforms**: Windows, Linux
+- **Widgets**:
+  - Panel
+  - Button
+  - Label
+  - Progress Bar
+  - TreeView (experimental)
+- **Platforms**:
+  - Windows
+  - Linux
 
 ## Build
 
@@ -65,7 +72,7 @@ int main() {
 
 ## Planned
 
-- TreeView, Status Bar, Default dialogs
+- Status Bar, Default dialogs
 
 ---
 
