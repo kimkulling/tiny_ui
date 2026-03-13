@@ -36,6 +36,16 @@ SOFTWARE.
 
 /*
  ==============================================================================
+ * Documentation                                                              *
+ *
+ * Introduction
+ * The intention of this UI-Library is to help people (special me) to develop 
+ * ingame UI's more easily. You can introduce the code to create the widgets and 
+ * dialogs directly in you c/c++ code.
+ *
+ * Supported widgets
+ * Todo
+ ==============================================================================
  *  Changelog:
  *  ==========
  *  0.0.2: New features:
