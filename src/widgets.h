@@ -36,10 +36,11 @@ enum class WidgetType {
     Container = 0,      ///< A container widget
     Button,             ///< A button widget
     Label,              ///< A label widget
-    InputField,         ///< 
+    InputField,         ///< An input field widget
     Panel,              ///< A panel widget
     Box,                ///< A box widget
-    TreeView,           ///< A treeeview widget
+    ImageBox,           ///< An image box widget
+    TreeView,           ///< A treeview widget
     ProgressBar,        ///< A status bar widget
     Count               ///< The number of widgets
 };
@@ -56,10 +57,7 @@ struct FilledState {
     uint32_t filledState{0};    ///< The filled state in percent (0-100)
 };
 
-/// @brief This enum is used to descripe the alignment of a widget.
-using Id = uint64_t;
-
-/// @brief This enum is used to descripe the alignment of a widget.
+/// @brief This enum is used to describe the alignment of a widget.
 enum class WidgetStyle {
     Invalid = -1,
     BorderStyle,        ///< The widget has a border

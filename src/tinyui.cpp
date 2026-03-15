@@ -41,7 +41,7 @@ static Style DefaultStyle {
     { "Arial.ttf", 35, nullptr }
 };
 
-static const char *SeverityToken[] = {
+static constexpr char const *SeverityToken[] = {
     "",
     "*TRACE*",
     "*DEBUG*",
@@ -57,7 +57,7 @@ void log_message(LogSeverity severity, const char *message) {
 
 Context *gCtx = nullptr;
 
-Context *Context::create(const char *title, Style &style) {
+Context *Context::create(const char *title, const Style &style) {
     Context *ctx = new Context;
     ctx->mLogger = log_message;
     ctx->mAppTitle = title;
@@ -71,7 +71,7 @@ void Context::destroy(Context *ctx) {
     delete ctx;
 }
 
-bool TinyUi::createContext(const char *title, Style &style) {
+bool TinyUi::createContext(const char *title, const Style &style) {
     if (gCtx != nullptr) {
         return false;
     }

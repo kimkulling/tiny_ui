@@ -31,7 +31,7 @@ static constexpr Id RootPanelId = 1;
 
 static constexpr Id NextPanelId = 100;
 
-int quit(uint32_t, void *instance) {
+int quit(Id, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
     }
@@ -46,7 +46,7 @@ static uint32_t LastTick = 0;
 static uint32_t Diff = 0;
 static constexpr uint32_t TimeDiff = 10;
 
-int updateProgressbar(uint32_t, void *instance) {
+int updateProgressbar(Id, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
     }
