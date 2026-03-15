@@ -36,6 +36,16 @@ SOFTWARE.
 
 /*
  ==============================================================================
+ * Documentation                                                              *
+ *
+ * Introduction
+ * The intention of this UI-Library is to help people (special me) to develop 
+ * ingame UI's more easily. You can introduce the code to create the widgets and 
+ * dialogs directly in you c/c++ code.
+ *
+ * Supported widgets
+ * Todo
+ ==============================================================================
  *  Changelog:
  *  ==========
  *  0.0.2: New features:
@@ -231,15 +241,15 @@ enum class Alignment : int32_t {
     Invalid = -1,           ///< The invalid alignment.
     Left = 0,               ///< The left alignment.
     Center,                 ///< The center alignment.
-    Right,                 ///< The right alignment.
+    Right,                  ///< The right alignment.
     Count                   ///< The number of alignments.
 };
 
 /// @brief The font description struct.
 struct Font {
-    const char *mName;      ///< The name of the font.
-    uint32_t mSize;         ///< The size of the font.
-    FontImpl *mFont;        ///< The font implementation.
+    const char *mName{nullptr};     ///< The name of the font.
+    uint32_t mSize{12};             ///< The size of the font.
+    FontImpl *mFont{nullptr};        ///< The font implementation.
 };
 
 /// @brief The font cache.

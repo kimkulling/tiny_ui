@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/kimkulling/tiny_ui/blob/main/assets/images/tinyui_logo.webp" />
+  <img src="https://github.com/kimkulling/tiny_ui/blob/main/assets/images/tinyui_logo.png" />
 </p>
 
 # tiny_ui
@@ -8,8 +8,15 @@ A lightweight C++17 UI library for Windows and Linux, using SDL2 as the renderer
 
 ## Features
 
-- **Widgets**: Panel, Button, Label, Progress Bar (experimental)
-- **Platforms**: Windows, Linux
+- **Widgets**:
+  - Panel
+  - Button
+  - Label
+  - Progress Bar
+  - TreeView (experimental)
+- **Platforms**:
+  - Windows
+  - Linux
 
 ## Build
 
@@ -65,7 +72,7 @@ int main() {
 
 ## Planned
 
-- TreeView, Status Bar, Default dialogs
+- Status Bar, Default dialogs
 
 ---
 
