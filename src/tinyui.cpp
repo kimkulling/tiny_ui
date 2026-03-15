@@ -41,7 +41,7 @@ static Style DefaultStyle {
     { "Arial.ttf", 35, nullptr }
 };
 
-static constexpr char *SeverityToken[] = {
+static constexpr char const *SeverityToken[] = {
     "",
     "*TRACE*",
     "*DEBUG*",

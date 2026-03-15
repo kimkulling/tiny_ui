@@ -64,6 +64,9 @@ struct Widget;
 
 // Type declarations ----------------------------------------------------------
 
+/// @brief This enum is used to describe the alignment of a widget.
+using Id = uint64_t;
+
 /// @brief The return code type used in the ui library.
 using ret_code = int32_t;
 
@@ -309,7 +312,7 @@ struct EventPayload {
 /// @brief This interface is used to store all neede message handlers.
 struct CallbackI {
     /// The function callback
-    typedef int (*funcCallback) (uint32_t id, void *data);
+    typedef int (*funcCallback) (Id id, void *data);
     /// The function callback array, not handled callbacks are marked as a nullptr.
     funcCallback mfuncCallback[Events::NumEvents];
     /// The data instance.

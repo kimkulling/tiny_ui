@@ -82,8 +82,7 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
 
 static void releaseImageCache(Context &ctx) {
     for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
-        Image *image = it->second;
-        if (image != nullptr) {
+        if (Image *image = it->second; image != nullptr) {
             Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
             delete image;
         }
@@ -125,10 +124,10 @@ static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, 
     if (widget != nullptr) {
         if (widget->mType == type) {
             return widget;
-        } else {
-            ctx.mLogger(LogSeverity::Error, "A widget with the same id but different type already exists.");
-            return nullptr;
-        } 
+        }
+
+        ctx.mLogger(LogSeverity::Error, "A widget with the same id but different type already exists.");
+        return nullptr;
     }
 
     widget = new Widget;
@@ -371,7 +370,7 @@ ret_code Widgets::panel(Id id, Id parentId, const char *title, const Rect &rect,
     return ResultOk;
 }
 
-static int onTreeViewItemClicked(uint32_t id, void *data) {
+static int onTreeViewItemClicked(Id id, void *data) {
     Widget *treeView = Widgets::findWidget(id, TinyUi::getContext().mRoot);
     if (treeView == nullptr) {
         return ErrorCode;
@@ -437,7 +436,8 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
     const int32_t w = parentRect.width;
     const int32_t h = parentRect.height;
     size_t numChildren = parentWidget->mChildren.size() + 1;
-    const Rect rect(parentRect.top.x + margin, parentRect.top.y + numChildren * margin + numChildren * h, w, h);
+    const Rect rect(parentRect.top.x + margin, parentRect.top.y + numChildren * margin +
+        static_cast<int32_t>(numChildren) * h, w, h);
     Widget *child = createWidget(ctx, id, parentItemId, rect, WidgetType::Label);
     if (child == nullptr) {
         return ErrorCode;
