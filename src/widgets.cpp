@@ -344,7 +344,7 @@ ret_code Widgets::imageBox(Id id, Id parentId, const char* image, const Rect& re
     if (ctx.mRoot == nullptr) {
         return InvalidRenderHandle;
     }
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Box);
+    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::ImageBox);
     if (child == nullptr) {
         return ErrorCode;
     }
@@ -566,6 +566,15 @@ static void render(Context &ctx, Widget *currentWidget) {
         case WidgetType::Box:
             {
                 Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
+            }
+            break;
+
+        case WidgetType::ImageBox:
+            {
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
+                if (currentWidget->mImage != nullptr) {
+                    Renderer::drawImage(ctx, r.top.x, r.top.y, r.width, r.height, currentWidget->mImage);
+                }
             }
             break;
     }

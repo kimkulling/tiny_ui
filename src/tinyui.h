@@ -326,7 +326,7 @@ struct CallbackI {
     /// @param callbackFunc The callback function.
     /// @param instance The instance to use.
     /// @param eventType The event type to use.
-    CallbackI(funcCallback callbackFunc, void *instance, size_t eventType = Events::MouseButtonDownEvent) :
+     CallbackI(funcCallback callbackFunc, void *instance, size_t eventType = Events::MouseButtonDownEvent) :
             mfuncCallback{ nullptr }, mInstance(instance) {
         clear();
         mfuncCallback[eventType] = callbackFunc;
@@ -401,7 +401,7 @@ struct Context {
     /// @param title The title of the context.
     /// @param style The style to use.
     /// @return The created context.
-    static Context *create(const char *title, Style &style);
+    static Context *create(const char *title, const Style &style);
     
     /// @brief Will destroy a valid tinyui context.
     /// @param ctx  The context to destroy.
@@ -421,7 +421,7 @@ struct TinyUi {
     /// @param title    The app title.
     /// @param style    The style to use.
     /// @return true if successful.
-    static bool createContext(const char *title, Style &style);
+    static bool createContext(const char *title, const Style &style);
     
     /// @brief Will destroy the context.
     /// @return true if successful.
