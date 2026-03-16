@@ -86,7 +86,7 @@ static constexpr ret_code InvalidRenderHandle = -3;
 static constexpr ret_code InvalidHandle = -2;
 /// @brief The general error code. This will indicate an error, which was not related to a special operation.
 static constexpr ret_code ErrorCode = -1;
-/// @brief The ok code, everythink was fine.
+/// @brief The ok code, everything was fine.
 static constexpr ret_code ResultOk  = 0;
 
 /// @brief The default color type with 4 components.

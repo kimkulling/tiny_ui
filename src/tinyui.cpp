@@ -98,7 +98,7 @@ Context &TinyUi::getContext() {
 }
 
 ret_code TinyUi::initScreen(int32_t x, int32_t y, int32_t w, int32_t h) {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     if (Renderer::initRenderer(ctx) == ErrorCode) {
         printf("Error: Cannot init renderer\n");
         return ErrorCode;
@@ -108,7 +108,7 @@ ret_code TinyUi::initScreen(int32_t x, int32_t y, int32_t w, int32_t h) {
 }
 
 ret_code TinyUi::getSurfaceInfo(int32_t &w, int32_t &h) {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     w = h = -1;
     if (!ctx.mCreated) {
         return ErrorCode;
