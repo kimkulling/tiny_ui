@@ -108,7 +108,7 @@ ret_code TinyUi::initScreen(int32_t x, int32_t y, int32_t w, int32_t h) {
 }
 
 ret_code TinyUi::getSurfaceInfo(int32_t &w, int32_t &h) {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     w = h = -1;
     if (!ctx.mCreated) {
         return ErrorCode;
@@ -120,6 +120,19 @@ ret_code TinyUi::getSurfaceInfo(int32_t &w, int32_t &h) {
 
     w = ctx.mSDLContext.mSurface->w;
     h = ctx.mSDLContext.mSurface->h;
+
+    return ResultOk;
+}
+
+ret_code TinyUi::getSurfaceCenter(int32_t &x, int32_t &y) {
+    int32_t w{-1}, h{-1};
+    x = y = -1;
+    if (getSurfaceInfo(w, h) == ErrorCode) {
+        return ErrorCode;
+    }
+
+    x = w / 2;
+    y = h / 2;
 
     return ResultOk;
 }

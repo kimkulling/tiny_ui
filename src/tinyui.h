@@ -460,6 +460,12 @@ struct TinyUi {
     /// @return ResultOk if the information was retrieved, ErrorCode if not.
     static ret_code getSurfaceInfo(int32_t &w, int32_t &h);
 
+    /// @brief Will return the center of the root surface.
+    /// @param x    The x-component of the surface center.
+    /// @param y    The x-component of the surface center.
+    /// @return ResultOk if the information was retrieved, ErrorCode if not.
+    static ret_code getSurfaceCenter(int32_t &x, int32_t &y);
+
     /// @brief Run the tiny ui.
     /// @param ctx The context to run.
     /// @return true if the tiny ui is running, false if not.
