@@ -250,7 +250,7 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
             break;
     }
 
-    SDL_RenderCopy(ctx.mSDLContext->mRenderer, messageTexture, NULL, &Message_rect);
+    SDL_RenderCopy(ctx.mSDLContext->mRenderer, messageTexture, nullptr, &Message_rect);
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(messageTexture);
 
