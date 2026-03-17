@@ -178,10 +178,16 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
         delete ctx.mDefaultFont;
         ctx.mDefaultFont = nullptr;
     }
-
     IMG_Quit();
-    SDL_DestroyRenderer(ctx.mSDLContext->mRenderer);
-    ctx.mSDLContext->mRenderer = nullptr;
+    if (ctx.mSDLContext == nullptr) {
+        SDL_Quit();
+        return ResultOk;
+    }
+
+    if (ctx.mSDLContext->mRenderer != nullptr) {
+        SDL_DestroyRenderer(ctx.mSDLContext->mRenderer);
+        ctx.mSDLContext->mRenderer = nullptr;
+    }
     SDL_Quit();
 
     return ResultOk;
