@@ -38,7 +38,7 @@ static Style DefaultStyle {
     Color4{ 100, 100, 100, 0 },
     Color4{ 200, 200, 200, 0 },
     8,
-    { "Arial.ttf", 35, nullptr }
+    { "Arial.ttf", 12, nullptr }
 };
 
 static constexpr char const *SeverityToken[] = {
