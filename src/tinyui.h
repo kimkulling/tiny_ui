@@ -385,8 +385,6 @@ struct SDLContext {
     SDL_Window      *mWindow{nullptr};              ///< The window.
     SDL_Surface     *mSurface{ nullptr };           ///< The surface.
     SDL_Renderer    *mRenderer{ nullptr };          ///< The renderer.
-    Font            *mDefaultFont{ nullptr };       ///< The default font.
-    Font            *mSelectedFont{ nullptr };      ///< The selected font.
     bool            mOwner{ false };                ///< The owner state.
 };
 
@@ -403,6 +401,8 @@ struct Context {
     Style              mStyle{};                    ///< The active style.
     Widget            *mRoot{nullptr};              ///< The root widget.
     Widget            *mFocus{nullptr};             ///< The widget which is in focus.
+    Font              *mDefaultFont{ nullptr };     ///< The default font.
+    Font              *mSelectedFont{ nullptr };    ///< The selected font.
     Widget            *mCurrentParent{ nullptr };   ///< The current parent widget for new widgets.
     tui_log_func       mLogger{};                   ///< The logger function.
     EventDispatchMap   mEventDispatchMap;           ///< The event dispatch map.

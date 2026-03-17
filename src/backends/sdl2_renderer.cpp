@@ -33,18 +33,18 @@ namespace tinyui {
 namespace {
     
     void loadFont(Context &ctx) {
-        ctx.mSDLContext.mDefaultFont = new Font;
-        ctx.mSDLContext.mDefaultFont->mFont = new FontImpl;
-        ctx.mSDLContext.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
-        ctx.mSDLContext.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
+        ctx.mDefaultFont = new Font;
+        ctx.mDefaultFont->mFont = new FontImpl;
+        ctx.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
+        ctx.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
     }
 
     Font *loadDefaultFont(Context &ctx) {
         Font *font = nullptr;
-        if (ctx.mSDLContext.mDefaultFont == nullptr) {
+        if (ctx.mDefaultFont == nullptr) {
             if (ctx.mStyle.mFont.mName != nullptr) {
                 loadFont(ctx);
-                font = ctx.mSDLContext.mDefaultFont;
+                font = ctx.mDefaultFont;
             }
         }
         return font;
@@ -174,9 +174,9 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
         return ErrorCode;
     }
 
-    if (ctx.mSDLContext.mDefaultFont != nullptr) {
-        delete ctx.mSDLContext.mDefaultFont;
-        ctx.mSDLContext.mDefaultFont = nullptr;
+    if (ctx.mDefaultFont != nullptr) {
+        delete ctx.mDefaultFont;
+        ctx.mDefaultFont = nullptr;
     }
 
     IMG_Quit();
@@ -192,15 +192,15 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         return InvalidHandle;
     }
 
-    if (ctx.mSDLContext.mDefaultFont == nullptr) {
+    if (ctx.mDefaultFont == nullptr) {
         if (ctx.mStyle.mFont.mName != nullptr) {
             loadFont(ctx);
             if (font == nullptr) {
-                font = ctx.mSDLContext.mDefaultFont;
+                font = ctx.mDefaultFont;
             }
         }
     }
-    font = ctx.mSDLContext.mDefaultFont;
+    font = ctx.mDefaultFont;
 
     if (font == nullptr) {
         return InvalidHandle;
