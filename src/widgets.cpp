@@ -502,7 +502,7 @@ static void render(Context &ctx, Widget *currentWidget) {
                 }
                 if (!currentWidget->mText.empty()) {
                     Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, 
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             }
@@ -513,7 +513,7 @@ static void render(Context &ctx, Widget *currentWidget) {
                 Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, false, ctx.mStyle.mFg);
                 if (!currentWidget->mText.empty()) {
                     Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, 
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             }
@@ -523,7 +523,7 @@ static void render(Context &ctx, Widget *currentWidget) {
             {
                 if (!currentWidget->mText.empty()) {
                     Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mSDLContext.mDefaultFont, 
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             } 
