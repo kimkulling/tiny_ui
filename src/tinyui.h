@@ -72,6 +72,8 @@ struct SurfaceImpl;
 struct FontImpl;
 struct Widget;
 
+struct SDLContext;
+
 // Type declarations ----------------------------------------------------------
 
 /// @brief This enum is used to describe the alignment of a widget.
@@ -380,14 +382,6 @@ using EventDispatchMap = std::map<int32_t, EventCallbackArray>;
 /// @brief Function pointer declaration for callbacks.
 typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 
-/// @brief The SDL context.
-struct SDLContext {
-    SDL_Window      *mWindow{nullptr};              ///< The window.
-    SDL_Surface     *mSurface{ nullptr };           ///< The surface.
-    SDL_Renderer    *mRenderer{ nullptr };          ///< The renderer.
-    bool            mOwner{ false };                ///< The owner state.
-};
-
 /// @brief The update callback list.
 using UpdateCallbackList = std::list<CallbackI*>;
 
@@ -397,7 +391,7 @@ struct Context {
     bool               mRequestShutdown{false};     ///< The request shutdown state.
     const char        *mAppTitle{nullptr};          ///< The application title.
     const char        *mWindowsTitle{nullptr};      ///< The window title.
-    SDLContext         mSDLContext;                 ///< The SDL context.
+    SDLContext        *mSDLContext{ nullptr };      ///< The SDL context.
     Style              mStyle{};                    ///< The active style.
     Widget            *mRoot{nullptr};              ///< The root widget.
     Widget            *mFocus{nullptr};             ///< The widget which is in focus.

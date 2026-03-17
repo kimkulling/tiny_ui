@@ -114,12 +114,12 @@ ret_code TinyUi::getSurfaceInfo(int32_t &w, int32_t &h) {
         return ErrorCode;
     }
 
-    if (ctx.mSDLContext.mSurface == nullptr) {
+    if (ctx.mSDLContext->mSurface == nullptr) {
         return ErrorCode;
     }
 
-    w = ctx.mSDLContext.mSurface->w;
-    h = ctx.mSDLContext.mSurface->h;
+    w = ctx.mSDLContext->mSurface->w;
+    h = ctx.mSDLContext->mSurface->h;
 
     return ResultOk;
 }
@@ -171,8 +171,8 @@ ret_code TinyUi::release() {
     }
     Renderer::releaseRenderer(ctx);
     Renderer::releaseScreen(ctx);
-    ctx.mSDLContext.mRenderer = nullptr;
-    ctx.mSDLContext.mWindow = nullptr;
+    ctx.mSDLContext->mRenderer = nullptr;
+    ctx.mSDLContext->mWindow = nullptr;
     ctx.mRoot = nullptr;
 
     ctx.mCreated = false;
