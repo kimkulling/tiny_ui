@@ -151,13 +151,13 @@ ret_code TinyUi::endRender() {
 
 void TinyUi::render() {
     auto &ctx = getContext();
-    TinyUi::beginRender(ctx.mStyle.mClearColor);
+    beginRender(ctx.mStyle.mClearColor);
     Widgets::renderWidgets();
-    TinyUi::endRender();
+    endRender();
 }
 
 ret_code TinyUi::release() {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     if (!ctx.mCreated) {
         return ErrorCode;
     }
@@ -183,12 +183,12 @@ void TinyUi::setDefaultStyle(const Style &style) {
 }
 
 void TinyUi::setDefaultFont(const char *defaultFont) {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     if (defaultFont == nullptr) {
         return;
     }
 
-    if (strncmp( ctx.mStyle.mFont.mName, defaultFont, std::strlen(defaultFont)) == 0) {
+    if (strncmp( ctx.mStyle.mFont.mName, defaultFont, strlen(defaultFont)) == 0) {
         return;
     }
 

@@ -179,6 +179,7 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
         delete ctx.mDefaultFont;
         ctx.mDefaultFont = nullptr;
     }
+
     IMG_Quit();
     if (ctx.mBackendCtx == nullptr) {
         SDL_Quit();
@@ -262,7 +263,7 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
 
 ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
     if (!ctx.mCreated) {
-        ctx.mLogger(LogSeverity::Error, "Not initialzed.");
+        ctx.mLogger(LogSeverity::Error, "Not initialized.");
         return ErrorCode;
     }
     SDLContext *sdlCtx = SDLContext::create();

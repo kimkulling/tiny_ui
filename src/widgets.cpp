@@ -522,7 +522,8 @@ static void render(Context &ctx, const Widget *currentWidget) {
             case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
-                    Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
+                    const Color4 fg = ctx.mStyle.mTextColor;
+                    const Color4 bg = ctx.mStyle.mBg;
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
