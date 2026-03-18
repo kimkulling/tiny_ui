@@ -36,7 +36,7 @@ static Style DefaultStyle {
     Color4{  20,  20,  20, 0 },
     Color4{ 100, 100, 100, 0 },
     Color4{ 200, 200, 200, 0 },
-    8,
+    2,
     { "Arial.ttf", 12, nullptr }
 };
 
