@@ -27,7 +27,6 @@ SOFTWARE.
 #include "backends/sdl2_iodevice.h"
 
 #include <iostream>
-#include <cstring>
 
 namespace tinyui {
 
@@ -98,7 +97,7 @@ Context &TinyUi::getContext() {
 }
 
 ret_code TinyUi::initScreen(int32_t x, int32_t y, int32_t w, int32_t h) {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     if (Renderer::initRenderer(ctx) == ErrorCode) {
         printf("Error: Cannot init renderer\n");
         return ErrorCode;
@@ -114,14 +113,7 @@ ret_code TinyUi::getSurfaceInfo(int32_t &w, int32_t &h) {
         return ErrorCode;
     }
 
-    if (ctx.mSDLContext->mSurface == nullptr) {
-        return ErrorCode;
-    }
-
-    w = ctx.mSDLContext->mSurface->w;
-    h = ctx.mSDLContext->mSurface->h;
-
-    return ResultOk;
+    return Renderer::getSurfaceInfo(ctx, w, h);
 }
 
 ret_code TinyUi::getSurfaceCenter(int32_t &x, int32_t &y) {
@@ -138,7 +130,7 @@ ret_code TinyUi::getSurfaceCenter(int32_t &x, int32_t &y) {
 }
 
 bool TinyUi::run() {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     if (!ctx.mUpdateCallbackList.empty()) {
         for (auto it = ctx.mUpdateCallbackList.begin(); it != ctx.mUpdateCallbackList.end(); ++it) {
             (*it)->mfuncCallback[Events::UpdateEvent](1, (*it)->mInstance);
@@ -148,17 +140,17 @@ bool TinyUi::run() {
 }
 
 ret_code TinyUi::beginRender(Color4 bg) {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     return Renderer::beginRender(ctx, bg);
 }
 
 ret_code TinyUi::endRender() {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     return Renderer::endRender(ctx);
 }
 
 void TinyUi::render() {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     TinyUi::beginRender(ctx.mStyle.mClearColor);
     Widgets::renderWidgets();
     TinyUi::endRender();
@@ -171,8 +163,6 @@ ret_code TinyUi::release() {
     }
     Renderer::releaseRenderer(ctx);
     Renderer::releaseScreen(ctx);
-    ctx.mSDLContext->mRenderer = nullptr;
-    ctx.mSDLContext->mWindow = nullptr;
     ctx.mRoot = nullptr;
 
     ctx.mCreated = false;

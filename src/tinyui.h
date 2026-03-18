@@ -61,10 +61,6 @@ SOFTWARE.
 #endif
 
 // Forward declarations -------------------------------------------------------
-struct SDL_Window;
-struct SDL_Surface;
-struct SDL_Renderer;
-struct SDL_MouseButtonEvent;
 
 namespace tinyui {
 
@@ -88,7 +84,7 @@ static constexpr ret_code InvalidRenderHandle = -3;
 static constexpr ret_code InvalidHandle = -2;
 /// @brief The general error code. This will indicate an error, which was not related to a special operation.
 static constexpr ret_code ErrorCode = -1;
-/// @brief The ok code, everythink was fine.
+/// @brief The ok code, everything was fine.
 static constexpr ret_code ResultOk  = 0;
 
 /// @brief The default color type with 4 components.
@@ -385,13 +381,17 @@ typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 /// @brief The update callback list.
 using UpdateCallbackList = std::list<CallbackI*>;
 
+struct BackendContext {
+    void *mHandle{nullptr};
+};
+
 /// @brief The tiny ui context.
 struct Context {
     bool               mCreated{false};             ///< The created state.
     bool               mRequestShutdown{false};     ///< The request shutdown state.
     const char        *mAppTitle{nullptr};          ///< The application title.
     const char        *mWindowsTitle{nullptr};      ///< The window title.
-    SDLContext        *mSDLContext{ nullptr };      ///< The SDL context.
+    BackendContext    *mBackendCtx{nullptr};        ///< The backend context.
     Style              mStyle{};                    ///< The active style.
     Widget            *mRoot{nullptr};              ///< The root widget.
     Widget            *mFocus{nullptr};             ///< The widget which is in focus.
