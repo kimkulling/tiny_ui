@@ -243,14 +243,14 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         case Alignment::Center:
             Message_rect.x = r.top.x + 2 * margin + surfaceMessage->clip_rect.w / 2;
             Message_rect.y = r.top.y + margin;
-            Message_rect.w = font->mSize;
-            Message_rect.h = font->mSize;
+            Message_rect.w = font->mSize * static_cast<int>(strlen(string));
+            Message_rect.h = font->mSize + margin * 2;
             break;
         case Alignment::Right:
             Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - font->mSize * static_cast<int>(strlen(string));
             Message_rect.y = r.top.y + margin;
-            Message_rect.w = font->mSize;
-            Message_rect.h = font->mSize;
+            Message_rect.w = font->mSize * static_cast<int>(strlen(string));
+            Message_rect.h = font->mSize + margin * 2;
             break;
     }
 
