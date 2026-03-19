@@ -100,6 +100,10 @@ struct SDLContext {
     }
 };
 
+inline SDLContext *getBackendContext(Context &ctx) {
+    SDLContext *sdlCtx = (SDLContext*) ctx.mBackendCtx->mHandle;
+    return sdlCtx;
+}
 
 /// @brief The renderer implementation using the SDL2 library.
 struct Renderer {
@@ -118,6 +122,7 @@ struct Renderer {
     static bool update(Context &ctx);
     static SurfaceImpl *createSurfaceImpl(unsigned char *data, int w, int h, int bytesPerPixel, int pitch);
     static void releaseSurfaceImpl(SurfaceImpl *surfaceImpl);
+    static ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h);
 };
 
 } //  namespace tinyui

@@ -30,7 +30,7 @@ namespace tinyui {
 // Forward declarations -------------------------------------------------------
 struct Context;
 
-/// @brief  This enum is used to descripe the widget type-
+/// @brief  This enum is used to describe the widget type.
 enum class WidgetType {
     Invalid = -1,       ///< Not initialized
     Container = 0,      ///< A container widget
@@ -45,7 +45,7 @@ enum class WidgetType {
     Count               ///< The number of widgets
 };
 
-/// @brief This enum is used to descripe the alignment of a widget.
+/// @brief This enum is used to describe the alignment of a widget.
 enum class LayoutPolicy {
     Invalid = -1,       ///< Not initialized
     Absolute,           ///< Absolute layout
@@ -53,6 +53,7 @@ enum class LayoutPolicy {
     Count               ///< The number of layouts
 };
 
+/// @brief This struct is used to describe the filled state as a payload.
 struct FilledState {
     uint32_t filledState{0};    ///< The filled state in percent (0-100)
 };
@@ -64,7 +65,7 @@ enum class WidgetStyle {
     Count
 };
 
-/// @brief This enum is used to descripe the alignment of a widget.
+/// @brief This enum is used to describe the alignment of a widget.
 using WidgetArray = std::vector<Widget*>;
 
 /// @brief This struct contains all the data which is needed to describe a widget.
@@ -310,7 +311,12 @@ struct Widgets {
     /// @return The widget or nullptr if not found.
     static Widget *getWidgetById(Id id);
 
+    /// @brief Will open a child window.
+    /// @return true if successful.
     static bool beginChild();
+
+    /// @brief Will close a child window.
+    /// @return true if successful.
     static bool endChild();
 };
 

@@ -221,7 +221,7 @@ void Widgets::findSelectedWidget(int x, int y, Widget *currentChild, Widget **fo
 
 ret_code Widgets::label(Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -243,7 +243,7 @@ ret_code Widgets::label(Id id, Id parentId, const char *text, const Rect &rect, 
 
 ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alignment) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -263,7 +263,7 @@ ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alig
 
 ret_code Widgets::button(Id id, Id parentId, const char *text, const Rect &rect, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -289,7 +289,7 @@ ret_code Widgets::button(Id id, Id parentId, const char *text, const Rect &rect,
 
 ret_code Widgets::imageButton(Id id, Id parentId, const char *image, const Rect &rect, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -316,7 +316,7 @@ ret_code Widgets::imageButton(Id id, Id parentId, const char *image, const Rect 
 
 ret_code Widgets::box(Id id, Id parentId, const Rect &rect, bool filled) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -336,7 +336,7 @@ ret_code Widgets::box(Id id, Id parentId, const Rect &rect, bool filled) {
 
 ret_code Widgets::imageBox(Id id, Id parentId, const char* image, const Rect& rect, bool filled) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -358,7 +358,7 @@ ret_code Widgets::imageBox(Id id, Id parentId, const char* image, const Rect& re
 
 ret_code Widgets::panel(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -388,7 +388,7 @@ static int onTreeViewItemClicked(Id id, void *data) {
 
 ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &rect) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -417,7 +417,7 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
 
 ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -425,7 +425,7 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
         return InvalidRenderHandle;
     }
 
-    Widget *parentWidget = Widgets::findWidget(parentItemId, ctx.mRoot);
+    Widget *parentWidget = findWidget(parentItemId, ctx.mRoot);
     if (parentWidget == nullptr) {
         return ErrorCode;
     }
@@ -453,7 +453,7 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
 
 ret_code Widgets::progressBar(Id id, Id parentId, const Rect &rect, int fillRate, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mSDLContext->mRenderer == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
     }
 
@@ -482,7 +482,7 @@ ret_code Widgets::progressBar(Id id, Id parentId, const Rect &rect, int fillRate
     return ResultOk;
 }
 
-static void render(Context &ctx, Widget *currentWidget) {
+static void render(Context &ctx, const Widget *currentWidget) {
     if (currentWidget == nullptr) {
         return;
     }
@@ -522,7 +522,8 @@ static void render(Context &ctx, Widget *currentWidget) {
             case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
-                    Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
+                    const Color4 fg = ctx.mStyle.mTextColor;
+                    const Color4 bg = ctx.mStyle.mBg;
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
