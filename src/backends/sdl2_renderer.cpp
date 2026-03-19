@@ -327,7 +327,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
 
 ret_code Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
     if (!ctx.mCreated) {
-        ctx.mLogger(LogSeverity::Error, "Not initialzed.");
+        ctx.mLogger(LogSeverity::Error, "TinyUI context is not initialzed.");
         return ErrorCode;
     }
 
@@ -339,6 +339,11 @@ ret_code Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *re
     TTF_Init();
 
     SDLContext *sdlCtx = getBackendContext(ctx);
+    if (sdlCtx == nullptr) {
+        ctx.mLogger(LogSeverity::Error, "Invalid sdl context detected.");
+        return ErrorCode;
+    }
+    
     sdlCtx->mRenderer = renderer;
     sdlCtx->mWindow = window;
 
