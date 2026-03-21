@@ -704,13 +704,13 @@ bool Widgets::clearItem(Id id, bool recursive) {
     bool result{ false };
     if (it != siblings.end()) {
         siblings.erase(it);
-        if (recursive) {
-            recursiveClear(widget);
-        }
-//        delete widget;
         result = true;
     }
     
+    for (size_t i = 0; i < widget->mChildren.size(); ++i) {
+        recursiveClear(widget->mChildren[i]);
+    }
+    delete widget;
     return result;
 }
 
