@@ -74,10 +74,11 @@ namespace {
         }
     }
 
-    void showDriverInUse(const Context &ctx) {
+    void showDriverInUse(Context &ctx) {
         ctx.mLogger(LogSeverity::Message, "Driver in use:");
+        SDLContext *sdlCtx = getBackendContext(ctx);
         SDL_RendererInfo info;
-        SDL_GetRendererInfo(ctx.mSDLContext->mRenderer, &info);
+        SDL_GetRendererInfo(sdlCtx->mRenderer, &info);
         printDriverInfo(info);
     }
 
@@ -178,15 +179,17 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
         delete ctx.mDefaultFont;
         ctx.mDefaultFont = nullptr;
     }
+
     IMG_Quit();
-    if (ctx.mSDLContext == nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         SDL_Quit();
         return ResultOk;
     }
 
-    if (ctx.mSDLContext->mRenderer != nullptr) {
-        SDL_DestroyRenderer(ctx.mSDLContext->mRenderer);
-        ctx.mSDLContext->mRenderer = nullptr;
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    if (sdlCtx->mRenderer != nullptr) {
+        SDL_DestroyRenderer(sdlCtx->mRenderer);
+        sdlCtx->mRenderer = nullptr;
     }
     SDL_Quit();
 
@@ -220,37 +223,38 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         return ErrorCode;
     }
 
-    SDL_Texture *messageTexture = SDL_CreateTextureFromSurface(ctx.mSDLContext->mRenderer, surfaceMessage);
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    SDL_Texture *messageTexture = SDL_CreateTextureFromSurface(sdlCtx->mRenderer, surfaceMessage);
     if (messageTexture == nullptr) {
         const std::string msg = "Cannot create texture: " + std::string(SDL_GetError()) + ".";
         ctx.mLogger(LogSeverity::Error, msg.c_str());
         return ErrorCode;
     }
     
-    int32_t margin = ctx.mStyle.mMargin;
-    SDL_Rect Message_rect = {};
+    int32_t margin{ctx.mStyle.mMargin};
+    SDL_Rect Message_rect{};
     switch (alignment) {
         case Alignment::Left:
             Message_rect.x = r.top.x + margin;
             Message_rect.y = r.top.y + margin;
-            Message_rect.w = font->mSize;
-            Message_rect.h = font->mSize;
+            Message_rect.w = font->mSize*static_cast<int>(strlen(string));
+            Message_rect.h = font->mSize + margin*2;
             break;
         case Alignment::Center:
             Message_rect.x = r.top.x + 2 * margin + surfaceMessage->clip_rect.w / 2;
             Message_rect.y = r.top.y + margin;
-            Message_rect.w = font->mSize;
-            Message_rect.h = font->mSize;
+            Message_rect.w = font->mSize * static_cast<int>(strlen(string));
+            Message_rect.h = font->mSize + margin * 2;
             break;
         case Alignment::Right:
             Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - font->mSize * static_cast<int>(strlen(string));
             Message_rect.y = r.top.y + margin;
-            Message_rect.w = font->mSize;
-            Message_rect.h = font->mSize;
+            Message_rect.w = font->mSize * static_cast<int>(strlen(string));
+            Message_rect.h = font->mSize + margin * 2;
             break;
     }
 
-    SDL_RenderCopy(ctx.mSDLContext->mRenderer, messageTexture, nullptr, &Message_rect);
+    SDL_RenderCopy(sdlCtx->mRenderer, messageTexture, nullptr, &Message_rect);
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(messageTexture);
 
@@ -259,14 +263,17 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
 
 ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h) {
     if (!ctx.mCreated) {
-        ctx.mLogger(LogSeverity::Error, "Not initialzed.");
+        ctx.mLogger(LogSeverity::Error, "Not initialized.");
         return ErrorCode;
     }
-    ctx.mSDLContext = SDLContext::create();
-    if (ctx.mSDLContext->mWindow != nullptr) {
+    SDLContext *sdlCtx = SDLContext::create();
+    if (sdlCtx->mWindow != nullptr) {
         ctx.mLogger(LogSeverity::Error, "Already created.");
         return ErrorCode;
     }
+
+    ctx.mBackendCtx = new BackendContext;
+    ctx.mBackendCtx->mHandle = (void*) sdlCtx;
 
     if (TTF_Init() == -1) {
         ctx.mLogger(LogSeverity::Error, "TTF init failed.");
@@ -283,8 +290,8 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         title = "TinyUI Window";
     }
 
-    ctx.mSDLContext->mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-    if (ctx.mSDLContext->mWindow == nullptr) {
+    sdlCtx->mWindow = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    if (sdlCtx->mWindow == nullptr) {
         const std::string msg = "Error while SDL_CreateWindow: " + std::string(SDL_GetError()) + ".";
         ctx.mLogger(LogSeverity::Error, msg.c_str());
         return ErrorCode;
@@ -296,8 +303,8 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         return ErrorCode;
     }
 
-    ctx.mSDLContext->mRenderer = SDL_CreateRenderer(ctx.mSDLContext->mWindow, driverIndex, SDL_RENDERER_ACCELERATED);
-    if (nullptr == ctx.mSDLContext->mRenderer) {
+    sdlCtx->mRenderer = SDL_CreateRenderer(sdlCtx->mWindow, driverIndex, SDL_RENDERER_ACCELERATED);
+    if (nullptr == sdlCtx->mRenderer) {
         const std::string msg = "Error while SDL_CreateRenderer: " + std::string(SDL_GetError()) + ".";
         ctx.mLogger(LogSeverity::Error, msg.c_str());
         return ErrorCode;
@@ -309,8 +316,8 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
 
     showDriverInUse(ctx);
 
-    ctx.mSDLContext->mSurface = SDL_GetWindowSurface(ctx.mSDLContext->mWindow);
-    if (ctx.mSDLContext->mSurface == nullptr) {
+    sdlCtx->mSurface = SDL_GetWindowSurface(sdlCtx->mWindow);
+    if (sdlCtx->mSurface == nullptr) {
         ctx.mLogger(LogSeverity::Error, "Surface pointer from window is nullptr.");
         return ErrorCode;
     }
@@ -320,7 +327,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
 
 ret_code Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *renderer) {
     if (!ctx.mCreated) {
-        ctx.mLogger(LogSeverity::Error, "Not initialzed.");
+        ctx.mLogger(LogSeverity::Error, "TinyUI context is not initialzed.");
         return ErrorCode;
     }
 
@@ -331,13 +338,19 @@ ret_code Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *re
 
     TTF_Init();
 
-    ctx.mSDLContext->mRenderer = renderer;
-    ctx.mSDLContext->mWindow = window;
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    if (sdlCtx == nullptr) {
+        ctx.mLogger(LogSeverity::Error, "Invalid sdl context detected.");
+        return ErrorCode;
+    }
+    
+    sdlCtx->mRenderer = renderer;
+    sdlCtx->mWindow = window;
 
     showDriverInUse(ctx);
 
-    ctx.mSDLContext->mSurface = SDL_GetWindowSurface(ctx.mSDLContext->mWindow);
-    ctx.mSDLContext->mOwner = false;
+    sdlCtx->mSurface = SDL_GetWindowSurface(sdlCtx->mWindow);
+    sdlCtx->mOwner = false;
     ctx.mCreated = true;
 
     return ResultOk;
@@ -349,8 +362,9 @@ ret_code Renderer::releaseScreen(Context &ctx) {
         return ErrorCode;
     }
 
-    SDL_DestroyWindow(ctx.mSDLContext->mWindow);
-    ctx.mSDLContext->mWindow = nullptr;
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    SDL_DestroyWindow(sdlCtx->mWindow);
+    sdlCtx->mWindow = nullptr;
 
     return ResultOk;
 }
@@ -362,19 +376,21 @@ ret_code Renderer::beginRender(Context &ctx, Color4 bg, SDL_Texture *renderTarge
     }
 
     const SDL_Color sdl_bg = getSDLColor(bg);
-    SDL_SetRenderDrawColor(ctx.mSDLContext->mRenderer, sdl_bg.r, sdl_bg.g, sdl_bg.b, sdl_bg.a);
-    SDL_RenderClear(ctx.mSDLContext->mRenderer);
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    SDL_SetRenderDrawColor(sdlCtx->mRenderer, sdl_bg.r, sdl_bg.g, sdl_bg.b, sdl_bg.a);
+    SDL_RenderClear(sdlCtx->mRenderer);
 
     return ResultOk;
 }
 
 ret_code Renderer::drawRect(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h, bool filled, Color4 fg) {
     SDL_Rect r = {x, y, w, h};
-    SDL_SetRenderDrawColor(ctx.mSDLContext->mRenderer, fg.r, fg.g, fg.b, fg.a);
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    SDL_SetRenderDrawColor(sdlCtx->mRenderer, fg.r, fg.g, fg.b, fg.a);
     if (filled) {
-        SDL_RenderFillRect(ctx.mSDLContext->mRenderer, &r);
+        SDL_RenderFillRect(sdlCtx->mRenderer, &r);
     } else {
-        SDL_RenderDrawRect(ctx.mSDLContext->mRenderer, &r);
+        SDL_RenderDrawRect(sdlCtx->mRenderer, &r);
     }
 
     return ResultOk;
@@ -386,28 +402,31 @@ ret_code Renderer::drawImage(Context &ctx, int32_t x, int32_t y, int32_t w, int3
     }
 
     SDL_Rect imageRect = {x, y, w, h};
-    SDL_Texture *tex = SDL_CreateTextureFromSurface(ctx.mSDLContext->mRenderer, image->mSurfaceImpl->mSurface);
-    SDL_RenderCopy(ctx.mSDLContext->mRenderer, tex, nullptr, &imageRect);
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    SDL_Texture *tex = SDL_CreateTextureFromSurface(sdlCtx->mRenderer, image->mSurfaceImpl->mSurface);
+    SDL_RenderCopy(sdlCtx->mRenderer, tex, nullptr, &imageRect);
     SDL_DestroyTexture(tex);
 
     return ResultOk;
 }
 
 ret_code Renderer::closeScreen(Context &ctx) {
-    if (ctx.mSDLContext->mWindow == nullptr) {
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    if (sdlCtx->mWindow == nullptr) {
         return ErrorCode;
     }
 
     TTF_Quit();
 
-    SDL_DestroyWindow(ctx.mSDLContext->mWindow);
-    ctx.mSDLContext->mWindow = nullptr;
+    SDL_DestroyWindow(sdlCtx->mWindow);
+    sdlCtx->mWindow = nullptr;
 
     return ResultOk;
 }
 
 ret_code Renderer::endRender(Context &ctx) {
-    SDL_RenderPresent(ctx.mSDLContext->mRenderer);
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    SDL_RenderPresent(sdlCtx->mRenderer);
 
     return ResultOk;
 }
@@ -416,7 +435,8 @@ ret_code Renderer::createRenderTexture(Context &ctx, int w, int h, SDL_Texture *
     if (texture == nullptr) {
         return ErrorCode;
     }
-    *texture = SDL_CreateTexture(ctx.mSDLContext->mRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+    SDLContext *sdlCtx = getBackendContext(ctx);
+    *texture = SDL_CreateTexture(sdlCtx->mRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
 
     return ResultOk;
 }
@@ -497,6 +517,18 @@ void Renderer::releaseSurfaceImpl(SurfaceImpl *surfaceImpl) {
         surfaceImpl->clear();
         delete surfaceImpl;
     }
+}
+
+ret_code Renderer::getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
+    SDLContext *sdlCtx = (SDLContext *) ctx.mBackendCtx;
+    if (sdlCtx->mSurface == nullptr) {
+        return ErrorCode;
+    }
+
+    w = sdlCtx->mSurface->w;
+    h = sdlCtx->mSurface->h;
+
+    return ResultOk;
 }
 
 } // namespace tinyui
