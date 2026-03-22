@@ -520,7 +520,7 @@ void Renderer::releaseSurfaceImpl(SurfaceImpl *surfaceImpl) {
 }
 
 ret_code Renderer::getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
-    SDLContext *sdlCtx = (SDLContext *) ctx.mBackendCtx;
+    SDLContext *sdlCtx = (SDLContext *) ctx.mBackendCtx->mHandle;
     if (sdlCtx->mSurface == nullptr) {
         return ErrorCode;
     }
