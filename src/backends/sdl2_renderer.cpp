@@ -148,7 +148,7 @@ ret_code Renderer::initRenderer(Context &ctx) {
         return ErrorCode;
     }
 
-    if (SDL_Init(SDL_INIT_VIDEO) == -1) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) == -1) {
         ctx.mLogger(LogSeverity::Error, "Error while SDL_Init for video subsystem.");
         ctx.mCreated = false;
         return ErrorCode;
