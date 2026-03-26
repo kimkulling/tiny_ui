@@ -1,0 +1,102 @@
+```cpp
+#include "widgets.h"
+#include <cmath>
+#include <iostream>
+
+using namespace tinyui;
+
+static constexpr Id RootPanelId = 1;
+
+static constexpr Id NextPanelId = 100;
+
+int quit(Id, void *instance) {
+    if (instance == nullptr) {
+        return ErrorCode;
+    }
+    
+    auto *ctx = static_cast<Context *>(instance);
+    ctx->mRequestShutdown = true;
+
+    return ResultOk;
+}
+
+static uint32_t LastTick = 0;
+static uint32_t Diff = 0;
+static constexpr uint32_t TimeDiff = 10;
+
+int updateProgressbar(Id, void *instance) {
+    if (instance == nullptr) {
+        return ErrorCode;
+    }
+    
+    if (LastTick == 0) {
+        LastTick = TinyUi::getTicks();
+        return ResultOk;
+    }
+
+    auto *widget = (Widget*) instance;
+    auto *eventPayload = (EventPayload*) widget->mContent;
+    if (eventPayload->type == EventDataType::FillState) {
+        FilledState *state = (FilledState*) (eventPayload->payload);
+        uint32_t tick = TinyUi::getTicks();
+        uint32_t diff = tick - LastTick;
+        Diff += diff;
+        if (Diff > TimeDiff) {
+            state->filledState++;
+            Diff = 0;
+            if (state->filledState > 100) {
+                state->filledState = 0;
+            }
+        }
+        LastTick = tick;
+    }
+
+    return ResultOk;
+}
+
+int main(int argc, char *argv[]) {
+    Style style = TinyUi::getDefaultStyle();
+    if (!TinyUi::createContext("Sample-Screen",  style)) {
+        return -1;
+    }
+
+    if (TinyUi::initScreen(20, 20, 1024, 768) == -1) {
+        auto &ctx = TinyUi::getContext();
+        ctx.mLogger(LogSeverity::Error, "Cannot init screen");
+        return ErrorCode;
+    }
+
+    constexpr int32_t ButtonHeight = 20;
+    Widgets::panel(RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 120, 600), nullptr);
+    Widgets::label(2, RootPanelId, "Title", Rect(100, 10, 100, 20), Alignment::Center);
+    Widgets::button(3, RootPanelId, "Test 1", Rect(100, 50, 100, ButtonHeight), nullptr);
+    Widgets::button(4, RootPanelId, "Test 2", Rect(100, 100, 100, ButtonHeight), nullptr);
+    Widgets::button(5, RootPanelId, "Test 3", Rect(100, 150, 100, ButtonHeight), nullptr);
+    Widgets::imageButton(6, RootPanelId, "button_test.png", Rect(100, 200, 100, ButtonHeight), nullptr);
+
+    auto &ctx = TinyUi::getContext();
+
+    // Allocate callbacks dynamically to ensure they persist during event handling
+    CallbackI *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
+    CallbackI *dynamicUpdateProgressBarCallback = new CallbackI(updateProgressbar, nullptr, Events::UpdateEvent);
+
+    Widgets::button(7, RootPanelId, "Quit", Rect(100, 250, 100, ButtonHeight), dynamicQuitCallback);
+    Widgets::progressBar(8, RootPanelId, Rect(100, 300, 100, ButtonHeight), 50, dynamicUpdateProgressBarCallback);
+
+    Widgets::inputText(9, RootPanelId, Rect(100, 350, 100, ButtonHeight), Alignment::Left);
+
+    Widgets::treeView(10, RootPanelId, "tree", Rect(100, 400, 100, ButtonHeight));
+    Widgets::treeItem(11, 10, "Item 1");
+    //Widgets::treeItem(12, 11, "Item 1.1");
+    Widgets::treeItem(13, 10, "Item 2");
+    Widgets::treeItem(14, 13, "Item 2.1");
+
+    while (TinyUi::run()) {
+        TinyUi::render();
+    }
+
+    TinyUi::release();
+
+    return 0;
+}
+```
