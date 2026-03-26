@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
         return ErrorCode;
     }
 
-    constexpr int32_t ButtonHeight = 30;
+    constexpr int32_t ButtonHeight = 20;
     Widgets::panel(RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 120, 600), nullptr);
     Widgets::label(2, RootPanelId, "Title", Rect(100, 10, 100, 20), Alignment::Center);
     Widgets::button(3, RootPanelId, "Test 1", Rect(100, 50, 100, ButtonHeight), nullptr);
