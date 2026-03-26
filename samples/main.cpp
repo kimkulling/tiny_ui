@@ -88,12 +88,13 @@ int main(int argc, char *argv[]) {
         return ErrorCode;
     }
 
+    constexpr int32_t ButtonHeight = 30;
     Widgets::panel(RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 120, 600), nullptr);
     Widgets::label(2, RootPanelId, "Title", Rect(100, 10, 100, 20), Alignment::Center);
-    Widgets::button(3, RootPanelId, "Test 1", Rect(100, 50, 100, 40), nullptr);
-    Widgets::button(4, RootPanelId, "Test 2", Rect(100, 100, 100, 40), nullptr);
-    Widgets::button(5, RootPanelId, "Test 3", Rect(100, 150, 100, 40), nullptr);
-    Widgets::imageButton(6, RootPanelId, "button_test.png", Rect(100, 200, 100, 40), nullptr);
+    Widgets::button(3, RootPanelId, "Test 1", Rect(100, 50, 100, ButtonHeight), nullptr);
+    Widgets::button(4, RootPanelId, "Test 2", Rect(100, 100, 100, ButtonHeight), nullptr);
+    Widgets::button(5, RootPanelId, "Test 3", Rect(100, 150, 100, ButtonHeight), nullptr);
+    Widgets::imageButton(6, RootPanelId, "button_test.png", Rect(100, 200, 100, ButtonHeight), nullptr);
 
     auto &ctx = TinyUi::getContext();
 
@@ -101,12 +102,12 @@ int main(int argc, char *argv[]) {
     CallbackI *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
     CallbackI *dynamicUpdateProgressBarCallback = new CallbackI(updateProgressbar, nullptr, Events::UpdateEvent);
 
-    Widgets::button(7, RootPanelId, "Quit", Rect(100, 250, 100, 40), dynamicQuitCallback);
-    Widgets::progressBar(8, RootPanelId, Rect(100, 300, 100, 40), 50, dynamicUpdateProgressBarCallback);
+    Widgets::button(7, RootPanelId, "Quit", Rect(100, 250, 100, ButtonHeight), dynamicQuitCallback);
+    Widgets::progressBar(8, RootPanelId, Rect(100, 300, 100, ButtonHeight), 50, dynamicUpdateProgressBarCallback);
 
-    Widgets::inputText(9, RootPanelId, Rect(100, 350, 100, 40), Alignment::Left);
+    Widgets::inputText(9, RootPanelId, Rect(100, 350, 100, ButtonHeight), Alignment::Left);
 
-    Widgets::treeView(10, RootPanelId, "tree", Rect(100, 400, 100, 40));
+    Widgets::treeView(10, RootPanelId, "tree", Rect(100, 400, 100, ButtonHeight));
     Widgets::treeItem(11, 10, "Item 1");
     //Widgets::treeItem(12, 11, "Item 1.1");
     Widgets::treeItem(13, 10, "Item 2");

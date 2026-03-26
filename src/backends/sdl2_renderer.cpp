@@ -252,6 +252,10 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
             Message_rect.w = font->mSize * static_cast<int>(strlen(string));
             Message_rect.h = font->mSize + margin * 2;
             break;
+        case Alignment::Invalid:
+        case Alignment::Count:
+            assert(false && "Not supported alignment.");
+            break;
     }
 
     SDL_RenderCopy(sdlCtx->mRenderer, messageTexture, nullptr, &Message_rect);
