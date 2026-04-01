@@ -170,6 +170,14 @@ struct Widgets {
     /// @param filled   The filled state of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static ret_code box(Id id, Id parentId, const Rect &rect, bool filled);
+
+    /// @brief Create a new widget from the type image box.
+    /// @param id       The unique id of the widget.
+    /// @param parentId The parent id of the widget.
+    /// @param image    The image of the widget.
+    /// @param rect     The rect of the widget.
+    /// @param filled   The filled state of the widget.
+    /// @return ResultOk if the widget was created, ErrorCode if not.
     static ret_code imageBox(Id id, Id parentId, const char *image, const Rect &rect, bool filled);
 
     /// @brief Will look for a widget by its id.
