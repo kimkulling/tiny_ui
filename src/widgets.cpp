@@ -145,6 +145,26 @@ static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, 
     return widget;
 }
 
+static void deleteKeyFromText(Context &ctx, char *buffer) {    
+    ctx.mFocus->mText.erase(ctx.mFocus->mText.size() - 1);
+}
+
+static void appendKeyToText(Context &ctx, char *buffer) {
+    ctx.mFocus->mText.append(buffer);
+}
+
+static void handleInputField(Context &ctx, EventPayload *eventPayload) {
+    char buffer[2] = { 
+        static_cast<char>(eventPayload->payload[0]), 
+        '\0' 
+    };
+    if (buffer[0] == SDLK_BACKSPACE) {
+        deleteKeyFromText(ctx, buffer);
+    } else {
+        appendKeyToText(ctx, buffer);
+    }
+}
+
 void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) {
     if (ctx.mFocus == nullptr) {
         return;
@@ -153,12 +173,7 @@ void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) 
     if (eventId == Events::KeyDownEvent) {
         if (eventPayload != nullptr) {
             if (ctx.mFocus->mType == WidgetType::InputField) {
-                char buffer[2] = { eventPayload->payload[0], '\0' };
-                if (buffer[0] == SDLK_BACKSPACE) {
-                    ctx.mFocus->mText.erase(ctx.mFocus->mText.size() - 1);
-                } else {
-                    ctx.mFocus->mText.append(buffer);
-                }
+                handleInputField(ctx, eventPayload);
             }
         }
     }
@@ -423,7 +438,6 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
         return ErrorCode;
     }
 
-    
     if (title != nullptr) {
         widget->mText.assign(title);
     }
@@ -458,7 +472,7 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
     const int32_t w = parentRect.width;
     const int32_t h = parentRect.height;
     size_t numChildren = parentWidget->mChildren.size() + 1;
-    const Rect rect(parentRect.top.x + margin, parentRect.top.y + numChildren * margin +
+    const Rect rect(parentRect.top.x + margin, parentRect.top.y + static_cast<int32_t>(numChildren) * margin +
         static_cast<int32_t>(numChildren) * h, w, h);
     Widget *child = createWidget(ctx, id, parentItemId, rect, WidgetType::Label);
     if (child == nullptr) {
@@ -579,17 +593,17 @@ static void render(Context &ctx, const Widget *currentWidget) {
             break;
 
         case WidgetType::InputField:
-        {
-            Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
-            Renderer::drawRect(ctx, r.top.x+2, r.top.y+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
-            if (!currentWidget->mText.empty()) {
-                const Color4 fg = ctx.mStyle.mTextColor;
-                const Color4 bg = ctx.mStyle.mBg;
-                Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont,
-                        currentWidget->mRect, fg, bg, currentWidget->mAlignment);                
+            {
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
+                Renderer::drawRect(ctx, r.top.x+2, r.top.y+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
+                if (!currentWidget->mText.empty()) {
+                    const Color4 fg = ctx.mStyle.mTextColor;
+                    const Color4 bg = ctx.mStyle.mBg;
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont,
+                            currentWidget->mRect, fg, bg, currentWidget->mAlignment);                
+                }
             }
-        }
-        break;
+            break;
 
         case WidgetType::Container:
         case WidgetType::Box:
