@@ -145,7 +145,7 @@ static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, 
     return widget;
 }
 
-static void deleteKeyFromText(Context &ctx, char *buffer) {    
+static void deleteKeyFromText(Context &ctx) {    
     ctx.mFocus->mText.erase(ctx.mFocus->mText.size() - 1);
 }
 
@@ -159,7 +159,7 @@ static void handleInputField(Context &ctx, EventPayload *eventPayload) {
         '\0' 
     };
     if (buffer[0] == SDLK_BACKSPACE) {
-        deleteKeyFromText(ctx, buffer);
+        deleteKeyFromText(ctx);
     } else {
         appendKeyToText(ctx, buffer);
     }
