@@ -204,15 +204,15 @@ struct Widgets {
     static ret_code label(Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment);
 
     /// @brief Creates a new widget from the type textfield.
-    /// @param ctx        The context to create the widget in.
-    /// @param id         The unique id of the widget.
-    /// @param parentId   The parent id of the widget.
-    /// @param rect       The rect of the widget.
-    /// @param alignment  The alignment of the widget.
-    /// @param type       The type of the key input.
-    /// @param default    The default text of the widget.
+    /// @param ctx          The context to create the widget in.
+    /// @param id           The unique id of the widget.
+    /// @param parentId     The parent id of the widget.
+    /// @param rect         The rect of the widget.
+    /// @param alignment    The alignment of the widget.
+    /// @param type         The type of the key input.
+    /// @param defaultText  The default text of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code inputText(Id id, Id parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *default);
+    static ret_code inputText(Id id, Id parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText);
 
     /// @brief Creates a new text button.
     /// @param ctx      The context to create the widget in.

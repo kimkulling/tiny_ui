@@ -272,7 +272,7 @@ static int inputHandler(Id id, void *instance) {
     return ResultOk;
 }
 
-ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *default) {
+ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
@@ -289,8 +289,8 @@ ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alig
 
     widget->mAlignment = alignment;
     widget->mKeyInputType = type;
-    if (default != nullptr) {
-        widget->mText.assign(default);
+    if (defaultText != nullptr) {
+        widget->mText.assign(defaultText);
     }
 
     widget->mCallback = new CallbackI(inputHandler, (void *)&ctx, Events::MouseButtonDownEvent);
