@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
     Widgets::button(7, RootPanelId, "Quit", Rect(100, 250, 100, ButtonHeight), dynamicQuitCallback);
     Widgets::progressBar(8, RootPanelId, Rect(100, 300, 100, ButtonHeight), 50, dynamicUpdateProgressBarCallback);
 
-    Widgets::inputText(9, RootPanelId, Rect(100, 350, 100, ButtonHeight), Alignment::Left);
+    Widgets::inputText(9, RootPanelId, Rect(100, 350, 100, ButtonHeight), Alignment::Left, KeyInputType::Character, "");
 
     Widgets::treeView(10, RootPanelId, "tree", Rect(100, 400, 100, ButtonHeight));
     Widgets::treeItem(11, 10, "Item 1");

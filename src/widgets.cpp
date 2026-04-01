@@ -150,11 +150,15 @@ void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) 
         return;
     }
 
-    if (eventId == Events::KeyDownEvent || eventId == Events::KeyUpEvent) {
+    if (eventId == Events::KeyDownEvent) {
         if (eventPayload != nullptr) {
             if (ctx.mFocus->mType == WidgetType::InputField) {
                 char buffer[2] = { eventPayload->payload[0], '\0' };
-                ctx.mFocus->mText.append(buffer);
+                if (buffer[0] == SDLK_BACKSPACE) {
+                    ctx.mFocus->mText.erase(ctx.mFocus->mText.size() - 1);
+                } else {
+                    ctx.mFocus->mText.append(buffer);
+                }
             }
         }
     }
@@ -242,7 +246,18 @@ ret_code Widgets::label(Id id, Id parentId, const char *text, const Rect &rect, 
     return ResultOk;
 }
 
-ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alignment) {
+static int inputHandler(Id id, void *instance) {
+    if (instance == nullptr) {
+        return ErrorCode;
+    }
+
+    Context *ctx = static_cast<Context *>(instance);
+    ctx->mFocus = Widgets::findWidget(id, ctx->mRoot);
+
+    return ResultOk;
+}
+
+ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *default) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
@@ -258,6 +273,12 @@ ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alig
     }
 
     widget->mAlignment = alignment;
+    widget->mKeyInputType = type;
+    if (default != nullptr) {
+        widget->mText.assign(default);
+    }
+
+    widget->mCallback = new CallbackI(inputHandler, (void *)&ctx, Events::MouseButtonDownEvent);
 
     return ResultOk;
 }
@@ -561,6 +582,12 @@ static void render(Context &ctx, const Widget *currentWidget) {
         {
             Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
             Renderer::drawRect(ctx, r.top.x+2, r.top.y+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
+            if (!currentWidget->mText.empty()) {
+                const Color4 fg = ctx.mStyle.mTextColor;
+                const Color4 bg = ctx.mStyle.mBg;
+                Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont,
+                        currentWidget->mRect, fg, bg, currentWidget->mAlignment);                
+            }
         }
         break;
 

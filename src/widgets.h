@@ -53,6 +53,14 @@ enum class LayoutPolicy {
     Count               ///< The number of layouts
 };
 
+enum class KeyInputType {
+    Invalid = -1,       ///< Not initialized
+    Character,          ///< A character input
+    Password,           ///< A special key input
+    Numeric,            ///< A numeric input
+    Count               ///< The number of key input types
+};
+
 /// @brief This struct is used to describe the filled state as a payload.
 struct FilledState {
     uint32_t filledState{0};    ///< The filled state in percent (0-100)
@@ -70,20 +78,21 @@ using WidgetArray = std::vector<Widget*>;
 
 /// @brief This struct contains all the data which is needed to describe a widget.
 struct Widget {
-    Id          mId{0};                         ///< The unique id of the widget
-    WidgetType  mType{WidgetType::Invalid};     ///< The type of the widget
-    Widget     *mParent{nullptr};               ///< The parent widget
-    bool        mEnabled{true};                 ///< The enabled state of the widget 
-    Rect        mRect{};                        ///< The rectangle of the widget
-    bool        mFilledRect{true};              ///< The filled rectangle state
-    uint32_t    mStyles{0u};                    ///< The style of the widget
-    Alignment   mAlignment{Alignment::Left};    ///< The alignment of the widget
-    std::string mText{};                        ///< The label text  
-    Image      *mImage{nullptr};                ///< The image of the widget
-    WidgetArray mChildren{};                    ///< The children of the widget
-    CallbackI  *mCallback{nullptr};             ///< The callback of the widget
-    uint8_t    *mContent{nullptr};              ///< The content of the widget
-    uint32_t    mIntention{0};                  ///< The interaction intention. 
+    Id              mId{0};                                 ///< The unique id of the widget
+    WidgetType      mType{WidgetType::Invalid};             ///< The type of the widget
+    Widget          *mParent{nullptr};                      ///< The parent widget
+    bool            mEnabled{true};                         ///< The enabled state of the widget 
+    Rect            mRect{};                                ///< The rectangle of the widget
+    bool            mFilledRect{true};                      ///< The filled rectangle state
+    uint32_t        mStyles{0u};                            ///< The style of the widget
+    Alignment       mAlignment{Alignment::Left};            ///< The alignment of the widget
+    KeyInputType    mKeyInputType{ KeyInputType::Invalid }; ///< The type of the key input
+    std::string     mText{};                                ///< The label text  
+    Image           *mImage{nullptr};                       ///< The image of the widget
+    WidgetArray     mChildren{};                            ///< The children of the widget
+    CallbackI       *mCallback{nullptr};                    ///< The callback of the widget
+    uint8_t         *mContent{nullptr};                     ///< The content of the widget
+    uint32_t        mIntention{0};                          ///< The interaction intention. 
 
     /// @brief The default class constructor.
     Widget() = default;
@@ -192,8 +201,10 @@ struct Widgets {
     /// @param parentId   The parent id of the widget.
     /// @param rect       The rect of the widget.
     /// @param alignment  The alignment of the widget.
+    /// @param type       The type of the key input.
+    /// @param default    The default text of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code inputText(Id id, Id parentId, const Rect &rect, Alignment alignment);
+    static ret_code inputText(Id id, Id parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *default);
 
     /// @brief Creates a new text button.
     /// @param ctx      The context to create the widget in.
