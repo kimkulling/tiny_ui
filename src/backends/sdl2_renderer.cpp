@@ -205,12 +205,14 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         if (ctx.mStyle.mFont.mName != nullptr) {
             loadFont(ctx);
             if (font == nullptr) {
+                const std::string msg = "Cannot load font: " + std::string(ctx.mStyle.mFont.mName) + ", using the default font.";
+                ctx.mLogger(LogSeverity::Error, msg.c_str());
                 font = ctx.mDefaultFont;
             }
         }
     }
+    
     font = ctx.mDefaultFont;
-
     if (font == nullptr) {
         return InvalidHandle;
     }
@@ -446,7 +448,7 @@ ret_code Renderer::createRenderTexture(Context &ctx, int w, int h, SDL_Texture *
 }
 
 bool Renderer::update(Context &ctx) {
-    if (!ctx.mCreated) {
+    if (!ctx.mCreated) { 
         return false;
     }
 
