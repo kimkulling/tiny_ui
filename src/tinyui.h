@@ -61,16 +61,14 @@ SOFTWARE.
 #endif
 
 // Forward declarations -------------------------------------------------------
-struct SDL_Window;
-struct SDL_Surface;
-struct SDL_Renderer;
-struct SDL_MouseButtonEvent;
 
 namespace tinyui {
 
 struct SurfaceImpl;
 struct FontImpl;
 struct Widget;
+
+struct SDLContext;
 
 // Type declarations ----------------------------------------------------------
 
@@ -380,18 +378,12 @@ using EventDispatchMap = std::map<int32_t, EventCallbackArray>;
 /// @brief Function pointer declaration for callbacks.
 typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 
-/// @brief The SDL context.
-struct SDLContext {
-    SDL_Window      *mWindow{nullptr};              ///< The window.
-    SDL_Surface     *mSurface{ nullptr };           ///< The surface.
-    SDL_Renderer    *mRenderer{ nullptr };          ///< The renderer.
-    Font            *mDefaultFont{ nullptr };       ///< The default font.
-    Font            *mSelectedFont{ nullptr };      ///< The selected font.
-    bool            mOwner{ false };                ///< The owner state.
-};
-
 /// @brief The update callback list.
 using UpdateCallbackList = std::list<CallbackI*>;
+
+struct BackendContext {
+    void *mHandle{nullptr};
+};
 
 /// @brief The tiny ui context.
 struct Context {
@@ -399,10 +391,12 @@ struct Context {
     bool               mRequestShutdown{false};     ///< The request shutdown state.
     const char        *mAppTitle{nullptr};          ///< The application title.
     const char        *mWindowsTitle{nullptr};      ///< The window title.
-    SDLContext         mSDLContext;                 ///< The SDL context.
+    BackendContext    *mBackendCtx{nullptr};        ///< The backend context.
     Style              mStyle{};                    ///< The active style.
     Widget            *mRoot{nullptr};              ///< The root widget.
     Widget            *mFocus{nullptr};             ///< The widget which is in focus.
+    Font              *mDefaultFont{ nullptr };     ///< The default font.
+    Font              *mSelectedFont{ nullptr };    ///< The selected font.
     Widget            *mCurrentParent{ nullptr };   ///< The current parent widget for new widgets.
     tui_log_func       mLogger{};                   ///< The logger function.
     EventDispatchMap   mEventDispatchMap;           ///< The event dispatch map.
@@ -459,6 +453,12 @@ struct TinyUi {
     /// @param h The height of the surface.
     /// @return ResultOk if the information was retrieved, ErrorCode if not.
     static ret_code getSurfaceInfo(int32_t &w, int32_t &h);
+
+    /// @brief Will return the center of the root surface.
+    /// @param x    The x-component of the surface center.
+    /// @param y    The x-component of the surface center.
+    /// @return ResultOk if the information was retrieved, ErrorCode if not.
+    static ret_code getSurfaceCenter(int32_t &x, int32_t &y);
 
     /// @brief Run the tiny ui.
     /// @param ctx The context to run.

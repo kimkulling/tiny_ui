@@ -52,10 +52,21 @@ target_link_libraries(tiny_ui PRIVATE
 
 if( TINY_UI_SAMPLES)
     ADD_EXECUTABLE(tiny_ui_sample
-        samples/main.cpp
+        samples/demo/main.cpp
     )
-    
+
+    ADD_EXECUTABLE(tiny_ui_hello_world
+        samples/hello_world/main.cpp
+    )
+
     target_link_libraries(tiny_ui_sample
+        tiny_ui
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+        $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
+        $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
+    )
+
+    target_link_libraries(tiny_ui_hello_world
         tiny_ui
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
         $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>

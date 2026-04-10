@@ -34,4 +34,8 @@ uint32_t IODevice::getTicks() {
      return SDL_GetTicks();
 }
 
+void IODevice::delay(uint32_t ms) {
+    SDL_Delay(ms);
+}
+
 } // namespace tinyui

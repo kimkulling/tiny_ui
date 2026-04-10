@@ -71,6 +71,40 @@ struct FontImpl {
     }
 };
 
+/// @brief The SDL context.
+struct SDLContext {
+    SDL_Window *mWindow{ nullptr };     ///< The window.
+    SDL_Surface *mSurface{ nullptr };   ///< The surface.
+    SDL_Renderer *mRenderer{ nullptr }; ///< The renderer.
+    bool mOwner{ false };               ///< The owner state.
+
+    /// @brief Will create a new SDL context.
+    /// @return The created SDL context.
+    static SDLContext *create() {
+        return new SDLContext;
+    }
+
+    /// @brief Will destroy the SDL context and all its resources.
+    void destroy() {
+        if (mOwner) {
+            if (mRenderer != nullptr) {
+                SDL_DestroyRenderer(mRenderer);
+                mRenderer = nullptr;
+            }
+            if (mWindow != nullptr) {
+                SDL_DestroyWindow(mWindow);
+                mWindow = nullptr;
+            }
+        }
+        delete this;
+    }
+};
+
+inline SDLContext *getBackendContext(Context &ctx) {
+    SDLContext *sdlCtx = (SDLContext*) ctx.mBackendCtx->mHandle;
+    return sdlCtx;
+}
+
 /// @brief The renderer implementation using the SDL2 library.
 struct Renderer {
     static ret_code initRenderer(Context &ctx);
@@ -88,6 +122,7 @@ struct Renderer {
     static bool update(Context &ctx);
     static SurfaceImpl *createSurfaceImpl(unsigned char *data, int w, int h, int bytesPerPixel, int pitch);
     static void releaseSurfaceImpl(SurfaceImpl *surfaceImpl);
+    static ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h);
 };
 
 } //  namespace tinyui

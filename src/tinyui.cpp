@@ -27,7 +27,6 @@ SOFTWARE.
 #include "backends/sdl2_iodevice.h"
 
 #include <iostream>
-#include <cstring>
 
 namespace tinyui {
 
@@ -37,8 +36,8 @@ static Style DefaultStyle {
     Color4{  20,  20,  20, 0 },
     Color4{ 100, 100, 100, 0 },
     Color4{ 200, 200, 200, 0 },
-    8,
-    { "Arial.ttf", 35, nullptr }
+    2,
+    { "Arial.ttf", 12, nullptr }
 };
 
 static constexpr char const *SeverityToken[] = {
@@ -114,18 +113,24 @@ ret_code TinyUi::getSurfaceInfo(int32_t &w, int32_t &h) {
         return ErrorCode;
     }
 
-    if (ctx.mSDLContext.mSurface == nullptr) {
+    return Renderer::getSurfaceInfo(ctx, w, h);
+}
+
+ret_code TinyUi::getSurfaceCenter(int32_t &x, int32_t &y) {
+    int32_t w{-1}, h{-1};
+    x = y = -1;
+    if (getSurfaceInfo(w, h) == ErrorCode) {
         return ErrorCode;
     }
 
-    w = ctx.mSDLContext.mSurface->w;
-    h = ctx.mSDLContext.mSurface->h;
+    x = w / 2;
+    y = h / 2;
 
     return ResultOk;
 }
 
 bool TinyUi::run() {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     if (!ctx.mUpdateCallbackList.empty()) {
         for (auto it = ctx.mUpdateCallbackList.begin(); it != ctx.mUpdateCallbackList.end(); ++it) {
             (*it)->mfuncCallback[Events::UpdateEvent](1, (*it)->mInstance);
@@ -135,31 +140,29 @@ bool TinyUi::run() {
 }
 
 ret_code TinyUi::beginRender(Color4 bg) {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     return Renderer::beginRender(ctx, bg);
 }
 
 ret_code TinyUi::endRender() {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     return Renderer::endRender(ctx);
 }
 
 void TinyUi::render() {
-    auto &ctx = TinyUi::getContext();
-    TinyUi::beginRender(ctx.mStyle.mClearColor);
+    auto &ctx = getContext();
+    beginRender(ctx.mStyle.mClearColor);
     Widgets::renderWidgets();
-    TinyUi::endRender();
+    endRender();
 }
 
 ret_code TinyUi::release() {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     if (!ctx.mCreated) {
         return ErrorCode;
     }
     Renderer::releaseRenderer(ctx);
     Renderer::releaseScreen(ctx);
-    ctx.mSDLContext.mRenderer = nullptr;
-    ctx.mSDLContext.mWindow = nullptr;
     ctx.mRoot = nullptr;
 
     ctx.mCreated = false;
@@ -180,12 +183,12 @@ void TinyUi::setDefaultStyle(const Style &style) {
 }
 
 void TinyUi::setDefaultFont(const char *defaultFont) {
-    auto &ctx = TinyUi::getContext();
+    auto &ctx = getContext();
     if (defaultFont == nullptr) {
         return;
     }
 
-    if (strncmp( ctx.mStyle.mFont.mName, defaultFont, std::strlen(defaultFont)) == 0) {
+    if (strncmp( ctx.mStyle.mFont.mName, defaultFont, strlen(defaultFont)) == 0) {
         return;
     }
 
