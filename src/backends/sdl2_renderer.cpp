@@ -196,7 +196,8 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
     return ResultOk;
 }
 
-ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const Rect &r, const Color4 &fgC, const Color4 &bgC, Alignment alignment) {
+ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const Rect &r, const Color4 &fgC,
+        const Color4 &bgC, Alignment alignment) {
     if (string == nullptr) {
         return InvalidHandle;
     }
