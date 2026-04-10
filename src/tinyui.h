@@ -60,6 +60,24 @@ SOFTWARE.
 #   define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+#   define TINYUI_WINDOWS
+#   ifndef WIN32_LEAN_AND_MEAN
+#       define WIN32_LEAN_AND_MEAN // Minimal windows header
+#   endif // WIN32_LEAN_AND_MEAN
+#elif defined(__gnu_linux__)
+#   define TINYUI_GNU_LINUX
+#elif defined(__APPLE__) || defined(__MACH__)
+#   error "Currently not supported platform"
+#elif defined(__ANDROID__)
+#   define TINYUIE_ANDROID
+#endif
+
+#ifdef TINYUI_WINDOWS
+#   include <windows.h>
+#   include <Commdlg.h>
+#endif
+
 // Forward declarations -------------------------------------------------------
 
 namespace tinyui {

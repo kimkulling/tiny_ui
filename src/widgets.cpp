@@ -806,4 +806,90 @@ bool Widgets::endChild() {
     return true;
 }
 
+static constexpr size_t BufferSize = 1024;
+
+bool Widgets::getOpenFileDialog(const char *title, const char *extensions, std::string &filename) {
+    filename.clear();
+#ifdef TINYUI_WINDOWS
+    // Init data
+    char szFile[BufferSize] = { '\0' };
+    OPENFILENAME ofn;
+    memset(&ofn, 0, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = szFile;
+
+    // Set lpstrFile[0] to '\0' so that GetOpenFileName does not
+    // use the contents of szFile to initialize itself.
+    ofn.lpstrTitle = title;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = extensions;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = nullptr;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = nullptr;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    // Display the Open dialog box.
+    if (::GetOpenFileName(&ofn) == TRUE) {
+        filename = ofn.lpstrFile;
+    } else {
+        return false;
+    }
+#else
+    c8 buffer[BufferSize] = { '\0' };
+    FILE *f = popen("zenity --file-selection", "r");
+    if (f == nullptr) {
+        return false;
+    }
+    fgets(buffer, BufferSize, f);
+    filename = buffer;
+#endif // TINYUI_WINDOWS
+
+    return true;
+}
+
+bool Widgets::getSaveFileDialog(const char *title, const char *extensions, std::string &filename) {
+    filename.clear();
+
+#ifdef TINYUI_WINDOWS
+    char szFile[BufferSize] = { '\0' };
+    // Initialize OPENFILENAME
+    OPENFILENAME ofn;
+    memset(&ofn, 0, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = szFile;
+
+    // Set lpstrFile[0] to '\0' so that GetOpenFileName does not
+    // use the contents of szFile to initialize itself.
+    ofn.lpstrTitle = title;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = extensions;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = nullptr;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = nullptr;
+    ofn.Flags = OFN_PATHMUSTEXIST;
+
+    // Display the Open dialog box.
+    if (TRUE == GetSaveFileName(&ofn)) {
+        filename = ofn.lpstrFile;
+    } else {
+        return false;
+    }
+#else
+    FILE *f = popen("zenity --file-selection", "w");
+    if (f == nullptr) {
+        return false;
+    }
+    c8 buffer[BufferSize] = { '\0' };
+    fgets(buffer, BufferSize, f);
+
+    filename = buffer;
+#endif // TINYUI_WINDOWS
+    
+    return true;
+}
+
 } // namespace tinyui
