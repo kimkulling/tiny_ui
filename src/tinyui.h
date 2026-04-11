@@ -96,6 +96,10 @@ using Id = uint64_t;
 /// @brief The return code type used in the ui library.
 using ret_code = int32_t;
 
+/// @brief The operation was cancelled.
+static constexpr ret_code OpCancelled = -5;
+/// @brief The context is invalid.
+static constexpr ret_code InvalidContext = -4;
 /// @brief The invalid render handle return code.
 static constexpr ret_code InvalidRenderHandle = -3;
 /// @brief The invalid handle return code.

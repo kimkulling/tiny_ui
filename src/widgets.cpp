@@ -810,7 +810,7 @@ bool Widgets::endChild() {
 
 static constexpr size_t BufferSize = 1024;
 
-bool Widgets::getOpenFileDialog(const char *title, const char *extensions, std::string &filename) {
+ret_code Widgets::getOpenFileDialog(const char *title, const char *extensions, std::string &filename) {
     filename.clear();
 #ifdef TINYUI_WINDOWS
     // Init data
@@ -836,22 +836,22 @@ bool Widgets::getOpenFileDialog(const char *title, const char *extensions, std::
     if (::GetOpenFileName(&ofn) == TRUE) {
         filename = ofn.lpstrFile;
     } else {
-        return false;
+        return OpCancelled;
     }
 #else
     c8 buffer[BufferSize] = { '\0' };
     FILE *f = popen("zenity --file-selection", "r");
     if (f == nullptr) {
-        return false;
+        return OpCancelled;
     }
     fgets(buffer, BufferSize, f);
     filename = buffer;
 #endif // TINYUI_WINDOWS
 
-    return true;
+    return ResultOk;
 }
 
-bool Widgets::getSaveFileDialog(const char *title, const char *extensions, std::string &filename) {
+ret_code Widgets::getSaveFileDialog(const char *title, const char *extensions, std::string &filename) {
     filename.clear();
 
 #ifdef TINYUI_WINDOWS
@@ -878,20 +878,20 @@ bool Widgets::getSaveFileDialog(const char *title, const char *extensions, std::
     if (TRUE == GetSaveFileName(&ofn)) {
         filename = ofn.lpstrFile;
     } else {
-        return false;
+        return OpCancelled;
     }
 #else
     FILE *f = popen("zenity --file-selection", "w");
     if (f == nullptr) {
-        return false;
+        return OpCancelled;
     }
-    cchar buffer[BufferSize] = { '\0' };
+    char buffer[BufferSize] = { '\0' };
     fgets(buffer, BufferSize, f);
 
     filename = buffer;
 #endif // TINYUI_WINDOWS
     
-    return true;
+    return ResultOk;
 }
 
 } // namespace tinyui

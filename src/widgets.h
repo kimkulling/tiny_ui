@@ -343,14 +343,14 @@ struct Widgets {
     /// @param extensions The allowed file extensions (e.g. "txt;pdf;docx").
     /// @param filename   The selected filename.
     /// @return true if a file was selected, false if the dialog was canceled.  
-    static bool getOpenFileDialog(const char *title, const char *extensions, std::string &filename);
+    static ret_code getOpenFileDialog(const char *title, const char *extensions, std::string &filename);
 
     /// @brief Will open a save-file-dialog.
     /// @param title      The title of the dialog.
     /// @param extensions The allowed file extensions (e.g. "txt;pdf;docx").
     /// @param filename   The selected filename.
     /// @return true if a file was selected, false if the dialog was canceled.
-    static bool getSaveFileDialog(const char *title, const char *extensions, std::string &filename);
+    static ret_code getSaveFileDialog(const char *title, const char *extensions, std::string &filename);
 };
 
 } // namespace tinyui
