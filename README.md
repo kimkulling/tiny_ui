@@ -14,6 +14,9 @@ A lightweight C++17 UI library for Windows and Linux, using SDL2 as the renderer
   - Label
   - Progress Bar
   - TreeView (experimental)
+  - Standard-Dialogs
+    - Open-File-Dialog
+    - Save-File-Dialog
 - **Platforms**:
   - Windows
   - Linux
