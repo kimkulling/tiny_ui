@@ -266,7 +266,7 @@ static int inputHandler(Id id, void *instance) {
         return ErrorCode;
     }
 
-    Context *ctx = static_cast<Context *>(instance);
+    auto *ctx = static_cast<Context *>(instance);
     ctx->mFocus = Widgets::findWidget(id, ctx->mRoot);
 
     return ResultOk;
@@ -399,8 +399,7 @@ ret_code Widgets::panel(Id id, Id parentId, const char *title, const Rect &rect,
         return InvalidRenderHandle;
     }
 
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Panel);
-    if (child == nullptr) {
+    if (const Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Panel); child == nullptr) {
         return ErrorCode;
     }
 
@@ -412,6 +411,7 @@ static int onTreeViewItemClicked(Id id, void *data) {
     if (treeView == nullptr) {
         return ErrorCode;
     }
+
     for (size_t i = 0; i < treeView->mChildren.size(); ++i ) {
         Widget *child = treeView->mChildren[i];
         if (child == nullptr) {
@@ -419,7 +419,9 @@ static int onTreeViewItemClicked(Id id, void *data) {
         }
         child->mEnabled = !child->mEnabled;
     }
+
     std::cout << "TreeView item clicked: " << id << std::endl;
+
     return 0;
 }
 
@@ -432,7 +434,7 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
     if (ctx.mRoot == nullptr) {
         return InvalidRenderHandle;
     }
-
+    
     Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::TreeView);
     if (widget == nullptr) {
         return ErrorCode;
@@ -461,12 +463,12 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
         return InvalidRenderHandle;
     }
 
-    Widget *parentWidget = findWidget(parentItemId, ctx.mRoot);
+    const Widget *parentWidget = findWidget(parentItemId, ctx.mRoot);
     if (parentWidget == nullptr) {
         return ErrorCode;
     }
     
-    auto &parentRect = parentWidget->mRect;
+    const auto &parentRect = parentWidget->mRect;
     
     const int32_t margin = ctx.mStyle.mMargin;
     const int32_t w = parentRect.width;
@@ -579,7 +581,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                 if (payload == nullptr) {
                     break;
                 }
-                FilledState *state = reinterpret_cast<FilledState *>(payload->payload);
+                const auto *state = reinterpret_cast<FilledState *>(payload->payload);
                 if (state == nullptr) {
                     break;
                 }
@@ -771,7 +773,7 @@ void Widgets::setEnableState(Id id, bool enabled) {
 
 bool Widgets::isEnabled(Id id) {
     auto &ctx = TinyUi::getContext();
-    Widget *widget = findWidget(id, ctx.mRoot);
+    const Widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
         return widget->isEnabled();
     }
@@ -804,6 +806,92 @@ bool Widgets::beginChild() {
 bool Widgets::endChild() {
     auto &ctx = TinyUi::getContext();
     return true;
+}
+
+static constexpr size_t BufferSize = 1024;
+
+ret_code Widgets::getOpenFileDialog(const char *title, const char *extensions, std::string &filename) {
+    filename.clear();
+#ifdef TINYUI_WINDOWS
+    // Init data
+    char szFile[BufferSize] = { '\0' };
+    OPENFILENAME ofn;
+    memset(&ofn, 0, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = szFile;
+
+    // Set lpstrFile[0] to '\0' so that GetOpenFileName does not
+    // use the contents of szFile to initialize itself.
+    ofn.lpstrTitle = title;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = extensions;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = nullptr;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = nullptr;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    // Display the Open dialog box.
+    if (::GetOpenFileName(&ofn) == TRUE) {
+        filename = ofn.lpstrFile;
+    } else {
+        return OpCancelled;
+    }
+#else
+    char buffer[BufferSize] = { '\0' };
+    FILE *f = popen("zenity --file-selection", "r");
+    if (f == nullptr) {
+        return OpCancelled;
+    }
+    fgets(buffer, BufferSize, f);
+    filename = buffer;
+#endif // TINYUI_WINDOWS
+
+    return ResultOk;
+}
+
+ret_code Widgets::getSaveFileDialog(const char *title, const char *extensions, std::string &filename) {
+    filename.clear();
+
+#ifdef TINYUI_WINDOWS
+    char szFile[BufferSize] = { '\0' };
+    // Initialize OPENFILENAME
+    OPENFILENAME ofn;
+    memset(&ofn, 0, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = szFile;
+
+    // Set lpstrFile[0] to '\0' so that GetOpenFileName does not
+    // use the contents of szFile to initialize itself.
+    ofn.lpstrTitle = title;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = extensions;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = nullptr;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = nullptr;
+    ofn.Flags = OFN_PATHMUSTEXIST;
+
+    // Display the Open dialog box.
+    if (TRUE == GetSaveFileName(&ofn)) {
+        filename = ofn.lpstrFile;
+    } else {
+        return OpCancelled;
+    }
+#else
+    FILE *f = popen("zenity --file-selection", "w");
+    if (f == nullptr) {
+        return OpCancelled;
+    }
+    char buffer[BufferSize] = { '\0' };
+    fgets(buffer, BufferSize, f);
+
+    filename = buffer;
+#endif // TINYUI_WINDOWS
+    
+    return ResultOk;
 }
 
 } // namespace tinyui

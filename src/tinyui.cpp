@@ -57,7 +57,7 @@ void log_message(LogSeverity severity, const char *message) {
 Context *gCtx = nullptr;
 
 Context *Context::create(const char *title, const Style &style) {
-    Context *ctx = new Context;
+    auto *ctx = new Context;
     ctx->mLogger = log_message;
     ctx->mAppTitle = title;
     ctx->mWindowsTitle = title;
@@ -130,7 +130,7 @@ ret_code TinyUi::getSurfaceCenter(int32_t &x, int32_t &y) {
 }
 
 bool TinyUi::run() {
-    auto &ctx = getContext();
+    const auto &ctx = getContext();
     if (!ctx.mUpdateCallbackList.empty()) {
         for (auto it = ctx.mUpdateCallbackList.begin(); it != ctx.mUpdateCallbackList.end(); ++it) {
             (*it)->mfuncCallback[Events::UpdateEvent](1, (*it)->mInstance);
@@ -150,7 +150,7 @@ ret_code TinyUi::endRender() {
 }
 
 void TinyUi::render() {
-    auto &ctx = getContext();
+    const auto &ctx = getContext();
     beginRender(ctx.mStyle.mClearColor);
     Widgets::renderWidgets();
     endRender();
