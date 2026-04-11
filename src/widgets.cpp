@@ -885,7 +885,7 @@ bool Widgets::getSaveFileDialog(const char *title, const char *extensions, std::
     if (f == nullptr) {
         return false;
     }
-    c8 buffer[BufferSize] = { '\0' };
+    cchar buffer[BufferSize] = { '\0' };
     fgets(buffer, BufferSize, f);
 
     filename = buffer;
