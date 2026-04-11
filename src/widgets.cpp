@@ -839,7 +839,7 @@ ret_code Widgets::getOpenFileDialog(const char *title, const char *extensions, s
         return OpCancelled;
     }
 #else
-    c8 buffer[BufferSize] = { '\0' };
+    char buffer[BufferSize] = { '\0' };
     FILE *f = popen("zenity --file-selection", "r");
     if (f == nullptr) {
         return OpCancelled;
