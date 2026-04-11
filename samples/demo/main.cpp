@@ -57,8 +57,7 @@ int updateProgressbar(Id, void *instance) {
     }
 
     auto *widget = (Widget*) instance;
-    auto *eventPayload = (EventPayload*) widget->mContent;
-    if (eventPayload->type == EventDataType::FillState) {
+    if (auto *eventPayload = (EventPayload *)widget->mContent; eventPayload->type == EventDataType::FillState) {
         FilledState *state = (FilledState*) (eventPayload->payload);
         uint32_t tick = TinyUi::getTicks();
         uint32_t diff = tick - LastTick;
@@ -77,13 +76,12 @@ int updateProgressbar(Id, void *instance) {
 }
 
 int main(int argc, char *argv[]) {
-    Style style = TinyUi::getDefaultStyle();
-    if (!TinyUi::createContext("Sample-Screen",  style)) {
+    if (Style style = TinyUi::getDefaultStyle(); !TinyUi::createContext("Sample-Screen", style)) {
         return -1;
     }
 
     if (TinyUi::initScreen(20, 20, 1024, 768) == -1) {
-        auto &ctx = TinyUi::getContext();
+        const auto &ctx = TinyUi::getContext();
         ctx.mLogger(LogSeverity::Error, "Cannot init screen");
         return ErrorCode;
     }

@@ -186,8 +186,7 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
         return ResultOk;
     }
 
-    SDLContext *sdlCtx = getBackendContext(ctx);
-    if (sdlCtx->mRenderer != nullptr) {
+    if (SDLContext *sdlCtx = getBackendContext(ctx); sdlCtx->mRenderer != nullptr) {
         SDL_DestroyRenderer(sdlCtx->mRenderer);
         sdlCtx->mRenderer = nullptr;
     }
@@ -276,6 +275,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
     SDLContext *sdlCtx = SDLContext::create();
     if (sdlCtx->mWindow != nullptr) {
         ctx.mLogger(LogSeverity::Error, "Already created.");
+        sdlCtx->destroy();
         return ErrorCode;
     }
 
@@ -448,7 +448,7 @@ ret_code Renderer::createRenderTexture(Context &ctx, int w, int h, SDL_Texture *
     return ResultOk;
 }
 
-bool Renderer::update(Context &ctx) {
+bool Renderer::update(const Context &ctx) {
     if (!ctx.mCreated) { 
         return false;
     }
@@ -513,7 +513,7 @@ SurfaceImpl *Renderer::createSurfaceImpl(unsigned char *data, int w, int h, int 
         std::cerr << "*ERR*: %s\n" << errorMsg << "\n";
         return nullptr;
     }
-    SurfaceImpl *surfaceImpl = new SurfaceImpl;
+    auto *surfaceImpl = new SurfaceImpl;
     surfaceImpl->mSurface = surface;
 
     return surfaceImpl;
@@ -527,7 +527,7 @@ void Renderer::releaseSurfaceImpl(SurfaceImpl *surfaceImpl) {
 }
 
 ret_code Renderer::getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
-    SDLContext *sdlCtx = (SDLContext *) ctx.mBackendCtx->mHandle;
+    const auto *sdlCtx = (const SDLContext *) ctx.mBackendCtx->mHandle;
     if (sdlCtx->mSurface == nullptr) {
         return ErrorCode;
     }

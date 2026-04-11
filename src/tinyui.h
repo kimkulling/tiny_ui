@@ -238,14 +238,12 @@ struct Rect {
             top.y = r.top.y;
         }
 
-        const int x2_ = top.x + r.width;
-        if (bottom.x < x2_) {
+        if (const int x2_ = top.x + r.width; bottom.x < x2_) {
             bottom.x = x2_;
             width = r.width;
         }
 
-        const int y2_ = bottom.y + r.height;
-        if (bottom.y < y2_) {
+        if (const int y2_ = bottom.y + r.height; bottom.y < y2_) {
             bottom.y = y2_;
             height = r.height;
         }
