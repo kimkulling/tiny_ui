@@ -279,7 +279,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         return ErrorCode;
     }
 
-    ctx.mBackendCtx = new BackendContext;.
+    ctx.mBackendCtx = new BackendContext;
     ctx.mBackendCtx->mHandle = (void*) sdlCtx;
 
     if (TTF_Init() == -1) {
