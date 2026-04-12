@@ -454,7 +454,7 @@ bool Renderer::update(const Context &ctx) {
     }
 
     bool running = !ctx.mRequestShutdown;
-    SDL_Event event = {};
+    SDL_Event event;
     while (IODevice::update(event)) {
         switch (event.type) {
             case SDL_QUIT:
