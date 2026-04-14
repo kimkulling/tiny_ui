@@ -845,6 +845,10 @@ ret_code Widgets::getOpenFileDialog(const char *title, const char *extensions, s
         return OpCancelled;
     }
     fgets(buffer, BufferSize, f);
+    const int retCode = pclose(f);
+    if (retCode != 0) {
+        return ErrorCode;
+    }
     filename = buffer;
 #endif // TINYUI_WINDOWS
 
@@ -887,6 +891,10 @@ ret_code Widgets::getSaveFileDialog(const char *title, const char *extensions, s
     }
     char buffer[BufferSize] = { '\0' };
     fgets(buffer, BufferSize, f);
+    const int retCode = pclose(f);
+    if (retCode != 0) {
+        return ErrorCode;
+    }
 
     filename = buffer;
 #endif // TINYUI_WINDOWS
