@@ -109,6 +109,16 @@ static constexpr ret_code ErrorCode = -1;
 /// @brief The ok code, everything was fine.
 static constexpr ret_code ResultOk  = 0;
 
+/// @brief The version struct, used to describe the version of the tiny ui library.
+struct Version {
+    uint32_t major{0};   ///< The major version number.
+    uint32_t minor{0};   ///< The minor version number.
+    uint32_t patch{2};   ///< The patch version number.
+
+    /// @brief The default class constructor.
+    Version() = default;
+};
+
 /// @brief The default color type with 4 components.
 struct Color4 {
     uint8_t r{ 1 };                         ///< The red component.
@@ -409,6 +419,7 @@ struct BackendContext {
 struct Context {
     bool               mCreated{false};             ///< The created state.
     bool               mRequestShutdown{false};     ///< The request shutdown state.
+    Version            mVersion;                    ///< The version of the tiny ui library.
     const char        *mAppTitle{nullptr};          ///< The application title.
     const char        *mWindowsTitle{nullptr};      ///< The window title.
     BackendContext    *mBackendCtx{nullptr};        ///< The backend context.

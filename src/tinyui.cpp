@@ -49,6 +49,11 @@ static constexpr char const *SeverityToken[] = {
     "*ERROR*"
 };
 
+static void logVersion(const Context &ctx) {
+    const std::string msg ="TinyUI Version: " + std::to_string(ctx.mVersion.major) + "." + std::to_string(ctx.mVersion.minor) + "." + std::to_string(ctx.mVersion.patch);
+    ctx.mLogger(LogSeverity::Info, msg.c_str());
+}
+
 void log_message(LogSeverity severity, const char *message) {
     assert(message != nullptr);
     std::cout << SeverityToken[static_cast<size_t>(severity)] << " " << message <<"\n.";
@@ -62,6 +67,9 @@ Context *Context::create(const char *title, const Style &style) {
     ctx->mAppTitle = title;
     ctx->mWindowsTitle = title;
     ctx->mStyle = style;
+    ctx->mVersion = Version{0, 0, 2};
+
+    logVersion(*ctx);
 
     return ctx;
 }
