@@ -42,6 +42,10 @@ struct IODevice {
     /// @brief Get the current ticks from the io-device.
     /// @return The current ticks.
     static uint32_t getTicks();
+
+    /// @brief Delay the execution for a given amount of milliseconds.
+    /// @param ms The amount of milliseconds to delay.
+    static void delay(uint32_t ms);
 };
 
 } //  namespace tinyui

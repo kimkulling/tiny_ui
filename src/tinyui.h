@@ -60,6 +60,24 @@ SOFTWARE.
 #   define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+#   define TINYUI_WINDOWS
+#   ifndef WIN32_LEAN_AND_MEAN
+#       define WIN32_LEAN_AND_MEAN // Minimal windows header
+#   endif // WIN32_LEAN_AND_MEAN
+#elif defined(__gnu_linux__)
+#   define TINYUI_GNU_LINUX
+#elif defined(__APPLE__) || defined(__MACH__)
+#   error "Currently not supported platform"
+#elif defined(__ANDROID__)
+#   define TINYUIE_ANDROID
+#endif
+
+#ifdef TINYUI_WINDOWS
+#   include <windows.h>
+#   include <Commdlg.h>
+#endif
+
 // Forward declarations -------------------------------------------------------
 
 namespace tinyui {
@@ -78,6 +96,10 @@ using Id = uint64_t;
 /// @brief The return code type used in the ui library.
 using ret_code = int32_t;
 
+/// @brief The operation was cancelled.
+static constexpr ret_code OpCancelled = -5;
+/// @brief The context is invalid.
+static constexpr ret_code InvalidContext = -4;
 /// @brief The invalid render handle return code.
 static constexpr ret_code InvalidRenderHandle = -3;
 /// @brief The invalid handle return code.
@@ -220,14 +242,12 @@ struct Rect {
             top.y = r.top.y;
         }
 
-        const int x2_ = top.x + r.width;
-        if (bottom.x < x2_) {
+        if (const int x2_ = top.x + r.width; bottom.x < x2_) {
             bottom.x = x2_;
             width = r.width;
         }
 
-        const int y2_ = bottom.y + r.height;
-        if (bottom.y < y2_) {
+        if (const int y2_ = bottom.y + r.height; bottom.y < y2_) {
             bottom.y = y2_;
             height = r.height;
         }

@@ -186,8 +186,7 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
         return ResultOk;
     }
 
-    SDLContext *sdlCtx = getBackendContext(ctx);
-    if (sdlCtx->mRenderer != nullptr) {
+    if (SDLContext *sdlCtx = getBackendContext(ctx); sdlCtx->mRenderer != nullptr) {
         SDL_DestroyRenderer(sdlCtx->mRenderer);
         sdlCtx->mRenderer = nullptr;
     }
@@ -196,7 +195,8 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
     return ResultOk;
 }
 
-ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const Rect &r, const Color4 &fgC, const Color4 &bgC, Alignment alignment) {
+ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const Rect &r, const Color4 &fgC,
+        const Color4 &bgC, Alignment alignment) {
     if (string == nullptr) {
         return InvalidHandle;
     }
@@ -205,12 +205,14 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         if (ctx.mStyle.mFont.mName != nullptr) {
             loadFont(ctx);
             if (font == nullptr) {
+                const std::string msg = "Cannot load font: " + std::string(ctx.mStyle.mFont.mName) + ", using the default font.";
+                ctx.mLogger(LogSeverity::Error, msg.c_str());
                 font = ctx.mDefaultFont;
             }
         }
     }
+    
     font = ctx.mDefaultFont;
-
     if (font == nullptr) {
         return InvalidHandle;
     }
@@ -274,6 +276,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
     SDLContext *sdlCtx = SDLContext::create();
     if (sdlCtx->mWindow != nullptr) {
         ctx.mLogger(LogSeverity::Error, "Already created.");
+        sdlCtx->destroy();
         return ErrorCode;
     }
 
@@ -451,13 +454,13 @@ ret_code Renderer::createRenderTexture(Context &ctx, int w, int h, SDL_Texture *
     return ResultOk;
 }
 
-bool Renderer::update(Context &ctx) {
-    if (!ctx.mCreated) {
+bool Renderer::update(const Context &ctx) {
+    if (!ctx.mCreated) { 
         return false;
     }
 
     bool running = !ctx.mRequestShutdown;
-    SDL_Event event = {};
+    SDL_Event event;
     while (IODevice::update(event)) {
         switch (event.type) {
             case SDL_QUIT:
@@ -508,7 +511,7 @@ SurfaceImpl *Renderer::createSurfaceImpl(unsigned char *data, int w, int h, int 
     const int32_t Bmask = 0x00FF0000;
     const int32_t Amask = (bytesPerPixel == 4) ? 0xFF000000 : 0;
 #else
-    const int32_t int s = (bytesPerPixel == 4) ? 0 : 8;
+    const int32_t s = (bytesPerPixel == 4) ? 0 : 8;
     const int32_t Rmask = 0xFF000000 >> s;
     const int32_t Gmask = 0x00FF0000 >> s;
     const int32_t Bmask = 0x0000FF00 >> s;
@@ -520,7 +523,7 @@ SurfaceImpl *Renderer::createSurfaceImpl(unsigned char *data, int w, int h, int 
         std::cerr << "*ERR*: %s\n" << errorMsg << "\n";
         return nullptr;
     }
-    SurfaceImpl *surfaceImpl = new SurfaceImpl;
+    auto *surfaceImpl = new SurfaceImpl;
     surfaceImpl->mSurface = surface;
 
     return surfaceImpl;
@@ -534,7 +537,7 @@ void Renderer::releaseSurfaceImpl(SurfaceImpl *surfaceImpl) {
 }
 
 ret_code Renderer::getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h) {
-    SDLContext *sdlCtx = (SDLContext *) ctx.mBackendCtx->mHandle;
+    const auto *sdlCtx = (const SDLContext *) ctx.mBackendCtx->mHandle;
     if (sdlCtx->mSurface == nullptr) {
         return ErrorCode;
     }

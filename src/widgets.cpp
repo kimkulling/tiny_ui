@@ -145,16 +145,35 @@ static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, 
     return widget;
 }
 
+static void deleteKeyFromText(Context &ctx) {    
+    ctx.mFocus->mText.erase(ctx.mFocus->mText.size() - 1);
+}
+
+static void appendKeyToText(Context &ctx, char *buffer) {
+    ctx.mFocus->mText.append(buffer);
+}
+
+static void handleInputField(Context &ctx, EventPayload *eventPayload) {
+    char buffer[2] = { 
+        static_cast<char>(eventPayload->payload[0]), 
+        '\0' 
+    };
+    if (buffer[0] == SDLK_BACKSPACE) {
+        deleteKeyFromText(ctx);
+    } else {
+        appendKeyToText(ctx, buffer);
+    }
+}
+
 void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) {
     if (ctx.mFocus == nullptr) {
         return;
     }
 
-    if (eventId == Events::KeyDownEvent || eventId == Events::KeyUpEvent) {
+    if (eventId == Events::KeyDownEvent) {
         if (eventPayload != nullptr) {
             if (ctx.mFocus->mType == WidgetType::InputField) {
-                char buffer[2] = { eventPayload->payload[0], '\0' };
-                ctx.mFocus->mText.append(buffer);
+                handleInputField(ctx, eventPayload);
             }
         }
     }
@@ -242,7 +261,18 @@ ret_code Widgets::label(Id id, Id parentId, const char *text, const Rect &rect, 
     return ResultOk;
 }
 
-ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alignment) {
+static int inputHandler(Id id, void *instance) {
+    if (instance == nullptr) {
+        return ErrorCode;
+    }
+
+    auto *ctx = static_cast<Context *>(instance);
+    ctx->mFocus = Widgets::findWidget(id, ctx->mRoot);
+
+    return ResultOk;
+}
+
+ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
@@ -258,6 +288,12 @@ ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alig
     }
 
     widget->mAlignment = alignment;
+    widget->mKeyInputType = type;
+    if (defaultText != nullptr) {
+        widget->mText.assign(defaultText);
+    }
+
+    widget->mCallback = new CallbackI(inputHandler, (void *)&ctx, Events::MouseButtonDownEvent);
 
     return ResultOk;
 }
@@ -363,8 +399,7 @@ ret_code Widgets::panel(Id id, Id parentId, const char *title, const Rect &rect,
         return InvalidRenderHandle;
     }
 
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Panel);
-    if (child == nullptr) {
+    if (const Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Panel); child == nullptr) {
         return ErrorCode;
     }
 
@@ -376,6 +411,7 @@ static int onTreeViewItemClicked(Id id, void *data) {
     if (treeView == nullptr) {
         return ErrorCode;
     }
+
     for (size_t i = 0; i < treeView->mChildren.size(); ++i ) {
         Widget *child = treeView->mChildren[i];
         if (child == nullptr) {
@@ -383,7 +419,9 @@ static int onTreeViewItemClicked(Id id, void *data) {
         }
         child->mEnabled = !child->mEnabled;
     }
+
     std::cout << "TreeView item clicked: " << id << std::endl;
+
     return 0;
 }
 
@@ -396,13 +434,12 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
     if (ctx.mRoot == nullptr) {
         return InvalidRenderHandle;
     }
-
+    
     Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::TreeView);
     if (widget == nullptr) {
         return ErrorCode;
     }
 
-    
     if (title != nullptr) {
         widget->mText.assign(title);
     }
@@ -426,18 +463,18 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
         return InvalidRenderHandle;
     }
 
-    Widget *parentWidget = findWidget(parentItemId, ctx.mRoot);
+    const Widget *parentWidget = findWidget(parentItemId, ctx.mRoot);
     if (parentWidget == nullptr) {
         return ErrorCode;
     }
     
-    auto &parentRect = parentWidget->mRect;
+    const auto &parentRect = parentWidget->mRect;
     
     const int32_t margin = ctx.mStyle.mMargin;
     const int32_t w = parentRect.width;
     const int32_t h = parentRect.height;
     size_t numChildren = parentWidget->mChildren.size() + 1;
-    const Rect rect(parentRect.top.x + margin, parentRect.top.y + numChildren * margin +
+    const Rect rect(parentRect.top.x + margin, parentRect.top.y + static_cast<int32_t>(numChildren) * margin +
         static_cast<int32_t>(numChildren) * h, w, h);
     Widget *child = createWidget(ctx, id, parentItemId, rect, WidgetType::Label);
     if (child == nullptr) {
@@ -544,7 +581,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                 if (payload == nullptr) {
                     break;
                 }
-                FilledState *state = reinterpret_cast<FilledState *>(payload->payload);
+                const auto *state = reinterpret_cast<FilledState *>(payload->payload);
                 if (state == nullptr) {
                     break;
                 }
@@ -558,11 +595,17 @@ static void render(Context &ctx, const Widget *currentWidget) {
             break;
 
         case WidgetType::InputField:
-        {
-            Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
-            Renderer::drawRect(ctx, r.top.x+2, r.top.y+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
-        }
-        break;
+            {
+                Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
+                Renderer::drawRect(ctx, r.top.x+2, r.top.y+2, r.width-4, r.height-4, true, ctx.mStyle.mBorder);
+                if (!currentWidget->mText.empty()) {
+                    const Color4 fg = ctx.mStyle.mTextColor;
+                    const Color4 bg = ctx.mStyle.mBg;
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont,
+                            currentWidget->mRect, fg, bg, currentWidget->mAlignment);                
+                }
+            }
+            break;
 
         case WidgetType::Container:
         case WidgetType::Box:
@@ -730,7 +773,7 @@ void Widgets::setEnableState(Id id, bool enabled) {
 
 bool Widgets::isEnabled(Id id) {
     auto &ctx = TinyUi::getContext();
-    Widget *widget = findWidget(id, ctx.mRoot);
+    const Widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
         return widget->isEnabled();
     }
@@ -763,6 +806,100 @@ bool Widgets::beginChild() {
 bool Widgets::endChild() {
     auto &ctx = TinyUi::getContext();
     return true;
+}
+
+static constexpr size_t BufferSize = 1024;
+
+ret_code Widgets::getOpenFileDialog(const char *title, const char *extensions, std::string &filename) {
+    filename.clear();
+#ifdef TINYUI_WINDOWS
+    // Init data
+    char szFile[BufferSize] = { '\0' };
+    OPENFILENAME ofn;
+    memset(&ofn, 0, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = szFile;
+
+    // Set lpstrFile[0] to '\0' so that GetOpenFileName does not
+    // use the contents of szFile to initialize itself.
+    ofn.lpstrTitle = title;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = extensions;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = nullptr;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = nullptr;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    // Display the Open dialog box.
+    if (::GetOpenFileName(&ofn) == TRUE) {
+        filename = ofn.lpstrFile;
+    } else {
+        return OpCancelled;
+    }
+#else
+    char buffer[BufferSize] = { '\0' };
+    FILE *f = popen("zenity --file-selection", "r");
+    if (f == nullptr) {
+        return OpCancelled;
+    }
+    fgets(buffer, BufferSize, f);
+    const int retCode = pclose(f);
+    if (retCode != 0) {
+        return ErrorCode;
+    }
+    filename = buffer;
+#endif // TINYUI_WINDOWS
+
+    return ResultOk;
+}
+
+ret_code Widgets::getSaveFileDialog(const char *title, const char *extensions, std::string &filename) {
+    filename.clear();
+
+#ifdef TINYUI_WINDOWS
+    char szFile[BufferSize] = { '\0' };
+    // Initialize OPENFILENAME
+    OPENFILENAME ofn;
+    memset(&ofn, 0, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = szFile;
+
+    // Set lpstrFile[0] to '\0' so that GetOpenFileName does not
+    // use the contents of szFile to initialize itself.
+    ofn.lpstrTitle = title;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = extensions;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = nullptr;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = nullptr;
+    ofn.Flags = OFN_PATHMUSTEXIST;
+
+    // Display the Open dialog box.
+    if (TRUE == GetSaveFileName(&ofn)) {
+        filename = ofn.lpstrFile;
+    } else {
+        return OpCancelled;
+    }
+#else
+    FILE *f = popen("zenity --file-selection", "w");
+    if (f == nullptr) {
+        return OpCancelled;
+    }
+    char buffer[BufferSize] = { '\0' };
+    fgets(buffer, BufferSize, f);
+    const int retCode = pclose(f);
+    if (retCode != 0) {
+        return ErrorCode;
+    }
+
+    filename = buffer;
+#endif // TINYUI_WINDOWS
+    
+    return ResultOk;
 }
 
 } // namespace tinyui
