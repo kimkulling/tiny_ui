@@ -501,7 +501,7 @@ SurfaceImpl *Renderer::createSurfaceImpl(unsigned char *data, int w, int h, int 
     const int32_t Bmask = 0x00FF0000;
     const int32_t Amask = (bytesPerPixel == 4) ? 0xFF000000 : 0;
 #else
-    const int32_t int s = (bytesPerPixel == 4) ? 0 : 8;
+    const int32_t s = (bytesPerPixel == 4) ? 0 : 8;
     const int32_t Rmask = 0xFF000000 >> s;
     const int32_t Gmask = 0x00FF0000 >> s;
     const int32_t Bmask = 0x0000FF00 >> s;
