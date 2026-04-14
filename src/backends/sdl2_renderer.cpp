@@ -254,6 +254,7 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
             break;
         case Alignment::Invalid:
         case Alignment::Count:
+        default:
             assert(false && "Not supported alignment.");
             break;
     }
@@ -340,7 +341,10 @@ ret_code Renderer::initScreen(Context &ctx, SDL_Window *window, SDL_Renderer *re
         return ErrorCode;
     }
 
-    TTF_Init();
+    if (TTF_Init() == -1) {
+        ctx.mLogger(LogSeverity::Error, "TTF init failed.");
+        return ErrorCode;
+    }   
 
     SDLContext *sdlCtx = getBackendContext(ctx);
     if (sdlCtx == nullptr) {
@@ -367,6 +371,8 @@ ret_code Renderer::releaseScreen(Context &ctx) {
     }
 
     SDLContext *sdlCtx = getBackendContext(ctx);
+    assert(sdlCtx != nullptr);
+
     SDL_DestroyWindow(sdlCtx->mWindow);
     sdlCtx->mWindow = nullptr;
 
@@ -475,14 +481,18 @@ bool Renderer::update(Context &ctx) {
             case SDL_KEYDOWN:
                 {
                     const char *key = SDL_GetKeyName(event.key.keysym.sym);
-                    assert(key != nullptr);
+                    if (key == nullptr) {
+                        break;
+                    }
                     Widgets::onKey(key, true);
                 } break;
 
             case SDL_KEYUP: 
                 {
                     const char *key = SDL_GetKeyName(event.key.keysym.sym);
-                    assert(key != nullptr);
+                    if (key == nullptr) {
+                        break;
+                    }
                     Widgets::onKey(key, false);
                 } break;
         }
