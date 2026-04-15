@@ -30,7 +30,7 @@ SOFTWARE.
 
 namespace tinyui {
 
-static Style DefaultStyle {
+static const Style DefaultStyle {
     Color4{   0,   0,   0, 0 },
     Color4{ 255, 255, 255, 0 },
     Color4{  20,  20,  20, 0 },
