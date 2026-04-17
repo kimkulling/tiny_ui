@@ -141,7 +141,8 @@ struct Widget {
     Widget &operator=(const Widget &) = delete;
 };
 
-/// @brief The widgets access wrapper class.
+/// @brief The widgets access interface.
+///
 /// This class is used to create and manage widgets.
 struct Widgets {
     /// @brief The root item id.
@@ -220,9 +221,10 @@ struct Widgets {
     /// @param parentId The parent id of the widget.
     /// @param text     The text of the widget.
     /// @param rect     The rect of the widget.
+    /// @param alignment The alignment of the widget.
     /// @param callback The callback for the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code button(Id id, Id parentId, const char *text, const Rect &rect, CallbackI *callback);
+    static ret_code textButton(Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment, CallbackI *callback);
 
     /// @brief Creates a new image button.
     /// @param ctx      The context to create the widget in.

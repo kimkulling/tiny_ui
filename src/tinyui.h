@@ -266,18 +266,18 @@ struct Rect {
 
 /// @brief The alignment enum.
 enum class Alignment : int32_t {
-    Invalid = -1,           ///< The invalid alignment.
-    Left = 0,               ///< The left alignment.
-    Center,                 ///< The center alignment.
-    Right,                  ///< The right alignment.
-    Count                   ///< The number of alignments.
+    Invalid = -1,               ///< The invalid alignment.
+    Left = 0,                   ///< The left alignment.
+    Center,                     ///< The center alignment.
+    Right,                      ///< The right alignment.
+    Count                       ///< The number of alignments.
 };
 
 /// @brief The font description struct.
 struct Font {
-    const char *mName{nullptr};     ///< The name of the font.
-    uint32_t mSize{12};             ///< The size of the font.
-    FontImpl *mFont{nullptr};        ///< The font implementation.
+    const char *mName{nullptr}; ///< The name of the font.
+    uint32_t mSize{12};         ///< The size of the font.
+    FontImpl *mFont{nullptr};   ///< The font implementation.
 };
 
 /// @brief The font cache.
@@ -287,22 +287,22 @@ using FontCache = std::map<const char*, Font*>;
 ///
 /// The style struct is used to describe the style of the tiny ui.
 struct Style {
-    Color4  mClearColor;    ///< The clear color.
-    Color4  mFg;            ///< The foreground color.
-    Color4  mBg;            ///< The background color.
-    Color4  mTextColor;     ///< The text color.
-    Color4  mBorder;        ///< The border color.
-    int32_t mMargin{8};     ///< The margin.
-    Font    mFont;          ///< The font.
+    Color4  mClearColor;        ///< The clear color.
+    Color4  mFg;                ///< The foreground color.
+    Color4  mBg;                ///< The background color.
+    Color4  mTextColor;         ///< The text color.
+    Color4  mBorder;            ///< The border color.
+    int32_t mMargin{8};         ///< The margin.
+    Font    mFont;              ///< The font.
 };
 
 /// @brief The mouse state, used to describe different mouse events.
 enum class MouseState {
-    Invalid = -1,       ///< The invalid state
-    LeftButton = 0,     ///< The left button
-    MiddleButton,       ///< The middle button
-    RightButton,        ///< The right button
-    Count               ///< The number of mouse states
+    Invalid = -1,               ///< The invalid state
+    LeftButton = 0,             ///< The left button
+    MiddleButton,               ///< The middle button
+    RightButton,                ///< The right button
+    Count                       ///< The number of mouse states
 };
 
 /// @brief The log severity.
@@ -392,7 +392,7 @@ struct CallbackI {
     void decRef() {
         if (mNumRefs > 0) {
             --mNumRefs;
-            if (mNumRefs == 0) {
+            if (mNumRefs <= 0) {
                 delete this;
             }
         }
@@ -411,8 +411,9 @@ typedef void (*tui_log_func) (LogSeverity severity, const char *message);
 /// @brief The update callback list.
 using UpdateCallbackList = std::list<CallbackI*>;
 
+/// @brief The backend context, used to store the backend specific data.
 struct BackendContext {
-    void *mHandle{nullptr};
+    void *mHandle{nullptr}; ///< The backend specific handle.
 };
 
 /// @brief The tiny ui context.
@@ -453,7 +454,9 @@ private:
     ~Context() = default;
 };
 
-/// @brief The tiny ui interface.
+/// @brief The tiny ui app interface.
+///
+/// The tiny ui interface is used to create and manage the tiny ui context and to run the tiny ui.
 struct TinyUi {
     /// @brief Will create the tinyui context.
     /// @param title    The app title.

@@ -60,26 +60,32 @@ namespace {
         return sdl_col;
     }
 
-    void printDriverInfo(const SDL_RendererInfo &info) {
-        printf("Driver : %s\n", info.name);
+    void printDriverInfo(const Context &ctx, const SDL_RendererInfo &info) {
+        const std::string msg ="Driver : " + std::string(info.name);
+        ctx.mLogger(LogSeverity::Message, msg.c_str());
     }
 
     void listAllRenderDivers(const Context &ctx) {
         const int numRenderDrivers = SDL_GetNumRenderDrivers();
+        if (numRenderDrivers < 0) {
+            ctx.mLogger(LogSeverity::Error, "Error while querying render drivers.");
+            return;
+        }
+
         ctx.mLogger(LogSeverity::Message, "Available drivers:");
         for (int i = 0; i < numRenderDrivers; ++i) {
             SDL_RendererInfo info;
             SDL_GetRenderDriverInfo(i, &info);
-            printDriverInfo(info);
+            printDriverInfo(ctx, info);
         }
     }
 
     void showDriverInUse(Context &ctx) {
-        ctx.mLogger(LogSeverity::Message, "Driver in use:");
+        ctx.mLogger(LogSeverity::Info, "Driver in use:");
         SDLContext *sdlCtx = getBackendContext(ctx);
         SDL_RendererInfo info;
         SDL_GetRendererInfo(sdlCtx->mRenderer, &info);
-        printDriverInfo(info);
+        printDriverInfo(ctx, info);
     }
 
     int32_t queryDriver(const Context &ctx, const char *driverType, size_t maxLen) {
@@ -249,7 +255,7 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
             Message_rect.h = font->mSize + margin * 2;
             break;
         case Alignment::Right:
-            Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - font->mSize * static_cast<int>(strlen(string));
+            Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - static_cast<int>(font->mSize) * static_cast<int>(strlen(string));
             Message_rect.y = r.top.y + margin;
             Message_rect.w = font->mSize * static_cast<int>(strlen(string));
             Message_rect.h = font->mSize + margin * 2;
@@ -273,6 +279,7 @@ ret_code Renderer::initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int
         ctx.mLogger(LogSeverity::Error, "Not initialized.");
         return ErrorCode;
     }
+
     SDLContext *sdlCtx = SDLContext::create();
     if (sdlCtx->mWindow != nullptr) {
         ctx.mLogger(LogSeverity::Error, "Already created.");

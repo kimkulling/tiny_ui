@@ -298,7 +298,7 @@ ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alig
     return ResultOk;
 }
 
-ret_code Widgets::button(Id id, Id parentId, const char *text, const Rect &rect, CallbackI *callback) {
+ret_code Widgets::textButton(Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
         return InvalidRenderHandle;
@@ -319,6 +319,7 @@ ret_code Widgets::button(Id id, Id parentId, const char *text, const Rect &rect,
     }
     if (text != nullptr) {
         child->mText.assign(text);
+        child->mAlignment = alignment;
     }
 
     return ResultOk;

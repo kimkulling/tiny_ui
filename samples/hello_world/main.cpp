@@ -49,13 +49,13 @@ int main(int argc, char *argv[]) {
         return ErrorCode;
     }
 
-    constexpr int32_t ButtonHeight = 20;
+    constexpr int32_t ButtonHeight = 18;
     Widgets::panel(RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 220, 60), nullptr);
     auto &ctx = TinyUi::getContext();
     auto *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
 
     Widgets::label(2, RootPanelId, "Hi, World!", Rect(100, 10, 200, ButtonHeight), Alignment::Center);
-    Widgets::button(3, RootPanelId, "Quit", Rect(100, 30, 200, ButtonHeight), dynamicQuitCallback);
+    Widgets::textButton(3, RootPanelId, "Quit", Rect(100, 30, 200, ButtonHeight), Alignment::Center, dynamicQuitCallback);
     while (TinyUi::run()) {
         TinyUi::render();
     }
