@@ -56,7 +56,11 @@ static void logVersion(const Context &ctx) {
 
 void log_message(LogSeverity severity, const char *message) {
     assert(message != nullptr);
-    std::cout << SeverityToken[static_cast<size_t>(severity)] << " " << message <<"\n.";
+    if (severity == LogSeverity::Message) {
+        std::cout << message << "\n";
+    } else {
+        std::cout << SeverityToken[static_cast<size_t>(severity)] << " " << message << "\n";
+    }
 }
 
 Context *gCtx = nullptr;
