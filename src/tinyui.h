@@ -30,7 +30,7 @@ SOFTWARE.
 #include <vector>
 #include <list>
 #include <string>
-#include <map>
+#include <unordered_map>
 
 #include "stb_image.h"
 
@@ -136,7 +136,7 @@ struct Image {
 };
 
 /// @brief The image cache.
-using ImageCache = std::map<const char*, Image*>;
+using ImageCache = std::unordered_map<const char*, Image*>;
 
 /// @brief  A 2-dimensional vector 
 /// @tparam T The pod template type
@@ -281,7 +281,7 @@ struct Font {
 };
 
 /// @brief The font cache.
-using FontCache = std::map<const char*, Font*>;
+using FontCache = std::unordered_map<const char*, Font*>;
 
 /// @brief The style struct.
 ///
@@ -403,7 +403,7 @@ struct CallbackI {
 using EventCallbackArray = std::vector<CallbackI*>;
 
 /// @brief The event dispatch map.
-using EventDispatchMap = std::map<int32_t, EventCallbackArray>;
+using EventDispatchMap = std::unordered_map<int32_t, EventCallbackArray>;
 
 /// @brief Function pointer declaration for callbacks.
 typedef void (*tui_log_func) (LogSeverity severity, const char *message);
