@@ -59,7 +59,7 @@ void log_message(LogSeverity severity, const char *message) {
     if (severity == LogSeverity::Message) {
         std::cout << message << "\n";
     } else {
-        std::cout << SeverityToken[static_cast<size_t>(severity)] << " " << message << "\n";
+        std::cout << SeverityToken[std::to_underlying(severity)] << " " << message << "\n";
     }
 }
 
@@ -71,7 +71,7 @@ Context *Context::create(const char *title, const Style &style) {
     ctx->mAppTitle = title;
     ctx->mWindowsTitle = title;
     ctx->mStyle = style;
-    ctx->mVersion = Version{0, 0, 2};
+    ctx->mVersion = Version(0, 0, 2);
 
     logVersion(*ctx);
 
