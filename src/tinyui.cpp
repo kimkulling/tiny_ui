@@ -27,6 +27,7 @@ SOFTWARE.
 #include "backends/sdl2_iodevice.h"
 
 #include <iostream>
+#include <utility>
 
 namespace tinyui {
 
@@ -71,7 +72,6 @@ Context *Context::create(const char *title, const Style &style) {
     ctx->mAppTitle = title;
     ctx->mWindowsTitle = title;
     ctx->mStyle = style;
-    ctx->mVersion = Version(0, 0, 2);
 
     logVersion(*ctx);
 
