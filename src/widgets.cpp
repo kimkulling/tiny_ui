@@ -35,6 +35,13 @@ SOFTWARE.
 
 namespace tinyui {
 
+static constexpr Id RootHandle = 1;
+
+static Id createHandle() {
+    static Id id{RootHandle};
+    return ++id;
+}
+
 static Image *findImage(Context &ctx, const char *filename) {
     if (filename == nullptr) {
         return nullptr;

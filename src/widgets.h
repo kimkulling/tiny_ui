@@ -141,6 +141,18 @@ struct Widget {
     Widget &operator=(const Widget &) = delete;
 };
 
+/// @brief The widget handle struct.
+struct WidgetHandle {
+    static constexpr Id InvalidId = 999999; ///< The invalid id of the widget handle.
+    Id mId{InvalidId};                      ///< The unique id of the widget.    
+    
+    /// @brief Check if the widget handle is valid.
+    /// @return true if the widget handle is valid, false if not.
+    bool isValid() const {
+        return mId != InvalidId;
+    }
+};
+
 /// @brief The widgets access interface.
 ///
 /// This class is used to create and manage widgets.
