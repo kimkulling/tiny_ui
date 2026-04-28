@@ -27,7 +27,7 @@ using namespace tinyui;
 
 static constexpr Id RootPanelId = 1;
 
-int quit(Id, void *instance) {
+int quit(WidgetHandle, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
     }
@@ -50,12 +50,12 @@ int main(int argc, char *argv[]) {
     }
 
     constexpr int32_t ButtonHeight = 18;
-    Widgets::panel(RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 220, 60), nullptr);
+    Widgets::panel(WidgetHandle::getRootHandle(), "Sample-Dialog", Rect(90, 5, 220, 60), nullptr);
     auto &ctx = TinyUi::getContext();
     auto *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
 
-    Widgets::label(2, RootPanelId, "Hi, World!", Rect(100, 10, 200, ButtonHeight), Alignment::Center);
-    Widgets::textButton(3, RootPanelId, "Quit", Rect(100, 30, 200, ButtonHeight), Alignment::Center, dynamicQuitCallback);
+    Widgets::label(WidgetHandle::getRootHandle(), "Hi, World!", Rect(100, 10, 200, ButtonHeight), Alignment::Center);
+    Widgets::textButton(WidgetHandle::getRootHandle(), "Quit", Rect(100, 30, 200, ButtonHeight), Alignment::Center, dynamicQuitCallback);
     while (TinyUi::run()) {
         TinyUi::render();
     }

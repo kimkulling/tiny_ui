@@ -108,9 +108,9 @@ static Widget *getValidRoot(Context &ctx) {
     return ctx.mRoot;
 }
 
-static Widget *setParent(Context &ctx, Widget *child, Id parentId) {
+static Widget *setParent(Context &ctx, Widget *child, WidgetHandle parentId) {
     Widget *parent{nullptr};
-    if (parentId == 0) {
+    if (parentId.mId == 0) {
         parent = getValidRoot(ctx);
     } else {
         parent = Widgets::findWidget(parentId, ctx.mRoot);
@@ -126,8 +126,8 @@ static Widget *setParent(Context &ctx, Widget *child, Id parentId) {
     return parent;
 }
 
-static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, WidgetType type) {
-    Widget *widget = Widgets::findWidget(id, ctx.mRoot);
+static Widget *createWidget(Context &ctx, WidgetHandle parentId, const Rect &rect, WidgetType type) {
+    /*Widget *widget = Widgets::findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
         if (widget->mType == type) {
             return widget;
@@ -135,15 +135,15 @@ static Widget *createWidget(Context &ctx, Id id, Id parentId, const Rect &rect, 
 
         ctx.mLogger(LogSeverity::Error, "A widget with the same id but different type already exists.");
         return nullptr;
-    }
+    }*/
 
-    widget = new Widget;
+    Widget *widget = new Widget;
     if (widget == nullptr) {
         ctx.mLogger(LogSeverity::Error, "TUI-Widget cannot be created.");
         return nullptr;
     }
 
-    widget->mId = id;
+    widget->mHandle = WidgetHandle{createHandle()};
     widget->mType = type;
     widget->mRect = rect;
     widget->mParent = setParent(ctx, widget, parentId);
@@ -185,27 +185,27 @@ void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) 
     }
 }
 
-ret_code Widgets::container(Id id, Id parentId, const char *text, const Rect &rect) {
+WidgetHandle Widgets::container(WidgetHandle parentId, const char *text, const Rect &rect) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mRoot != nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::Container);
+    Widget *widget = createWidget(ctx, parentId, rect, WidgetType::Container);
     ctx.mRoot = widget;
     if (text != nullptr) {
         widget->mText.assign(text);
     }
 
-    return ResultOk;
+    return widget->mHandle;
 }
 
-Widget *Widgets::findWidget(Id id, Widget *root) {
+Widget *Widgets::findWidget(WidgetHandle id, Widget *root) {
     if (root == nullptr) {
         return nullptr;
     }
 
-    if (root->mId == id) {
+    if (root->mHandle.mId == id.mId) {
         return root;
     }
 
@@ -214,7 +214,7 @@ Widget *Widgets::findWidget(Id id, Widget *root) {
         if (child == nullptr) {
             continue;
         }
-        if (child->mId == id) {
+        if (child->mHandle.mId == id.mId) {
             return child;
         }
         Widget *foundWidget = findWidget(id, child);
@@ -245,29 +245,29 @@ void Widgets::findSelectedWidget(int x, int y, Widget *currentChild, Widget **fo
     }
 }
 
-ret_code Widgets::label(Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment) {
+WidgetHandle Widgets::label(WidgetHandle parentId, const char *text, const Rect &rect, Alignment alignment) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+    if (ctx.mRoot != nullptr) {
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    if (ctx.mRoot == nullptr) {
-        return ErrorCode;
+    if (ctx.mRoot != nullptr) {
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::Label);
+    Widget *widget = createWidget(ctx, parentId, rect, WidgetType::Label);
     if (widget == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
     widget->mAlignment = alignment;
     if (text != nullptr) {
         widget->mText.assign(text);
     }
 
-    return ResultOk;
+    return widget->mHandle;
 }
 
-static int inputHandler(Id id, void *instance) {
+static int inputHandler(WidgetHandle id, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
     }
@@ -278,19 +278,19 @@ static int inputHandler(Id id, void *instance) {
     return ResultOk;
 }
 
-ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText) {
+WidgetHandle Widgets::inputText(WidgetHandle parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+    if (ctx.mRoot != nullptr) {
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    if (ctx.mRoot == nullptr) {
-        return InvalidRenderHandle;
+    if (ctx.mRoot != nullptr) {
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::InputField);
+    Widget *widget = createWidget(ctx, parentId, rect, WidgetType::InputField);
     if (widget == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     widget->mAlignment = alignment;
@@ -301,22 +301,22 @@ ret_code Widgets::inputText(Id id, Id parentId, const Rect &rect, Alignment alig
 
     widget->mCallback = new CallbackI(inputHandler, (void *)&ctx, Events::MouseButtonDownEvent);
 
-    return ResultOk;
+    return widget->mHandle;
 }
 
-ret_code Widgets::textButton(Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment, CallbackI *callback) {
+WidgetHandle Widgets::textButton(WidgetHandle parentId, const char *text, const Rect &rect, Alignment alignment, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     if (ctx.mRoot == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Button);
+    Widget *child = createWidget(ctx, parentId, rect, WidgetType::Button);
     if (child == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     child->mCallback = callback;
@@ -328,22 +328,22 @@ ret_code Widgets::textButton(Id id, Id parentId, const char *text, const Rect &r
         child->mAlignment = alignment;
     }
 
-    return ResultOk;
+    return child->mHandle;
 }
 
-ret_code Widgets::imageButton(Id id, Id parentId, const char *image, const Rect &rect, CallbackI *callback) {
+WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *image, const Rect &rect, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     if (ctx.mRoot == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Button);
+    Widget *child = createWidget(ctx, parentId, rect, WidgetType::Button);
     if (child == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
     
     child->mCallback = callback;
@@ -355,41 +355,41 @@ ret_code Widgets::imageButton(Id id, Id parentId, const char *image, const Rect 
         child->mImage = loadIntoImageCache(ctx, image);
     }
     
-    return ResultOk;
+    return child->mHandle;
 }
 
-ret_code Widgets::box(Id id, Id parentId, const Rect &rect, bool filled) {
+WidgetHandle Widgets::box(WidgetHandle parentId, const Rect &rect, bool filled) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     if (ctx.mRoot == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Box);
+    Widget *child = createWidget(ctx, parentId, rect, WidgetType::Box);
     if (child == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     child->mFilledRect = filled;
 
-    return ResultOk;
+    return child->mHandle;
 }
 
-ret_code Widgets::imageBox(Id id, Id parentId, const char* image, const Rect& rect, bool filled) {
+WidgetHandle Widgets::imageBox(WidgetHandle parentId, const char* image, const Rect& rect, bool filled) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     if (ctx.mRoot == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::ImageBox);
+    Widget *child = createWidget(ctx, parentId, rect, WidgetType::ImageBox);
     if (child == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     child->mFilledRect = filled;
@@ -397,23 +397,24 @@ ret_code Widgets::imageBox(Id id, Id parentId, const char* image, const Rect& re
         child->mImage = loadIntoImageCache(ctx, image);
     }
 
-    return ResultOk;
+    return child->mHandle;
 }
 
-ret_code Widgets::panel(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback) {
+WidgetHandle Widgets::panel(WidgetHandle parentId, const char *title, const Rect &rect, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    if (const Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::Panel); child == nullptr) {
-        return ErrorCode;
+    const Widget *child = createWidget(ctx, parentId, rect, WidgetType::Panel);
+    if ( child == nullptr) {
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    return ResultOk;
+    return child->mHandle;
 }
 
-static int onTreeViewItemClicked(Id id, void *data) {
+static int onTreeViewItemClicked(WidgetHandle id, void *data) {
     Widget *treeView = Widgets::findWidget(id, TinyUi::getContext().mRoot);
     if (treeView == nullptr) {
         return ErrorCode;
@@ -427,24 +428,24 @@ static int onTreeViewItemClicked(Id id, void *data) {
         child->mEnabled = !child->mEnabled;
     }
 
-    std::cout << "TreeView item clicked: " << id << std::endl;
+    std::cout << "TreeView item clicked: " << id.mId << std::endl;
 
     return 0;
 }
 
-ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &rect) {
+WidgetHandle Widgets::treeView(WidgetHandle parentId, const char *title, const Rect &rect) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     if (ctx.mRoot == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
     
-    Widget *widget = createWidget(ctx, id, parentId, rect, WidgetType::TreeView);
+    Widget *widget = createWidget(ctx, parentId, rect, WidgetType::TreeView);
     if (widget == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     if (title != nullptr) {
@@ -457,22 +458,22 @@ ret_code Widgets::treeView(Id id, Id parentId, const char *title, const Rect &re
         callback->incRef();
     }
 
-    return ResultOk;
+    return widget->mHandle;
 }
 
-ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
+WidgetHandle Widgets::treeItem(WidgetHandle parentItemId, const char *text) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     if (ctx.mRoot == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     const Widget *parentWidget = findWidget(parentItemId, ctx.mRoot);
     if (parentWidget == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
     
     const auto &parentRect = parentWidget->mRect;
@@ -483,9 +484,9 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
     size_t numChildren = parentWidget->mChildren.size() + 1;
     const Rect rect(parentRect.top.x + margin, parentRect.top.y + static_cast<int32_t>(numChildren) * margin +
         static_cast<int32_t>(numChildren) * h, w, h);
-    Widget *child = createWidget(ctx, id, parentItemId, rect, WidgetType::Label);
+    Widget *child = createWidget(ctx, parentItemId, rect, WidgetType::Label);
     if (child == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
     
     child->mIntention = parentWidget->mIntention + 1;
@@ -493,22 +494,22 @@ ret_code Widgets::treeItem(Id id, Id parentItemId, const char *text) {
         child->mText.assign(text);
     }
 
-    return ResultOk;
+    return child->mHandle;
 }
 
-ret_code Widgets::progressBar(Id id, Id parentId, const Rect &rect, int fillRate, CallbackI *callback) {
+WidgetHandle Widgets::progressBar(WidgetHandle parentId, const Rect &rect, int fillRate, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     if (ctx.mRoot == nullptr) {
-        return InvalidRenderHandle;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *child = createWidget(ctx, id, parentId, rect, WidgetType::ProgressBar);
+    Widget *child = createWidget(ctx, parentId, rect, WidgetType::ProgressBar);
     if (child == nullptr) {
-        return ErrorCode;
+        return WidgetHandle{WidgetHandle::InvalidId};
     }
 
     clamp(0, 100, fillRate);
@@ -524,7 +525,7 @@ ret_code Widgets::progressBar(Id id, Id parentId, const Rect &rect, int fillRate
         ctx.mUpdateCallbackList.push_back(callback);
     }
  
-    return ResultOk;
+    return child->mHandle;
 }
 
 static void render(Context &ctx, const Widget *currentWidget) {
@@ -658,14 +659,14 @@ void Widgets::onMouseButton(int x, int y, int eventType, MouseState state) {
     if (found != nullptr) {
 #ifdef _DEBUG
         if (eventType == Events::MouseButtonDownEvent) {
-            std::cout << "Clicked " << found->mId << "\n";
+            std::cout << "Clicked " << found->mHandle.mId << "\n";
         }  else {
-            std::cout << "Released " << found->mId << "\n";
+            std::cout << "Released " << found->mHandle.mId << "\n";
         }
 #endif // _DEBUG
         if (found->mCallback != nullptr) {
             if (found->mCallback->mfuncCallback[eventType] != nullptr) {
-                found->mCallback->mfuncCallback[eventType](found->mId, found->mCallback->mInstance);
+                found->mCallback->mfuncCallback[eventType](found->mHandle, found->mCallback->mInstance);
             }
         }
     } 
@@ -688,7 +689,7 @@ void Widgets::onMouseMove(int x, int y, int eventType, MouseState state) {
 
     if (found->mCallback != nullptr) {
         if (found->mCallback->mfuncCallback[eventType] != nullptr) {
-            found->mCallback->mfuncCallback[eventType](found->mId, found->mCallback->mInstance);
+            found->mCallback->mfuncCallback[eventType](found->mHandle, found->mCallback->mInstance);
         }
     }
 }
@@ -740,7 +741,7 @@ void Widgets::clear() {
     releaseImageCache(ctx);
 }
 
-bool Widgets::clearItem(Id id, bool recursive) {
+bool Widgets::clearItem(WidgetHandle id, bool recursive) {
     auto &ctx = TinyUi::getContext();
     Widget *widget = findWidget(id, ctx.mRoot);
     if (widget == nullptr) {
@@ -766,7 +767,7 @@ bool Widgets::clearItem(Id id, bool recursive) {
     return result;
 }
 
-void Widgets::setEnableState(Id id, bool enabled) {
+void Widgets::setEnableState(WidgetHandle id, bool enabled) {
     auto &ctx = TinyUi::getContext();
     Widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
@@ -778,7 +779,7 @@ void Widgets::setEnableState(Id id, bool enabled) {
     }
 }
 
-bool Widgets::isEnabled(Id id) {
+bool Widgets::isEnabled(WidgetHandle id) {
     auto &ctx = TinyUi::getContext();
     const Widget *widget = findWidget(id, ctx.mRoot);
     if (widget != nullptr) {
@@ -788,7 +789,7 @@ bool Widgets::isEnabled(Id id) {
     return false;
 }
 
-ret_code Widgets::setFocus(Id id)  {
+ret_code Widgets::setFocus(WidgetHandle id)  {
     auto &ctx = TinyUi::getContext();
     Widget *widget = findWidget(id, ctx.mRoot);
     if (widget == nullptr) {
@@ -800,7 +801,7 @@ ret_code Widgets::setFocus(Id id)  {
     return ResultOk;
 }
 
-Widget *Widgets::getWidgetById(Id id) {
+Widget *Widgets::getWidgetById(WidgetHandle id) {
     auto &ctx = TinyUi::getContext();
     return findWidget(id, ctx.mRoot);
 }

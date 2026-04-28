@@ -31,7 +31,7 @@ static constexpr Id RootPanelId = 1;
 
 static constexpr Id NextPanelId = 100;
 
-int quit(Id, void *instance) {
+int quit(WidgetHandle, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
     }
@@ -46,7 +46,7 @@ static uint32_t LastTick = 0;
 static uint32_t Diff = 0;
 static constexpr uint32_t TimeDiff = 10;
 
-int updateProgressbar(Id, void *instance) {
+int updateProgressbar(WidgetHandle, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
     }
@@ -87,12 +87,12 @@ int main(int argc, char *argv[]) {
     }
 
     constexpr int32_t ButtonHeight = 25;
-    Widgets::panel(RootPanelId, 0, "Sample-Dialog", Rect(90, 5, 120, 600), nullptr);
-    Widgets::label(2, RootPanelId, "Title", Rect(100, 10, 100, 20), Alignment::Center);
-    Widgets::textButton(3, RootPanelId, "Test 1", Rect(100, 50, 100, ButtonHeight), Alignment::Center, nullptr);
-    Widgets::textButton(4, RootPanelId, "Test 2", Rect(100, 100, 100, ButtonHeight), Alignment::Center, nullptr);
-    Widgets::textButton(5, RootPanelId, "Test 3", Rect(100, 150, 100, ButtonHeight), Alignment::Center, nullptr);
-    Widgets::imageButton(6, RootPanelId, "button_test.png", Rect(100, 200, 100, ButtonHeight), nullptr);
+    WidgetHandle panel = Widgets::panel(WidgetHandle::getRootHandle(), "Sample-Dialog", Rect(90, 5, 120, 600), nullptr);
+    Widgets::label(panel, "Title", Rect(100, 10, 100, 20), Alignment::Center);
+    Widgets::textButton(panel, "Test 1", Rect(100, 50, 100, ButtonHeight), Alignment::Center, nullptr);
+    Widgets::textButton(panel, "Test 2", Rect(100, 100, 100, ButtonHeight), Alignment::Center, nullptr);
+    Widgets::textButton(panel, "Test 3", Rect(100, 150, 100, ButtonHeight), Alignment::Center, nullptr);
+    Widgets::imageButton(panel, "button_test.png", Rect(100, 200, 100, ButtonHeight), nullptr);
 
     auto &ctx = TinyUi::getContext();
 
@@ -100,16 +100,16 @@ int main(int argc, char *argv[]) {
     CallbackI *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
     CallbackI *dynamicUpdateProgressBarCallback = new CallbackI(updateProgressbar, nullptr, Events::UpdateEvent);
 
-    Widgets::textButton(7, RootPanelId, "Quit", Rect(100, 250, 100, ButtonHeight), Alignment::Center, dynamicQuitCallback);
-    Widgets::progressBar(8, RootPanelId, Rect(100, 300, 100, ButtonHeight), 50, dynamicUpdateProgressBarCallback);
+    Widgets::textButton(panel, "Quit", Rect(100, 250, 100, ButtonHeight), Alignment::Center, dynamicQuitCallback);
+    Widgets::progressBar(panel, Rect(100, 300, 100, ButtonHeight), 50, dynamicUpdateProgressBarCallback);
 
-    Widgets::inputText(9, RootPanelId, Rect(100, 350, 100, ButtonHeight), Alignment::Left, KeyInputType::Character, "");
+    Widgets::inputText(panel, Rect(100, 350, 100, ButtonHeight), Alignment::Left, KeyInputType::Character, "");
 
-    Widgets::treeView(10, RootPanelId, "tree", Rect(100, 400, 100, ButtonHeight));
-    Widgets::treeItem(11, 10, "Item 1");
+    WidgetHandle tree = Widgets::treeView(panel, "tree", Rect(100, 400, 100, ButtonHeight));
+    Widgets::treeItem(tree, "Item 1");
     //Widgets::treeItem(12, 11, "Item 1.1");
-    Widgets::treeItem(13, 10, "Item 2");
-    Widgets::treeItem(14, 13, "Item 2.1");
+    WidgetHandle view = Widgets::treeItem(tree, "Item 2");
+    Widgets::treeItem(view, "Item 2.1");
 
     while (TinyUi::run()) {
         TinyUi::render();
