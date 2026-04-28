@@ -25,8 +25,6 @@ SOFTWARE.
 
 using namespace tinyui;
 
-static constexpr Id RootPanelId = 1;
-
 int quit(WidgetHandle, void *instance) {
     if (instance == nullptr) {
         return ErrorCode;
