@@ -127,16 +127,6 @@ static Widget *setParent(Context &ctx, Widget *child, WidgetHandle parentId) {
 }
 
 static Widget *createWidget(Context &ctx, WidgetHandle parentId, const Rect &rect, WidgetType type) {
-    /*Widget *widget = Widgets::findWidget(id, ctx.mRoot);
-    if (widget != nullptr) {
-        if (widget->mType == type) {
-            return widget;
-        }
-
-        ctx.mLogger(LogSeverity::Error, "A widget with the same id but different type already exists.");
-        return nullptr;
-    }*/
-
     Widget *widget = new Widget;
     if (widget == nullptr) {
         ctx.mLogger(LogSeverity::Error, "TUI-Widget cannot be created.");
