@@ -58,15 +58,14 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
         return image;
     }
 
-    image = new Image;
-    if (image == nullptr) {
-        return nullptr;
-    }
-
     int w, h, bytesPerPixel;
     unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
     if (data == nullptr) {
-        delete image;
+        return nullptr;
+    }
+
+    image = new Image;
+    if (image == nullptr) {
         return nullptr;
     }
 
