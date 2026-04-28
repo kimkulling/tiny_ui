@@ -247,11 +247,11 @@ void Widgets::findSelectedWidget(int x, int y, Widget *currentChild, Widget **fo
 
 WidgetHandle Widgets::label(WidgetHandle parentId, const char *text, const Rect &rect, Alignment alignment) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mRoot != nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    if (ctx.mRoot != nullptr) {
+    if (ctx.mRoot == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
 
@@ -280,11 +280,11 @@ static int inputHandler(WidgetHandle id, void *instance) {
 
 WidgetHandle Widgets::inputText(WidgetHandle parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mRoot != nullptr) {
+    if (ctx.mBackendCtx == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    if (ctx.mRoot != nullptr) {
+    if (ctx.mRoot == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
 

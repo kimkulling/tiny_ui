@@ -50,12 +50,12 @@ int main(int argc, char *argv[]) {
     }
 
     constexpr int32_t ButtonHeight = 18;
-    Widgets::panel(WidgetHandle::getRootHandle(), "Sample-Dialog", Rect(90, 5, 220, 60), nullptr);
+    WidgetHandle panel = Widgets::panel(WidgetHandle::getRootHandle(), "Sample-Dialog", Rect(90, 5, 220, 60), nullptr);
     auto &ctx = TinyUi::getContext();
     auto *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
 
-    Widgets::label(WidgetHandle::getRootHandle(), "Hi, World!", Rect(100, 10, 200, ButtonHeight), Alignment::Center);
-    Widgets::textButton(WidgetHandle::getRootHandle(), "Quit", Rect(100, 30, 200, ButtonHeight), Alignment::Center, dynamicQuitCallback);
+    Widgets::label(panel, "Hi, World!", Rect(100, 10, 200, ButtonHeight), Alignment::Center);
+    Widgets::textButton(panel, "Quit", Rect(100, 30, 200, ButtonHeight), Alignment::Center, dynamicQuitCallback);
     while (TinyUi::run()) {
         TinyUi::render();
     }
