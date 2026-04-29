@@ -122,7 +122,7 @@ struct Renderer {
     static bool update(const Context &ctx);
     static SurfaceImpl *createSurfaceImpl(unsigned char *data, int w, int h, int bytesPerPixel, int pitch);
     static void releaseSurfaceImpl(SurfaceImpl *surfaceImpl);
-    static ret_code getSurfaceInfo(Context &ctx, int32_t &w, int32_t &h);
+    static ret_code getSurfaceInfo(const Context &ctx, int32_t &w, int32_t &h);
 };
 
 } //  namespace tinyui
