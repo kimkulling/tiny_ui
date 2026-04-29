@@ -49,6 +49,11 @@ int main(int argc, char *argv[]) {
 
     constexpr int32_t ButtonHeight = 18;
     WidgetHandle panel = Widgets::panel(WidgetHandle::getRootHandle(), "Sample-Dialog", Rect(90, 5, 220, 60), nullptr);
+    if (!panel.isValid()) {
+        const auto &ctx = TinyUi::getContext();
+        ctx.mLogger(LogSeverity::Error, "Cannot create panel");
+        return ErrorCode;
+    }
     auto &ctx = TinyUi::getContext();
     auto *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
 

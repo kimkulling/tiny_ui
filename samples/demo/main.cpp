@@ -84,6 +84,12 @@ int main(int argc, char *argv[]) {
 
     constexpr int32_t ButtonHeight = 25;
     WidgetHandle panel = Widgets::panel(WidgetHandle::getRootHandle(), "Sample-Dialog", Rect(90, 5, 120, 600), nullptr);
+    if (!panel.isValid()) {
+        const auto &ctx = TinyUi::getContext();
+        ctx.mLogger(LogSeverity::Error, "Cannot create panel");
+        return ErrorCode;
+    }
+
     Widgets::label(panel, "Title", Rect(100, 10, 100, 20), Alignment::Center);
     Widgets::textButton(panel, "Test 1", Rect(100, 50, 100, ButtonHeight), Alignment::Center, nullptr);
     Widgets::textButton(panel, "Test 2", Rect(100, 100, 100, ButtonHeight), Alignment::Center, nullptr);
@@ -102,9 +108,18 @@ int main(int argc, char *argv[]) {
     Widgets::inputText(panel, Rect(100, 350, 100, ButtonHeight), Alignment::Left, KeyInputType::Character, "");
 
     WidgetHandle tree = Widgets::treeView(panel, "tree", Rect(100, 400, 100, ButtonHeight));
+    if (!tree.isValid()) {
+        ctx.mLogger(LogSeverity::Error, "Cannot create tree view");
+        return ErrorCode;
+    }
+
     Widgets::treeItem(tree, "Item 1");
-    //Widgets::treeItem(12, 11, "Item 1.1");
+    
     WidgetHandle view = Widgets::treeItem(tree, "Item 2");
+    if (!view.isValid()) {
+        ctx.mLogger(LogSeverity::Error, "Cannot create tree view item");
+        return ErrorCode;
+    }
     Widgets::treeItem(view, "Item 2.1");
 
     while (TinyUi::run()) {
