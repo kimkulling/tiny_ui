@@ -53,14 +53,12 @@ int main() {
 
     TinyUi::initScreen(20, 20, 1024, 768);
 
-    Widgets::panel(ctx, RootPanelId, 0, "Dialog", 90, 5, 120, 300, nullptr);
-    Widgets::label(ctx, 1, RootPanelId, "Title", 100, 10, 100, 20, Alignment::Center);
-    Widgets::button(ctx, 2, RootPanelId, "Quit", nullptr, 100, 50, 100, 40, &onQuit);
+    const WidgetHandle panel = Widgets::panel(ctx, WidgetHandle::getRootHandle(), "Dialog", 90, 5, 120, 300, nullptr);
+    Widgets::label(ctx, panel, "Title", 100, 10, 100, 20, Alignment::Center);
+    Widgets::button(ctx, panel, "Quit", nullptr, 100, 50, 100, 40, &onQuit);
 
     while (TinyUi::run()) {
-        TinyUi::beginRender(style.mClearColor);
-        Widgets::renderWidgets(ctx);
-        TinyUi::endRender();
+        TinyUi::render();
     }
 
     TinyUi::release();
