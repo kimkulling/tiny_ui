@@ -32,7 +32,9 @@ A lightweight C++17 UI library for Windows and Linux, using SDL2 as the renderer
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
+## Samples
 
+You can check out samples at [Samples-Section](samples/README.md)
 ## Quick Start
 
 ```cpp
