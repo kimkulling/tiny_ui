@@ -53,6 +53,7 @@ enum class LayoutPolicy {
     Count               ///< The number of layouts
 };
 
+/// @brief This enum is used to describe the input type from the keyboard.
 enum class KeyInputType {
     Invalid = -1,       ///< Not initialized
     Character,          ///< A character input
@@ -78,7 +79,7 @@ using WidgetArray = std::vector<Widget*>;
 
 /// @brief This struct contains all the data which is needed to describe a widget.
 struct Widget {
-    Id              mId{0};                                 ///< The unique id of the widget
+    WidgetHandle    mHandle{};                              ///< The unique id of the widget
     WidgetType      mType{WidgetType::Invalid};             ///< The type of the widget
     Widget          *mParent{nullptr};                      ///< The parent widget
     bool            mEnabled{true};                         ///< The enabled state of the widget 
@@ -141,25 +142,10 @@ struct Widget {
     Widget &operator=(const Widget &) = delete;
 };
 
-/// @brief The widget handle struct.
-struct WidgetHandle {
-    static constexpr Id InvalidId = 999999; ///< The invalid id of the widget handle.
-    Id mId{InvalidId};                      ///< The unique id of the widget.    
-    
-    /// @brief Check if the widget handle is valid.
-    /// @return true if the widget handle is valid, false if not.
-    bool isValid() const {
-        return mId != InvalidId;
-    }
-};
-
 /// @brief The widgets access interface.
 ///
 /// This class is used to create and manage widgets.
 struct Widgets {
-    /// @brief The root item id.
-    static constexpr Id RootItem = 0;
-
     /// @brief The default class constructor.
     Widgets() = default;
 
@@ -173,7 +159,7 @@ struct Widgets {
     /// @param text     The text of the widget.
     /// @param rect     The rect of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code container(Id id, Id parentId, const char *text, const Rect &rect);
+    static WidgetHandle container(WidgetHandle parentId, const char *text, const Rect &rect);
 
     /// @brief Create a new widget from the type box.
     /// @param ctx      The context to create the widget in.
@@ -182,7 +168,7 @@ struct Widgets {
     /// @param rect     The rect of the widget.
     /// @param filled   The filled state of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code box(Id id, Id parentId, const Rect &rect, bool filled);
+    static WidgetHandle box(WidgetHandle parentId, const Rect &rect, bool filled);
 
     /// @brief Create a new widget from the type image box.
     /// @param id       The unique id of the widget.
@@ -191,13 +177,13 @@ struct Widgets {
     /// @param rect     The rect of the widget.
     /// @param filled   The filled state of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code imageBox(Id id, Id parentId, const char *image, const Rect &rect, bool filled);
+    static WidgetHandle imageBox(WidgetHandle parentId, const char *image, const Rect &rect, bool filled);
 
     /// @brief Will look for a widget by its id.
     /// @param id   The id of the widget to look for.
     /// @param root The root widget to start the search.
     /// @return The found widget or nullptr if not found.
-    static Widget *findWidget(Id id, Widget *root);
+    static Widget *findWidget(WidgetHandle id, Widget *root);
 
     /// @brief Will look for a widget by its id.
     /// @param x      The x-coordinate of the point.
@@ -214,7 +200,7 @@ struct Widgets {
     /// @param rect     The rect of the widget.
     /// @param alignment    The alignment of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code label(Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment);
+    static WidgetHandle label(WidgetHandle parentId, const char *text, const Rect &rect, Alignment alignment);
 
     /// @brief Creates a new widget from the type textfield.
     /// @param ctx          The context to create the widget in.
@@ -225,7 +211,7 @@ struct Widgets {
     /// @param type         The type of the key input.
     /// @param defaultText  The default text of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code inputText(Id id, Id parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText);
+    static WidgetHandle inputText(WidgetHandle parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText);
 
     /// @brief Creates a new text button.
     /// @param ctx      The context to create the widget in.
@@ -236,7 +222,7 @@ struct Widgets {
     /// @param alignment The alignment of the widget.
     /// @param callback The callback for the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code textButton(Id id, Id parentId, const char *text, const Rect &rect, Alignment alignment, CallbackI *callback);
+    static WidgetHandle textButton(WidgetHandle parentId, const char *text, const Rect &rect, Alignment alignment, CallbackI *callback);
 
     /// @brief Creates a new image button.
     /// @param ctx      The context to create the widget in.
@@ -246,7 +232,7 @@ struct Widgets {
     /// @param rect     The rect of the widget.
     /// @param callback The callback for the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code imageButton(Id id, Id parentId, const char *image, const Rect &rect, CallbackI *callback);
+    static WidgetHandle imageButton(WidgetHandle parentId, const char *image, const Rect &rect, CallbackI *callback);
 
     /// @brief Creates a new widget from the type panel.
     /// @param ctx      The context to create the widget in.
@@ -256,7 +242,7 @@ struct Widgets {
     /// @param rect     The rect of the widget.
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code panel(Id id, Id parentId, const char *title, const Rect &rect, CallbackI *callback);
+    static WidgetHandle panel(WidgetHandle parentId, const char *title, const Rect &rect, CallbackI *callback);
 
     /// @brief Creates a new widget from the type treeview.
     /// @param ctx      The context to create the widget in.
@@ -266,13 +252,13 @@ struct Widgets {
     /// @param rect     The rect of the widget.
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code treeView(Id id, Id parentId, const char *title, const Rect &rect);
+    static WidgetHandle treeView(WidgetHandle parentId, const char *title, const Rect &rect);
 
     /// @brief Creates a new tree item.
     /// @param id           The unique id of the tree item.
     /// @param parentItemId The parent item id of the tree item.
     /// @param title        The title of the tree item.
-    static ret_code treeItem(Id id, Id parentItemId, const char *title);
+    static WidgetHandle treeItem(WidgetHandle parentItemId, const char *title);
 
     /// @brief Creates a new widget from the type status bar.
     /// @param ctx      The context to create the widget in.
@@ -283,7 +269,7 @@ struct Widgets {
     /// @param fillRate The fill rate of the widget.
     /// @param callback The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static ret_code progressBar(Id id, Id parentId, const Rect &rect, int fillRate, CallbackI *callback);
+    static WidgetHandle progressBar(WidgetHandle parentId, const Rect &rect, int fillRate, CallbackI *callback);
 
     /// @brief Will render all widgets.
     /// @param ctx The context to render the widgets in.
@@ -318,31 +304,31 @@ struct Widgets {
     /// @param id        The id of the widget to clear.
     /// @param recursive If true, all child widgets will also be cleared.
     /// @return true if the widget was cleared, false if not.
-    static bool clearItem(Id id, bool recursive);
+    static bool clearItem(WidgetHandle id, bool recursive);
     
     /// @brief The widget enabler
     /// @param ctx     The context to enable the widget in.
     /// @param id      The id of the widget to enable.
     /// @param enabled The enabled state of the widget.
-    static void setEnableState(Id id, bool enabled);
+    static void setEnableState(WidgetHandle id, bool enabled);
 
     /// @brief Will return true if the widget is enabled.
     /// @param ctx The context to check the widget in.
     /// @param id  The id of the widget to check.
     /// @return true if the widget is enabled, false if not.
-    static bool isEnabled(Id id);
+    static bool isEnabled(WidgetHandle id);
 
     /// @brief Will set the focus to the widget by its id.
     /// @param ctx The context to set the focus in.
     /// @param id  The id of the widget to set the focus to.
     /// @return ResultOk if the focus was set, ErrorCode if not.
-    static ret_code setFocus(Id id);
+    static ret_code setFocus(WidgetHandle id);
 
     /// @brief Will return the widget by its id.
     /// @param ctx The context to get the widget from.
     /// @param id  The id of the widget to get.
     /// @return The widget or nullptr if not found.
-    static Widget *getWidgetById(Id id);
+    static Widget *getWidgetById(WidgetHandle id);
 
     /// @brief Will open a child window.
     /// @return true if successful.

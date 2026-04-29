@@ -145,7 +145,8 @@ bool TinyUi::run() {
     const auto &ctx = getContext();
     if (!ctx.mUpdateCallbackList.empty()) {
         for (auto it = ctx.mUpdateCallbackList.begin(); it != ctx.mUpdateCallbackList.end(); ++it) {
-            (*it)->mfuncCallback[Events::UpdateEvent](1, (*it)->mInstance);
+            WidgetHandle handle{1};
+            (*it)->mfuncCallback[Events::UpdateEvent](handle, (*it)->mInstance);
         }
     }
     return Renderer::update(ctx);

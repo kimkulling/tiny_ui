@@ -96,6 +96,27 @@ using Id = uint64_t;
 /// @brief The return code type used in the ui library.
 using ret_code = int32_t;
 
+/// @brief The widget handle struct.
+struct WidgetHandle {
+    static constexpr Id RootItem = 0;       ///< The root item id.
+    static constexpr Id InvalidId = 999999; ///< The invalid id of the widget handle.
+    Id mId{InvalidId};                      ///< The unique id of the widget.    
+    
+    /// @brief Check if the widget handle is valid.
+    /// @return true if the widget handle is valid, false if not.
+    bool isValid() const {
+        return mId != InvalidId;
+    }
+
+    /// @brief Will return the root item;
+    /// @return Thhe root item.
+    static WidgetHandle getRootHandle() {
+        static WidgetHandle root;
+        root.mId = RootItem;
+        return root;
+    }
+};
+
 /// @brief The operation was cancelled.
 static constexpr ret_code OpCancelled = -5;
 /// @brief The context is invalid.
@@ -350,7 +371,7 @@ struct EventPayload {
 /// @brief This interface is used to store all neede message handlers.
 struct CallbackI {
     /// The function callback
-    typedef int (*funcCallback) (Id id, void *data);
+    typedef int (*funcCallback) (WidgetHandle id, void *data);
     /// The function callback array, not handled callbacks are marked as a nullptr.
     funcCallback mfuncCallback[Events::NumEvents];
     /// The data instance.
