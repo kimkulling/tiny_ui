@@ -241,9 +241,6 @@ WidgetHandle Widgets::label(WidgetHandle parentId, const char *text, const Rect 
     }
 
     Widget *widget = createWidget(ctx, parentId, rect, WidgetType::Label);
-    if (widget == nullptr) {
-        return WidgetHandle{WidgetHandle::InvalidId};
-    }
     widget->mAlignment = alignment;
     if (text != nullptr) {
         widget->mText.assign(text);
@@ -274,10 +271,6 @@ WidgetHandle Widgets::inputText(WidgetHandle parentId, const Rect &rect, Alignme
     }
 
     Widget *widget = createWidget(ctx, parentId, rect, WidgetType::InputField);
-    if (widget == nullptr) {
-        return WidgetHandle{WidgetHandle::InvalidId};
-    }
-
     widget->mAlignment = alignment;
     widget->mKeyInputType = type;
     if (defaultText != nullptr) {
@@ -300,10 +293,6 @@ WidgetHandle Widgets::textButton(WidgetHandle parentId, const char *text, const 
     }
 
     Widget *child = createWidget(ctx, parentId, rect, WidgetType::Button);
-    if (child == nullptr) {
-        return WidgetHandle{WidgetHandle::InvalidId};
-    }
-
     child->mCallback = callback;
     if (callback != nullptr) {
         callback->incRef();
@@ -326,11 +315,7 @@ WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *image, cons
         return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *child = createWidget(ctx, parentId, rect, WidgetType::Button);
-    if (child == nullptr) {
-        return WidgetHandle{WidgetHandle::InvalidId};
-    }
-    
+    Widget *child = createWidget(ctx, parentId, rect, WidgetType::Button);    
     child->mCallback = callback;
     if (callback != nullptr) {
         callback->incRef();
@@ -354,10 +339,6 @@ WidgetHandle Widgets::box(WidgetHandle parentId, const Rect &rect, bool filled) 
     }
 
     Widget *child = createWidget(ctx, parentId, rect, WidgetType::Box);
-    if (child == nullptr) {
-        return WidgetHandle{WidgetHandle::InvalidId};
-    }
-
     child->mFilledRect = filled;
 
     return child->mHandle;
@@ -373,10 +354,6 @@ WidgetHandle Widgets::imageBox(WidgetHandle parentId, const char* image, const R
         return WidgetHandle{WidgetHandle::InvalidId};
     }
     Widget *child = createWidget(ctx, parentId, rect, WidgetType::ImageBox);
-    if (child == nullptr) {
-        return WidgetHandle{WidgetHandle::InvalidId};
-    }
-
     child->mFilledRect = filled;
     if (image != nullptr) {
         child->mImage = loadIntoImageCache(ctx, image);
@@ -392,9 +369,6 @@ WidgetHandle Widgets::panel(WidgetHandle parentId, const char *title, const Rect
     }
 
     const Widget *child = createWidget(ctx, parentId, rect, WidgetType::Panel);
-    if ( child == nullptr) {
-        return WidgetHandle{WidgetHandle::InvalidId};
-    }
 
     return child->mHandle;
 }
@@ -413,8 +387,9 @@ static int onTreeViewItemClicked(WidgetHandle id, void *data) {
         child->mEnabled = !child->mEnabled;
     }
 
+#ifdef _DEBUG
     std::cout << "TreeView item clicked: " << id.mId << std::endl;
-
+#endif // _DEBUG
     return 0;
 }
 
@@ -429,10 +404,6 @@ WidgetHandle Widgets::treeView(WidgetHandle parentId, const char *title, const R
     }
     
     Widget *widget = createWidget(ctx, parentId, rect, WidgetType::TreeView);
-    if (widget == nullptr) {
-        return WidgetHandle{WidgetHandle::InvalidId};
-    }
-
     if (title != nullptr) {
         widget->mText.assign(title);
     }
@@ -461,8 +432,7 @@ WidgetHandle Widgets::treeItem(WidgetHandle parentItemId, const char *text) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
     
-    const auto &parentRect = parentWidget->mRect;
-    
+    const auto &parentRect = parentWidget->mRect;    
     const int32_t margin = ctx.mStyle.mMargin;
     const int32_t w = parentRect.width;
     const int32_t h = parentRect.height;
@@ -493,10 +463,6 @@ WidgetHandle Widgets::progressBar(WidgetHandle parentId, const Rect &rect, int f
     }
 
     Widget *child = createWidget(ctx, parentId, rect, WidgetType::ProgressBar);
-    if (child == nullptr) {
-        return WidgetHandle{WidgetHandle::InvalidId};
-    }
-
     clamp(0, 100, fillRate);
     FilledState state;
     state.filledState = fillRate;
