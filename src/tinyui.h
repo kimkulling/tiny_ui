@@ -480,8 +480,8 @@ private:
 /// The tiny ui interface is used to create and manage the tiny ui context and to run the tiny ui.
 struct TinyUi {
     /// @brief Will create the tinyui context.
-    /// @param title    The app title.
-    /// @param style    The style to use.
+    /// @param[in] title    The app title.
+    /// @param[in] style    The style to use.
     /// @return true if successful.
     static bool createContext(const char *title, const Style &style);
     
@@ -494,47 +494,41 @@ struct TinyUi {
     static Context &getContext();
 
     /// @brief Initialize the screen.
-    /// @param ctx The context to initialize.
-    /// @param x The x-coordinate of the screen.
-    /// @param y The y-coordinate of the screen.
-    /// @param w The width of the screen.
-    /// @param h The height of the screen.
+    /// @param[in] x The x-coordinate of the screen.
+    /// @param[in] y The y-coordinate of the screen.
+    /// @param[in] w The width of the screen.
+    /// @param[in] h The height of the screen.
     /// @return ResultOk if the initialization was successful, ErrorCode if not.
     static ret_code initScreen(int32_t x, int32_t y, int32_t w, int32_t h);
 
     /// @brief Get the surface information.
-    /// @param ctx The context to get the surface information from.
-    /// @param w The width of the surface.
-    /// @param h The height of the surface.
+    /// @param[out] w The width of the surface.
+    /// @param[out] h The height of the surface.
     /// @return ResultOk if the information was retrieved, ErrorCode if not.
     static ret_code getSurfaceInfo(int32_t &w, int32_t &h);
 
     /// @brief Will return the center of the root surface.
-    /// @param x    The x-component of the surface center.
-    /// @param y    The x-component of the surface center.
+    /// @param[in] x    The x-component of the surface center.
+    /// @param[in] y    The x-component of the surface center.
     /// @return ResultOk if the information was retrieved, ErrorCode if not.
     static ret_code getSurfaceCenter(int32_t &x, int32_t &y);
 
     /// @brief Run the tiny ui.
-    /// @param ctx The context to run.
     /// @return true if the tiny ui is running, false if not.
     static bool run();
 
     /// @brief Begins the rendering.
-    /// @param ctx The context to begin the rendering.
-    /// @param bg The background color for clearing.
+    /// @param[in] bg The background color for clearing.
     /// @return ResultOk if the rendering was started, ErrorCode if not.
     static ret_code beginRender(Color4 bg);
 
     /// @brief Ends the rendering.
-    /// @param ctx The context to end the rendering.
     static ret_code endRender();
 
     /// @brief Render the ui.
     static void render();
 
     /// @brief Release the tiny ui context.
-    /// @param ctx The context to release.
     /// @return ResultOk if the context was released, ErrorCode if not.
     static ret_code release();
 
@@ -543,12 +537,11 @@ struct TinyUi {
     static const Style &getDefaultStyle();
 
     /// @brief Set the default style.
-    /// @param style The style to set as default.
+    /// @param[in] style The style to set as default.
     static void setDefaultStyle(const Style &style);
 
     /// @brief Get the default font.
-    /// @param ctx The context to end the rendering.
-    /// @param defaultFont The default font to set.
+    /// @param[in] defaultFont The default font to set.
     static void setDefaultFont(const char *defaultFont);
     
     /// @brief Will return the current counted ticks in ms.
@@ -559,9 +552,9 @@ struct TinyUi {
 // Utilities ------------------------------------------------------------------
 
 /// @brief  Function to clamp the value in the given limits.
-/// @param min      The lower bound for the value.
-/// @param max      The upper bound for the value.
-/// @param value    The value to clamp.
+/// @param[in]  min      The lower bound for the value.
+/// @param[in]  max      The upper bound for the value.
+/// @param[out] value    The value to clamp.
 template<class T>
 inline void clamp(T min, T max, T &value) {
     if (value < min) {

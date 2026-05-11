@@ -110,7 +110,7 @@ struct Widget {
     }
 
     /// @brief Check if the widget has a specific style.
-    /// @param style The style to check.
+    /// @param[in] style The style to check.
     /// @return true if the widget has the style, false if not.
     bool hasStyle(WidgetStyle style) const {
         return mStyles & static_cast<uint32_t>(style);
@@ -153,180 +153,150 @@ struct Widgets {
     ~Widgets() = default;
 
     /// @brief Create a new widget from the type container.
-    /// @param ctx      The context to create the widget in.
-    /// @param id       The unique id of the widget.
-    /// @param parentId The parent id of the widget.
-    /// @param text     The text of the widget.
-    /// @param rect     The rect of the widget.
+    /// @param[in] parentId The parent id of the widget.
+    /// @param[in] text     The text of the widget.
+    /// @param[in] rect     The rect of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle container(WidgetHandle parentId, const char *text, const Rect &rect);
 
     /// @brief Create a new widget from the type box.
-    /// @param ctx      The context to create the widget in.
-    /// @param id       The unique id of the widget.
-    /// @param parentId The parent id of the widget.
-    /// @param rect     The rect of the widget.
-    /// @param filled   The filled state of the widget.
+    /// @param[in] parentId The parent id of the widget.
+    /// @param[in] rect     The rect of the widget.
+    /// @param[in] filled   The filled state of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle box(WidgetHandle parentId, const Rect &rect, bool filled);
 
     /// @brief Create a new widget from the type image box.
-    /// @param id       The unique id of the widget.
-    /// @param parentId The parent id of the widget.
-    /// @param image    The image of the widget.
-    /// @param rect     The rect of the widget.
-    /// @param filled   The filled state of the widget.
+    /// @param[in] parentId The parent id of the widget.
+    /// @param[in] image    The image of the widget.
+    /// @param[in] rect     The rect of the widget.
+    /// @param[in] filled   The filled state of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle imageBox(WidgetHandle parentId, const char *image, const Rect &rect, bool filled);
 
     /// @brief Will look for a widget by its id.
-    /// @param id   The id of the widget to look for.
-    /// @param root The root widget to start the search.
+    /// @param[in] id   The id of the widget to look for.
+    /// @param[in] root The root widget to start the search.
     /// @return The found widget or nullptr if not found.
     static Widget *findWidget(WidgetHandle id, Widget *root);
 
     /// @brief Will look for a widget by its id.
-    /// @param x      The x-coordinate of the point.
-    /// @param y      The y-coordinate of the point.
-    /// @param root   The root widget to start the search.
-    /// @param found  The found widget.
+    /// @param[in]  x            The x-coordinate of the point.
+    /// @param[in]  y            The y-coordinate of the point.
+    /// @param[in]  currentChild The root widget to start the search.
+    /// @param[out] found        The found widget.
     static void findSelectedWidget(int x, int y, Widget *currentChild, Widget **found);
 
     /// @brief Creates a new widget from the type label.
-    /// @param ctx          The context to create the widget in.
-    /// @param id           The unique id of the widget.
-    /// @param parentId     The parent id of the widget.
-    /// @param text         The text of the widget.
-    /// @param rect     The rect of the widget.
-    /// @param alignment    The alignment of the widget.
+    /// @param[in] parentId     The parent id of the widget.
+    /// @param[in] text         The text of the widget.
+    /// @param[in] rect         The rect of the widget.
+    /// @param[in] alignment    The alignment of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle label(WidgetHandle parentId, const char *text, const Rect &rect, Alignment alignment);
 
     /// @brief Creates a new widget from the type textfield.
-    /// @param ctx          The context to create the widget in.
-    /// @param id           The unique id of the widget.
-    /// @param parentId     The parent id of the widget.
-    /// @param rect         The rect of the widget.
-    /// @param alignment    The alignment of the widget.
-    /// @param type         The type of the key input.
-    /// @param defaultText  The default text of the widget.
+    /// @param[in] parentId     The parent id of the widget.
+    /// @param[in] rect         The rect of the widget.
+    /// @param[in] alignment    The alignment of the widget.
+    /// @param[in] type         The type of the key input.
+    /// @param[in] defaultText  The default text of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle inputText(WidgetHandle parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText);
 
     /// @brief Creates a new text button.
-    /// @param ctx      The context to create the widget in.
-    /// @param id       The unique id of the widget.
-    /// @param parentId The parent id of the widget.
-    /// @param text     The text of the widget.
-    /// @param rect     The rect of the widget.
-    /// @param alignment The alignment of the widget.
-    /// @param callback The callback for the widget.
+    /// @param[in] parentId     The parent id of the widget.
+    /// @param[in] text         The text of the widget.
+    /// @param[in] rect         The rect of the widget.
+    /// @param[in] alignment    The alignment for the widget.
+    /// @param[in] callback     The callback for the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle textButton(WidgetHandle parentId, const char *text, const Rect &rect, Alignment alignment, CallbackI *callback);
 
     /// @brief Creates a new image button.
-    /// @param ctx      The context to create the widget in.
-    /// @param id       The unique id of the widget.
-    /// @param parentId The parent id of the widget.
-    /// @param image    The image of the widget.
-    /// @param rect     The rect of the widget.
-    /// @param callback The callback for the widget.
+    /// @param[in] parentId     The parent id of the widget.
+    /// @param[in] image        The image of the widget.
+    /// @param[in] rect         The rect of the widget.
+    /// @param[in] callback     The callback for the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle imageButton(WidgetHandle parentId, const char *image, const Rect &rect, CallbackI *callback);
 
     /// @brief Creates a new widget from the type panel.
-    /// @param ctx      The context to create the widget in.
-    /// @param id       The unique id of the widget.
-    /// @param parentId The parent id of the widget.
-    /// @param title    The title of the widget.
-    /// @param rect     The rect of the widget.
-    /// @param callback The callback of the widget.
+    /// @param[in] parentId     The parent id of the widget.
+    /// @param[in] title        The title of the widget.
+    /// @param[in] rect         The rect of the widget.
+    /// @param[in] callback     The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle panel(WidgetHandle parentId, const char *title, const Rect &rect, CallbackI *callback);
 
     /// @brief Creates a new widget from the type treeview.
-    /// @param ctx      The context to create the widget in.
-    /// @param id       The unique id of the widget.
-    /// @param parentId The parent id of the widget.
-    /// @param title    The title of the widget.
-    /// @param rect     The rect of the widget.
-    /// @param callback The callback of the widget.
+    /// @param[in] parentId     The parent id of the widget.
+    /// @param[in] title        The title of the widget.
+    /// @param[in] rect         The rect of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle treeView(WidgetHandle parentId, const char *title, const Rect &rect);
 
     /// @brief Creates a new tree item.
-    /// @param id           The unique id of the tree item.
-    /// @param parentItemId The parent item id of the tree item.
-    /// @param title        The title of the tree item.
+    /// @param[in] parentItemId The parent item id of the tree item.
+    /// @param[in] title        The title of the tree item.
     static WidgetHandle treeItem(WidgetHandle parentItemId, const char *title);
 
     /// @brief Creates a new widget from the type status bar.
-    /// @param ctx      The context to create the widget in.
-    /// @param id       The unique id of the widget.
-    /// @param parentId The parent id of the widget.
-    /// @param title    The title of the widget.
-    /// @param rect     The rect of the widget.
-    /// @param fillRate The fill rate of the widget.
-    /// @param callback The callback of the widget.
+    /// @param[in] parentId     The parent id of the widget.
+    /// @param[in] rect         The rect of the widget.
+    /// @param[in] fillRate     The fill rate of the widget.
+    /// @param[in] callback     The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle progressBar(WidgetHandle parentId, const Rect &rect, int fillRate, CallbackI *callback);
 
     /// @brief Will render all widgets.
-    /// @param ctx The context to render the widgets in.
     static void renderWidgets();
 
     /// @brief The on-mouse-button-down event handler.
-    /// @param ctx       The context to handle the event in.
-    /// @param x         The x-coordinate of the mouse.
-    /// @param y         The y-coordinate of the mouse.
-    /// @param eventType The event type.
-    /// @param state     The mouse state.
+    /// @param[in] x            The x-coordinate of the mouse.
+    /// @param[in] y            The y-coordinate of the mouse.
+    /// @param[in] eventType    The event type.
+    /// @param[in] state        The mouse state.
     static void onMouseButton(int x, int y, int eventType, MouseState state);
 
     /// @brief The on-mouse-move event handler.
-    /// @param ctx       The context to handle the event in.
-    /// @param x         The x-coordinate of the mouse.
-    /// @param y         The y-coordinate of the mouse.
-    /// @param eventType The event type.
-    /// @param state     The mouse state.
+    /// @param[in] x            The x-coordinate of the mouse.
+    /// @param[in] y            The y-coordinate of the mouse.
+    /// @param[in] eventType    The event type.
+    /// @param[in] state        The mouse state.
     static void onMouseMove(int x, int y, int eventType, MouseState state);
 
     /// @brief The on-key event handler.
-    /// @param ctx    The context to handle the event in.
-    /// @param key    The key to handle.
-    /// @param isDown The key state.
+    /// @param[in] key      The key to handle.
+    /// @param[in] isDown   The key state.
     static void onKey(const char *key, bool isDown);
 
     /// @brief Will clear all widgets.
     static void clear();
 
     /// @brief Will clear a widget by its id.
-    /// @param id        The id of the widget to clear.
-    /// @param recursive If true, all child widgets will also be cleared.
+    /// @param[in] id        The id of the widget to clear.
+    /// @param[in] recursive If true, all child widgets will also be cleared.
     /// @return true if the widget was cleared, false if not.
     static bool clearItem(WidgetHandle id, bool recursive);
     
     /// @brief The widget enabler
-    /// @param ctx     The context to enable the widget in.
-    /// @param id      The id of the widget to enable.
-    /// @param enabled The enabled state of the widget.
+    /// @param[in] id       The id of the widget to enable.
+    /// @param[in] enabled  The enabled state of the widget.
     static void setEnableState(WidgetHandle id, bool enabled);
 
     /// @brief Will return true if the widget is enabled.
-    /// @param ctx The context to check the widget in.
-    /// @param id  The id of the widget to check.
+    /// @param[in] id  The id of the widget to check.
     /// @return true if the widget is enabled, false if not.
     static bool isEnabled(WidgetHandle id);
 
     /// @brief Will set the focus to the widget by its id.
-    /// @param ctx The context to set the focus in.
-    /// @param id  The id of the widget to set the focus to.
+    /// @param[in] id  The id of the widget to set the focus to.
     /// @return ResultOk if the focus was set, ErrorCode if not.
     static ret_code setFocus(WidgetHandle id);
 
     /// @brief Will return the widget by its id.
-    /// @param ctx The context to get the widget from.
-    /// @param id  The id of the widget to get.
+    /// @param[in] id  The id of the widget to get.
     /// @return The widget or nullptr if not found.
     static Widget *getWidgetById(WidgetHandle id);
 
@@ -339,16 +309,16 @@ struct Widgets {
     static bool endChild();
 
     /// @brief Will open a open-file-dialog.
-    /// @param title      The title of the dialog.
-    /// @param extensions The allowed file extensions (e.g. "txt;pdf;docx").
-    /// @param filename   The selected filename.
+    /// @param[in]  title      The title of the dialog.
+    /// @param[in]  extensions The allowed file extensions (e.g. "txt;pdf;docx").
+    /// @param[out] filename   The selected filename.
     /// @return true if a file was selected, false if the dialog was canceled.  
     static ret_code getOpenFileDialog(const char *title, const char *extensions, std::string &filename);
 
     /// @brief Will open a save-file-dialog.
-    /// @param title      The title of the dialog.
-    /// @param extensions The allowed file extensions (e.g. "txt;pdf;docx").
-    /// @param filename   The selected filename.
+    /// @param[in]  title      The title of the dialog.
+    /// @param[in]  extensions The allowed file extensions (e.g. "txt;pdf;docx").
+    /// @param[out] filename   The selected filename.
     /// @return true if a file was selected, false if the dialog was canceled.
     static ret_code getSaveFileDialog(const char *title, const char *extensions, std::string &filename);
 };
