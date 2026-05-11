@@ -47,7 +47,7 @@ static Image *findImage(Context &ctx, const char *filename) {
         return nullptr;
     }
 
-    ImageCache::iterator it = ctx.mImageCache.find(filename);
+    auto it = ctx.mImageCache.find(filename);
     if (it == ctx.mImageCache.end()) {
         return nullptr;
     }
