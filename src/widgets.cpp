@@ -172,7 +172,7 @@ void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) 
 
 WidgetHandle Widgets::container(WidgetHandle parentId, const char *text, const Rect &rect) {
     auto &ctx = TinyUi::getContext();
-    if (ctx.mRoot != nullptr) {
+    if (ctx.mRoot == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
 
