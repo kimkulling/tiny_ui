@@ -132,6 +132,11 @@ static Widget *createWidget(Context &ctx, WidgetHandle parentId, const Rect &rec
     widget->mType = type;
     widget->mRect = rect;
     widget->mParent = setParent(ctx, widget, parentId);
+    if (widget->mParent == nullptr) {
+        assert(widget->mParent != nullptr);
+        delete widget;
+        widget = nullptr;
+    }
 
     return widget;
 }
@@ -223,7 +228,11 @@ void Widgets::findSelectedWidget(int x, int y, Widget *currentChild, Widget **fo
     if (currentChild->mRect.isIn(x, y)) {
         *found = currentChild;
         for ( auto &child : currentChild->mChildren) {
-            if (child->mRect.isIn(x, y)){
+            if (!child->isEnabled()) {
+                continue;
+            }
+
+            if (child->mRect.isIn(x, y)) {
                 findSelectedWidget(x, y, child, found);
             }
         }
@@ -479,7 +488,8 @@ WidgetHandle Widgets::progressBar(WidgetHandle parentId, const Rect &rect, int f
     return child->mHandle;
 }
 
-static void render(Context &ctx, const Widget *currentWidget) {
+static void render(Context &ctx, const Widget *currentWidget) 
+{
     if (currentWidget == nullptr) {
         return;
     }
