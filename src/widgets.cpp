@@ -488,8 +488,7 @@ WidgetHandle Widgets::progressBar(WidgetHandle parentId, const Rect &rect, int f
     return child->mHandle;
 }
 
-static void render(Context &ctx, const Widget *currentWidget) 
-{
+static void render(Context &ctx, const Widget *currentWidget) {
     if (currentWidget == nullptr) {
         return;
     }
