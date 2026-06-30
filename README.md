@@ -51,15 +51,20 @@ static int onQuit(unsigned int id, void *data) {
 }
 
 int main() {
-    Style style = TinyUi::getDefaultStyle();
-    Context *ctx = Context::create("Sample", style);
-
+    Context *ctx = Context::create("Sample", TinyUi::getDefaultStyle());
+    if (ctx == nullptr) {
+        return -1;
+    }
     TinyUi::initScreen(20, 20, 1024, 768);
 
-    const WidgetHandle panel = Widgets::panel(ctx, WidgetHandle::getRootHandle(), "Dialog", 90, 5, 120, 300, nullptr);
-    Widgets::label(ctx, panel, "Title", 100, 10, 100, 20, Alignment::Center);
-    Widgets::button(ctx, panel, "Quit", nullptr, 100, 50, 100, 40, &onQuit);
+    // This is my parent panel
+    const auto parentPanel = Widgets::panel(ctx, WidgetHandle::getRootHandle(), "Dialog", 90, 5, 120, 300, nullptr);
 
+    // And these are my two children wisgets
+    Widgets::label(ctx, parentPanel, "Title", 100, 10, 100, 20, Alignment::Center);
+    Widgets::button(ctx, parentPanel, "Quit", nullptr, 100, 50, 100, 40, &onQuit);
+
+    // My render loop
     while (TinyUi::run()) {
         TinyUi::render();
     }
