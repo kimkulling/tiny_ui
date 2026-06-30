@@ -18,6 +18,7 @@ A lightweight C++17 UI library for Windows and Linux, using SDL2 as the renderer
   - Imageview
   - TreeView (experimental)
   - Input-Field (experimental)
+  - Status Bar
   - Standard-Dialogs
     - Open-File-Dialog
     - Save-File-Dialog
@@ -79,9 +80,11 @@ int main() {
 
 ## Planned
 
-- Status Bar
 - Checkboxes
 - Selection-Boxes
+- Tabs
+- Layouter
+- Engine Integration
 
 ---
 
