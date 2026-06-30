@@ -81,10 +81,14 @@ int main() {
 ## Planned
 
 - Checkboxes
+- Dategrid
 - Selection-Boxes
 - Tabs
+- Togglebuttons
 - Layouter
 - Engine Integration
+- Tutorials
+- Website
 
 ---
 
