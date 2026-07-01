@@ -15,13 +15,12 @@ int quit(Id, void *instance) {
 }
 
 int main(int argc, char *argv[]) {
-    Style style = TinyUi::getDefaultStyle();
-    if (!TinyUi::createContext("Sample-Screen",  style)) {
+    if (!TinyUi::createContext("Sample-Screen",  TinyUi::getDefaultStyle())) {
         return -1;
     }
 
+    auto &ctx = TinyUi::getContext();
     if (TinyUi::initScreen(20, 20, 1024, 768) == -1) {
-        auto &ctx = TinyUi::getContext();
         ctx.mLogger(LogSeverity::Error, "Cannot init screen");
         return ErrorCode;
     }
@@ -32,9 +31,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    auto &ctx = TinyUi::getContext();
     CallbackI *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
-
     constexpr int32_t ButtonHeight = 20;
     Widgets::label(panel, "Hi, World!", Rect(100, 10, 200, ButtonHeight), Alignment::Center);
     Widgets::button(panel, "Quit", Rect(100, 30, 200, ButtonHeight), dynamicQuitCallback);
