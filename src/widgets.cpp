@@ -65,7 +65,9 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
         return image;
     }
 
-    int w, h, bytesPerPixel;
+    int w{ -1 };
+    int h{ -1 };
+    int bytesPerPixel{ -1 };
     unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
     if (data == nullptr) {
         return nullptr;
@@ -104,6 +106,7 @@ static Widget *getValidRoot(Context &ctx) {
     
     ctx.mRoot = new Widget;
     ctx.mRoot->mType = WidgetType::Container;
+    ctx.mRoot->mHandle = WidgetHandle::getRootHandle();
     
     return ctx.mRoot;
 }
@@ -738,8 +741,10 @@ bool Widgets::clearItem(WidgetHandle id, bool recursive) {
         result = true;
     }
     
-    for (size_t i = 0; i < widget->mChildren.size(); ++i) {
-        recursiveClear(widget->mChildren[i]);
+    if (recursive) {
+        for (size_t i = 0; i < widget->mChildren.size(); ++i) {
+            recursiveClear(widget->mChildren[i]);
+        }
     }
     delete widget;
     return result;
@@ -759,8 +764,7 @@ void Widgets::setEnableState(WidgetHandle id, bool enabled) {
 
 bool Widgets::isEnabled(WidgetHandle id) {
     auto &ctx = TinyUi::getContext();
-    const Widget *widget = findWidget(id, ctx.mRoot);
-    if (widget != nullptr) {
+    if (const Widget *widget = findWidget(id, ctx.mRoot); widget != nullptr) {
         return widget->isEnabled();
     }
 

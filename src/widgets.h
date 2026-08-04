@@ -110,6 +110,15 @@ struct Widget {
         }
     }
 
+    /// @brief Create a new widget.
+    /// @return A pointer to the new widget.
+    static Widget *create(WidgetHandle parentId) {
+        auto *widget = new Widget;
+        widget->mHandle = parentId;
+        
+        return widget;
+    }
+
     /// @brief Check if the widget has a specific style.
     /// @param[in] style The style to check.
     /// @return true if the widget has the style, false if not.
