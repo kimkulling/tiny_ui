@@ -1,0 +1,50 @@
+name: Doxygen
+
+on:
+  push:
+    branches: [ "main" ]
+  # Allow running this workflow manually from the Actions tab.
+  workflow_dispatch:
+
+# Allow the job to publish to GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one concurrent deployment; skip in-progress runs queued between the run and latest queued.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get install -y doxygen
+
+      - name: Generate documentation
+        # INPUT/OUTPUT_DIRECTORY in the Doxyfile are relative to docs/, so run there.
+        working-directory: docs
+        run: doxygen Doxyfile.in
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/out/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
