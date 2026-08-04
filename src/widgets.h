@@ -42,6 +42,7 @@ enum class WidgetType {
     ImageBox,           ///< An image box widget
     TreeView,           ///< A treeview widget
     ProgressBar,        ///< A status bar widget
+    CheckBox,           ///< A checkbox widget
     Count               ///< The number of widgets
 };
 
@@ -248,6 +249,8 @@ struct Widgets {
     /// @param[in] callback     The callback of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle progressBar(WidgetHandle parentId, const Rect &rect, int fillRate, CallbackI *callback);
+
+    static WidgetHandle checkBox(WidgetHandle parentId, const char *text, const Rect &rect, bool checked, CallbackI *callback);
 
     /// @brief Will render all widgets.
     static void renderWidgets();

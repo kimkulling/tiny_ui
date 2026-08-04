@@ -488,6 +488,24 @@ WidgetHandle Widgets::progressBar(WidgetHandle parentId, const Rect &rect, int f
     return child->mHandle;
 }
 
+WidgetHandle Widgets::checkBox(WidgetHandle parentId, const char *text, const Rect &rect, bool checked, CallbackI *callback) {
+    auto &ctx = TinyUi::getContext();
+    if (ctx.mBackendCtx == nullptr) {
+        return WidgetHandle{WidgetHandle::InvalidId};
+    }
+
+    if (ctx.mRoot == nullptr) {
+        return WidgetHandle{WidgetHandle::InvalidId};
+    }
+
+    Widget *child = createWidget(ctx, parentId, rect, WidgetType::CheckBox);
+    if (child == nullptr) {
+        return WidgetHandle{WidgetHandle::InvalidId};
+    }
+
+    
+}
+
 static void render(Context &ctx, const Widget *currentWidget) {
     if (currentWidget == nullptr) {
         return;
