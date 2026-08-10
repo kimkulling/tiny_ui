@@ -94,7 +94,10 @@ int main(int argc, char *argv[]) {
     Widgets::textButton(panel, "Test 1", Rect(100, 50, 100, ButtonHeight), Alignment::Center, nullptr);
     Widgets::textButton(panel, "Test 2", Rect(100, 100, 100, ButtonHeight), Alignment::Center, nullptr);
     Widgets::textButton(panel, "Test 3", Rect(100, 150, 100, ButtonHeight), Alignment::Center, nullptr);
-    Widgets::imageButton(panel, "button_test.png", Rect(100, 200, 100, ButtonHeight), nullptr);
+    
+    Widgets::checkBox(panel, "Check me", Rect(100, 200, 100, ButtonHeight), false, nullptr);
+
+    Widgets::imageButton(panel, "button_test.png", Rect(100, 250, 100, ButtonHeight), nullptr);
 
     auto &ctx = TinyUi::getContext();
 
@@ -102,12 +105,12 @@ int main(int argc, char *argv[]) {
     CallbackI *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
     CallbackI *dynamicUpdateProgressBarCallback = new CallbackI(updateProgressbar, nullptr, Events::UpdateEvent);
 
-    Widgets::textButton(panel, "Quit", Rect(100, 250, 100, ButtonHeight), Alignment::Center, dynamicQuitCallback);
-    Widgets::progressBar(panel, Rect(100, 300, 100, ButtonHeight), 50, dynamicUpdateProgressBarCallback);
+    Widgets::textButton(panel, "Quit", Rect(100, 300, 100, ButtonHeight), Alignment::Center, dynamicQuitCallback);
+    Widgets::progressBar(panel, Rect(100, 350, 100, ButtonHeight), 50, dynamicUpdateProgressBarCallback);
 
-    Widgets::inputText(panel, Rect(100, 350, 100, ButtonHeight), Alignment::Left, KeyInputType::Character, "");
+    Widgets::inputText(panel, Rect(100, 400, 100, ButtonHeight), Alignment::Left, KeyInputType::Character, "");
 
-    WidgetHandle tree = Widgets::treeView(panel, "tree", Rect(100, 400, 100, ButtonHeight));
+    WidgetHandle tree = Widgets::treeView(panel, "tree", Rect(100, 450, 100, ButtonHeight));
     if (!tree.isValid()) {
         ctx.mLogger(LogSeverity::Error, "Cannot create tree view");
         return ErrorCode;
