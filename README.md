@@ -16,6 +16,7 @@ A lightweight C++17 UI library for Windows and Linux, using SDL2 as the renderer
   - Label
   - Progress Bar
   - Imageview
+  - Checkboxes
   - TreeView (experimental)
   - Input-Field (experimental)
   - Status Bar
@@ -85,7 +86,6 @@ int main() {
 
 ## Planned
 
-- Checkboxes
 - Dategrid
 - Selection-Boxes
 - Tabs
