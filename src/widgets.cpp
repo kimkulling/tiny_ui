@@ -505,8 +505,11 @@ WidgetHandle Widgets::checkBox(WidgetHandle parentId, const char *text, const Re
     if (child == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
+    child->mText.assign(text);
+    child->mCheckBoxContext = new CheckBoxContext;
+    child->mCheckBoxContext->mChecked = checked;
 
-    
+    return child->mHandle;
 }
 
 static void render(Context &ctx, const Widget *currentWidget) {
@@ -583,6 +586,27 @@ static void render(Context &ctx, const Widget *currentWidget) {
             } 
             break;
 
+            case WidgetType::CheckBox:
+            {
+                if (currentWidget->mCheckBoxContext != nullptr) {
+                    int size = r.height/2;
+                    Rect checkBoxRect(r.top.x, r.top.y + (r.height - size)/2, size, size);
+                    if (currentWidget->mCheckBoxContext->mChecked) {
+                        Renderer::drawRect(ctx, checkBoxRect.top.x, checkBoxRect.top.y, checkBoxRect.width, checkBoxRect.height, true, ctx.mStyle.mFg);
+                    } else {
+                        Renderer::drawRect(ctx, checkBoxRect.top.x, checkBoxRect.top.y, checkBoxRect.width, checkBoxRect.height, true, ctx.mStyle.mBg);
+                    }
+                    if (!currentWidget->mText.empty()) {
+                        const Color4 fg = ctx.mStyle.mTextColor;
+                        const Color4 bg = ctx.mStyle.mBg;
+                        Rect textRect(checkBoxRect.top.x + checkBoxRect.width + 5, r.top.y, r.width - checkBoxRect.width - 5, r.height);
+                        Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont,
+                                textRect, fg, bg, currentWidget->mAlignment);                
+                    }
+                }
+            }
+            break;
+
         case WidgetType::InputField:
             {
                 Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, true, ctx.mStyle.mFg);
@@ -638,6 +662,12 @@ void Widgets::onMouseButton(int x, int y, int eventType, MouseState state) {
     Widget *found{nullptr};
     findSelectedWidget(x, y, ctx.mRoot, &found);
     if (found != nullptr) {
+        if (found->mType == WidgetType::CheckBox) {
+            if (eventType == Events::MouseButtonDownEvent) {
+                found->mCheckBoxContext->mChecked = !found->mCheckBoxContext->mChecked;
+            }
+        }
+
 #ifdef _DEBUG
         if (eventType == Events::MouseButtonDownEvent) {
             std::cout << "Clicked " << found->mHandle.mId << "\n";

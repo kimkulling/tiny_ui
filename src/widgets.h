@@ -78,6 +78,10 @@ enum class WidgetStyle {
 /// @brief This enum is used to describe the alignment of a widget.
 using WidgetArray = std::vector<Widget*>;
 
+struct CheckBoxContext {
+    bool mChecked{false};   ///< The checked state of the checkbox.
+};
+
 /// @brief This struct contains all the data which is needed to describe a widget.
 struct Widget {
     WidgetHandle    mHandle{};                              ///< The unique id of the widget
@@ -88,13 +92,18 @@ struct Widget {
     bool            mFilledRect{true};                      ///< The filled rectangle state
     uint32_t        mStyles{0u};                            ///< The style of the widget
     Alignment       mAlignment{Alignment::Left};            ///< The alignment of the widget
-    KeyInputType    mKeyInputType{ KeyInputType::Invalid }; ///< The type of the key input
+    KeyInputType    mKeyInputType{KeyInputType::Invalid};   ///< The type of the key input
     std::string     mText{};                                ///< The label text  
     Image           *mImage{nullptr};                       ///< The image of the widget
     WidgetArray     mChildren{};                            ///< The children of the widget
     CallbackI       *mCallback{nullptr};                    ///< The callback of the widget
     uint8_t         *mContent{nullptr};                     ///< The content of the widget
     uint32_t        mIntention{0};                          ///< The interaction intention. 
+    CheckBoxContext *mCheckBoxContext{nullptr};             ///< The checkbox context.   
+
+    // Disable copy and assignment
+    Widget(const Widget &) = delete;
+    Widget &operator=(const Widget &) = delete;
 
     /// @brief The default class constructor.
     Widget() = default;
@@ -147,9 +156,6 @@ struct Widget {
     bool isEnabled() const {
         return mEnabled;
     }
-
-    Widget(const Widget &) = delete;
-    Widget &operator=(const Widget &) = delete;
 };
 
 /// @brief The widgets access interface.
@@ -212,7 +218,8 @@ struct Widgets {
     /// @param[in] type         The type of the key input.
     /// @param[in] defaultText  The default text of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static WidgetHandle inputText(WidgetHandle parentId, const Rect &rect, Alignment alignment, KeyInputType type, const char *defaultText);
+    static WidgetHandle inputText(WidgetHandle parentId, const Rect &rect, Alignment alignment, 
+        KeyInputType type, const char *defaultText);
 
     /// @brief Creates a new text button.
     /// @param[in] parentId     The parent id of the widget.
@@ -221,7 +228,8 @@ struct Widgets {
     /// @param[in] alignment    The alignment for the widget.
     /// @param[in] callback     The callback for the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static WidgetHandle textButton(WidgetHandle parentId, const char *text, const Rect &rect, Alignment alignment, CallbackI *callback);
+    static WidgetHandle textButton(WidgetHandle parentId, const char *text, const Rect &rect,
+        Alignment alignment, CallbackI *callback);
 
     /// @brief Creates a new image button.
     /// @param[in] parentId     The parent id of the widget.
@@ -229,7 +237,8 @@ struct Widgets {
     /// @param[in] rect         The rect of the widget.
     /// @param[in] callback     The callback for the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static WidgetHandle imageButton(WidgetHandle parentId, const char *image, const Rect &rect, CallbackI *callback);
+    static WidgetHandle imageButton(WidgetHandle parentId, const char *image, const Rect &rect,
+        CallbackI *callback);
 
     /// @brief Creates a new widget from the type panel.
     /// @param[in] parentId     The parent id of the widget.
@@ -259,7 +268,15 @@ struct Widgets {
     /// @return ResultOk if the widget was created, ErrorCode if not.
     static WidgetHandle progressBar(WidgetHandle parentId, const Rect &rect, int fillRate, CallbackI *callback);
 
-    static WidgetHandle checkBox(WidgetHandle parentId, const char *text, const Rect &rect, bool checked, CallbackI *callback);
+    /// @brief Creates a new widget from the type checkbox.
+    /// @param[in] parentId     The parent id of the widget.
+    /// @param[in] text         The text of the widget.
+    /// @param[in] rect         The rect of the widget.
+    /// @param[in] checked      The checked state of the widget.
+    /// @param[in] callback     The callback of the widget.
+    /// @return ResultOk if the widget was created, ErrorCode if not.
+    static WidgetHandle checkBox(WidgetHandle parentId, const char *text, const Rect &rect, bool checked, 
+        CallbackI *callback);
 
     /// @brief Will render all widgets.
     static void renderWidgets();
