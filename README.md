@@ -40,37 +40,44 @@ You can check out samples at [Samples-Section](samples/README.md)
 ## Quick Start
 
 ```cpp
-#include <iostream>
-#include "widgets.h"
-
-using namespace tinyui;
-
-static int onQuit(unsigned int id, void *data) {
-    auto *ctx = static_cast<Context*>(data);
-    ctx->mRequestShutdown = true;
-    return ResultOk;
+int quit(WidgetHandle, void *instance) {
+    if (instance != nullptr) {
+        auto *ctx = static_cast<Context *>(instance);
+        ctx->mRequestShutdown = true;
+        return ResultOk;    
+    }
+    return ErrorCode;
 }
 
-int main() {
-    Context *ctx = Context::create("Sample", TinyUi::getDefaultStyle());
-    if (ctx == nullptr) {
+int main(int argc, char *argv[]) {
+    if (Style style = TinyUi::getDefaultStyle(); !TinyUi::createContext("Sample-Screen", style)) {
         return -1;
     }
-    TinyUi::initScreen(20, 20, 1024, 768);
 
-    // This is my parent panel
-    const auto parentPanel = Widgets::panel(ctx, WidgetHandle::getRootHandle(), "Dialog", 90, 5, 120, 300, nullptr);
+    if (TinyUi::initScreen(20, 20, 1024, 768) == -1) {
+        const auto &ctx = TinyUi::getContext();
+        ctx.mLogger(LogSeverity::Error, "Cannot init screen");
+        return ErrorCode;
+    }
 
-    // And these are my two children wisgets
-    Widgets::label(ctx, parentPanel, "Title", 100, 10, 100, 20, Alignment::Center);
-    Widgets::button(ctx, parentPanel, "Quit", nullptr, 100, 50, 100, 40, &onQuit);
+    constexpr int32_t ButtonHeight = 18;
+    WidgetHandle rootPanel = Widgets::panel(WidgetHandle::getRootHandle(), "Sample-Dialog", Rect(90, 5, 220, 60), nullptr);
+    if (!panel.isValid()) {
+        const auto &ctx = TinyUi::getContext();
+        ctx.mLogger(LogSeverity::Error, "Cannot create panel");
+        return ErrorCode;
+    }
+    auto &ctx = TinyUi::getContext();
+    auto *dynamicQuitCallback = new CallbackI(quit, (void*) &ctx);
 
-    // My render loop
+    Widgets::label(rootPanel, "Hi, World!", Rect(100, 10, 200, ButtonHeight), Alignment::Center);
+    Widgets::textButton(rootPanel, "Quit", Rect(100, 30, 200, ButtonHeight), Alignment::Center, dynamicQuitCallback);
     while (TinyUi::run()) {
         TinyUi::render();
     }
 
     TinyUi::release();
+
     return 0;
 }
 ```
