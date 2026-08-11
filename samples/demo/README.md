@@ -94,3 +94,8 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 ```
+
+results to
+
+![Screenshot](https://github.com/kimkulling/tiny_ui/blob/main/assets/images/hello_world.png)
+
