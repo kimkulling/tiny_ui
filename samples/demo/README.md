@@ -97,5 +97,5 @@ int main(int argc, char *argv[]) {
 
 results to
 
-![Screenshot](https://github.com/kimkulling/tiny_ui/blob/main/assets/images/hello_world.png)
+![Screenshot](https://github.com/kimkulling/tiny_ui/blob/main/assets/images/sample.png)
 
