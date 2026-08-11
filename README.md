@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 ```
 results to
 
-![Sample](assets/images/hello_world.png)
+![Sample](https://github.com/kimkulling/tiny_ui/blob/main/assets/images/hello_world.png)
 
 ## Planned
 
