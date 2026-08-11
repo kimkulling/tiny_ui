@@ -88,8 +88,9 @@ int main(int argc, char *argv[]) {
 ./bin/release/tiny_ui_sample.exe   # Windows
 ./bin/tiny_ui_sample               # Linux
 ```
+results to
 
-![Sample](assets/images/sample1.png)
+![Sample](assets/images/hello_world.png)
 
 ## Planned
 
