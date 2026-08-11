@@ -86,14 +86,13 @@ int main() {
 
 ## Planned
 
-- Dategrid
+- Datagrid
 - Selection-Boxes
 - Tabs
 - Togglebuttons
 - Layouter
 - Engine Integration
 - Tutorials
-- Website
 
 ---
 
