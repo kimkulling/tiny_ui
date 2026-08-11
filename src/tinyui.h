@@ -173,6 +173,9 @@ struct Vec2 {
     /// @param[in] x_    The x-component
     /// @param[in] y_    The y-component
     Vec2(T x_, T y_) : x(x_), y(y_) {}
+
+    /// @brief The class destructor.
+    ~Vec2() = default;
 };
 
 /// @brief 2D vector for signed 32-bit integer.
