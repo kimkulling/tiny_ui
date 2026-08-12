@@ -78,6 +78,7 @@ enum class WidgetStyle {
 /// @brief This enum is used to describe the alignment of a widget.
 using WidgetArray = std::vector<Widget*>;
 
+/// @brief This struct is used to describe the alignment of a widget.
 struct CheckBoxContext {
     bool mChecked{false};   ///< The checked state of the checkbox.
 };

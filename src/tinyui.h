@@ -135,9 +135,6 @@ struct Version {
     uint32_t major{0};   ///< The major version number.
     uint32_t minor{0};   ///< The minor version number.
     uint32_t patch{2};   ///< The patch version number.
-
-    /// @brief The default class constructor.
-    Version() = default;
 };
 
 /// @brief The default color type with 4 components.
@@ -176,6 +173,12 @@ struct Vec2 {
 
     /// @brief The class destructor.
     ~Vec2() = default;
+
+    /// @brief The vector addition, subtraction, multiplication and division operators.
+    Vec2 operator + (const Vec2 &rhs) const {return Vec2(x + rhs.x, y + rhs.y);}
+    Vec2 operator - (const Vec2 &rhs) const {return Vec2(x - rhs.x, y - rhs.y);}
+    Vec2 operator * (T scalar) const {return Vec2(x * scalar, y * scalar);}
+    Vec2 operator / (T scalar) const {return Vec2(x / scalar, y / scalar);}
 };
 
 /// @brief 2D vector for signed 32-bit integer.
@@ -357,18 +360,18 @@ struct Events {
 
 /// @brief The payload identifier for the events.
 enum class EventDataType : int32_t {
-    Invalid = -1,   ///< The invalid event data type.
-    FillState,      ///< The fill state.    
-    KeyDownState,   ///< The key down state.
-    KeyUpState,     ///< The key up state.
-    Count           ///< The number of event data        
+    Invalid = -1,                                           ///< The invalid event data type.
+    FillState,                                              ///< The fill state.    
+    KeyDownState,                                           ///< The key down state.
+    KeyUpState,                                             ///< The key up state.
+    Count                                                   ///< The number of event data        
 };
 
 /// @brief The event data struct.
 struct EventPayload {
-    static constexpr size_t EventDataSize = 16;     ///< The size of the event data.
-    EventDataType type{ EventDataType::Invalid };   ///< The event data type.
-    uint8_t payload[EventDataSize] = {};            ///< The event data payload.
+    static constexpr size_t EventDataSize = 16;             ///< The size of the event data.
+    EventDataType type{ EventDataType::Invalid };           ///< The event data type.
+    uint8_t payload[EventDataSize] = {};                    ///< The event data payload.
 };
 
 /// @brief This interface is used to store all neede message handlers.
