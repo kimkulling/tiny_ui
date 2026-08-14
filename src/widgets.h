@@ -33,7 +33,7 @@ struct Context;
 /// @brief  This enum is used to describe the widget type.
 enum class WidgetType {
     Invalid = -1,       ///< Not initialized
-    Container = 0,      ///< A container widget
+    RootContainer = 0,  ///< A root container widget
     Button,             ///< A button widget
     Label,              ///< A label widget
     InputField,         ///< An input field widget
@@ -70,14 +70,15 @@ struct FilledState {
 
 /// @brief This enum is used to describe the alignment of a widget.
 enum class WidgetStyle {
-    Invalid = -1,
+    Invalid = -1,       ///< Not initialized
     BorderStyle,        ///< The widget has a border
-    Count
+    Count               ///< The number of widget styles
 };
 
 /// @brief This enum is used to describe the alignment of a widget.
 using WidgetArray = std::vector<Widget*>;
 
+/// @brief This struct is used to describe the checkbox context.
 struct CheckBoxContext {
     bool mChecked{false};   ///< The checked state of the checkbox.
 };
@@ -168,12 +169,12 @@ struct Widgets {
     /// @brief The class destructor.
     ~Widgets() = default;
 
-    /// @brief Create a new widget from the type container.
+    /// @brief Create a new widget from the type root container.
     /// @param[in] parentId The parent id of the widget.
     /// @param[in] text     The text of the widget.
     /// @param[in] rect     The rect of the widget.
     /// @return ResultOk if the widget was created, ErrorCode if not.
-    static WidgetHandle container(WidgetHandle parentId, const char *text, const Rect &rect);
+    static WidgetHandle rootContainer(WidgetHandle parentId, const char *text, const Rect &rect);
 
     /// @brief Create a new widget from the type box.
     /// @param[in] parentId The parent id of the widget.
