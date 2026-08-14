@@ -185,7 +185,7 @@ WidgetHandle Widgets::container(WidgetHandle parentId, const char *text, const R
     }
 
     Widget *widget = createWidget(ctx, parentId, rect, WidgetType::Container);
-    ctx.mRoot = widget;
+    ctx.mRoot->mChildren.emplace_back(widget);
     if (text != nullptr) {
         widget->mText.assign(text);
     }

@@ -10,6 +10,22 @@
 # Precompiled Headers
 *.gch
 *.pch
+*.pdb
+
+# Visual Studio cache files
+*.aps
+
+# Visual Studio profiler
+*.psess
+
+# Visual Studio Trace Files
+*.vsp
+
+# Visual Studio generated files
+*.vspscc
+
+# Visual Studio project files
+*.vcxproj*
 
 # Compiled Dynamic libraries
 *.so
