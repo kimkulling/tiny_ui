@@ -105,7 +105,7 @@ static Widget *getValidRoot(Context &ctx) {
     }
     
     ctx.mRoot = new Widget;
-    ctx.mRoot->mType = WidgetType::Container;
+    ctx.mRoot->mType = WidgetType::RootContainer;
     ctx.mRoot->mHandle = WidgetHandle::getRootHandle();
     
     return ctx.mRoot;
@@ -178,13 +178,13 @@ void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) 
     }
 }
 
-WidgetHandle Widgets::container(WidgetHandle parentId, const char *text, const Rect &rect) {
+WidgetHandle Widgets::rootContainer(WidgetHandle parentId, const char *text, const Rect &rect) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mRoot == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *widget = createWidget(ctx, parentId, rect, WidgetType::Container);
+    Widget *widget = createWidget(ctx, parentId, rect, WidgetType::RootContainer);
     ctx.mRoot->mChildren.emplace_back(widget);
     if (text != nullptr) {
         widget->mText.assign(text);
@@ -620,7 +620,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
             }
             break;
 
-        case WidgetType::Container:
+        case WidgetType::RootContainer:
         case WidgetType::Box:
             {
                 Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, currentWidget->mFilledRect, ctx.mStyle.mBorder);
