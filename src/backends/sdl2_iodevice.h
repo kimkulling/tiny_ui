@@ -41,7 +41,7 @@ struct IODevice {
 
     /// @brief Send an event to the io-device.
     /// @param event The event to send.
-    static void sendEvent(const SDL_Event &event);
+    static void sendEvent(SDL_Event &event);
 
     /// @brief Get the current ticks from the io-device.
     /// @return The current ticks.
