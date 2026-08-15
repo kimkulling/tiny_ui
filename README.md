@@ -4,7 +4,7 @@
 
 # tiny_ui
 
-A lightweight C++17 UI library for Windows and Linux, using SDL2 as the renderer.
+A lightweight C++23 UI library for Windows and Linux, using SDL2 as the renderer.
 
 ## Features
 
