@@ -176,6 +176,7 @@ ret_code TinyUi::release() {
     }
     Renderer::releaseRenderer(ctx);
     Renderer::releaseScreen(ctx);
+    Widgets::clear();
     ctx.mRoot = nullptr;
 
     ctx.mCreated = false;

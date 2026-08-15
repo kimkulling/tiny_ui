@@ -733,8 +733,8 @@ void recursiveClear(Widget *current) {
         recursiveClear(current->mChildren[i]);
     }
 
-    if (current->mCallback) {
-        delete current->mCallback;
+    if (current->mCallback != nullptr) {
+        current->mCallback->decRef();
         current->mCallback = nullptr;
     }
     delete current;
