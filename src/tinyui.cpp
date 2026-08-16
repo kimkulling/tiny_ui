@@ -129,7 +129,8 @@ ret_code TinyUi::getSurfaceInfo(int32_t &w, int32_t &h) {
 }
 
 ret_code TinyUi::getSurfaceCenter(int32_t &x, int32_t &y) {
-    int32_t w{-1}, h{-1};
+    int32_t w{ -1 };
+    int32_t h{ -1 };
     x = y = -1;
     if (getSurfaceInfo(w, h) == ErrorCode) {
         return ErrorCode;
@@ -177,6 +178,7 @@ ret_code TinyUi::release() {
     Renderer::releaseRenderer(ctx);
     Renderer::releaseScreen(ctx);
     Widgets::clear();
+    ctx.mFocus = nullptr;
     ctx.mRoot = nullptr;
 
     ctx.mCreated = false;

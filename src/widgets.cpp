@@ -37,12 +37,13 @@ namespace tinyui {
 
 static constexpr Id RootHandle = 1;
 
-static Id createHandle() {
-    static Id id{RootHandle};
+namespace {
+Id createHandle() {
+    static Id id{ RootHandle };
     return ++id;
 }
 
-static Image *findImage(Context &ctx, const char *filename) {
+Image *findImage(Context &ctx, const char *filename) {
     if (filename == nullptr) {
         return nullptr;
     }
@@ -55,7 +56,7 @@ static Image *findImage(Context &ctx, const char *filename) {
     return it->second;
 }
 
-static Image *loadIntoImageCache(Context &ctx, const char *filename) {
+Image *loadIntoImageCache(Context &ctx, const char *filename) {
     if (filename == nullptr) {
         return nullptr;
     }
@@ -89,7 +90,7 @@ static Image *loadIntoImageCache(Context &ctx, const char *filename) {
     return image;
 }
 
-static void releaseImageCache(Context &ctx) {
+void releaseImageCache(Context &ctx) {
     for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
         if (Image *image = it->second; image != nullptr) {
             Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
@@ -97,22 +98,22 @@ static void releaseImageCache(Context &ctx) {
         }
     }
     ctx.mImageCache.clear();
-} 
+}
 
-static Widget *getValidRoot(Context &ctx) {
+Widget *getValidRoot(Context &ctx) {
     if (ctx.mRoot != nullptr) {
         return ctx.mRoot;
     }
-    
+
     ctx.mRoot = new Widget;
     ctx.mRoot->mType = WidgetType::RootContainer;
     ctx.mRoot->mHandle = WidgetHandle::getRootHandle();
-    
+
     return ctx.mRoot;
 }
 
-static Widget *setParent(Context &ctx, Widget *child, WidgetHandle parentId) {
-    Widget *parent{nullptr};
+Widget *setParent(Context &ctx, Widget *child, WidgetHandle parentId) {
+    Widget *parent{ nullptr };
     if (parentId.mId == 0) {
         parent = getValidRoot(ctx);
     } else {
@@ -129,9 +130,9 @@ static Widget *setParent(Context &ctx, Widget *child, WidgetHandle parentId) {
     return parent;
 }
 
-static Widget *createWidget(Context &ctx, WidgetHandle parentId, const Rect &rect, WidgetType type) {
+Widget *createWidget(Context &ctx, WidgetHandle parentId, const Rect &rect, WidgetType type) {
     auto *widget = new Widget;
-    widget->mHandle = WidgetHandle{createHandle()};
+    widget->mHandle = WidgetHandle{ createHandle() };
     widget->mType = type;
     widget->mRect = rect;
     widget->mParent = setParent(ctx, widget, parentId);
@@ -144,18 +145,28 @@ static Widget *createWidget(Context &ctx, WidgetHandle parentId, const Rect &rec
     return widget;
 }
 
-static void deleteKeyFromText(Context &ctx) {    
+void deleteKeyFromText(Context &ctx) {
     ctx.mFocus->mText.erase(ctx.mFocus->mText.size() - 1);
 }
 
-static void appendKeyToText(Context &ctx, char *buffer) {
+void appendKeyToText(Context &ctx, char *buffer) {
+    if (buffer == nullptr) {
+        return;
+    }
+
+    if (ctx.mFocus->mKeyInputType == KeyInputType::Numeric) {
+        if (buffer[0] < '0' || buffer[0] > '9') {
+            return;
+        }
+    }
+    
     ctx.mFocus->mText.append(buffer);
 }
 
-static void handleInputField(Context &ctx, EventPayload *eventPayload) {
-    char buffer[2] = { 
-        static_cast<char>(eventPayload->payload[0]), 
-        '\0' 
+void handleInputField(Context &ctx, EventPayload *eventPayload) {
+    char buffer[2] = {
+        static_cast<char>(eventPayload->payload[0]),
+        '\0'
     };
     if (buffer[0] == SDLK_BACKSPACE) {
         deleteKeyFromText(ctx);
@@ -163,6 +174,7 @@ static void handleInputField(Context &ctx, EventPayload *eventPayload) {
         appendKeyToText(ctx, buffer);
     }
 }
+} // namespace
 
 void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) {
     if (ctx.mFocus == nullptr) {
@@ -420,7 +432,7 @@ WidgetHandle Widgets::treeView(WidgetHandle parentId, const char *title, const R
         widget->mText.assign(title);
     }
 
-    CallbackI *callback = new CallbackI(onTreeViewItemClicked, nullptr, Events::MouseButtonDownEvent);
+    auto *callback = new CallbackI(onTreeViewItemClicked, nullptr, Events::MouseButtonDownEvent);
     widget->mCallback = callback;
     if (callback != nullptr) {
         callback->incRef();

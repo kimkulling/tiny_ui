@@ -30,7 +30,6 @@ SOFTWARE.
 #include <vector>
 #include <list>
 #include <string>
-#include <iostream>
 #include <unordered_map>
 
 #include "stb_image.h"
@@ -416,7 +415,6 @@ struct CallbackI {
 
     /// @brief Decrement the reference count.
     void decRef() {
-        std::cout << "DecRef: " << mNumRefs << "\n";
         if (mNumRefs > 0) {
             --mNumRefs;
             if (mNumRefs <= 0) {
