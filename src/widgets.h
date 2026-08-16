@@ -116,6 +116,9 @@ struct Widget {
         } 
         
         if (mCallback != nullptr) {
+            for (size_t i = 0; i < Events::NumEvents; ++i) {
+                mCallback->mfuncCallback[i] = nullptr;
+            }
             mCallback->decRef();
         }
     }

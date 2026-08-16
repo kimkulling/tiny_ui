@@ -460,7 +460,7 @@ WidgetHandle Widgets::treeItem(WidgetHandle parentItemId, const char *text) {
     const int32_t margin = ctx.mStyle.mMargin;
     const int32_t w = parentRect.width;
     const int32_t h = parentRect.height;
-    size_t numChildren = parentWidget->mChildren.size() + 1;
+    const size_t numChildren = parentWidget->mChildren.size() + 1;
     const Rect rect(parentRect.top.x + margin, parentRect.top.y + static_cast<int32_t>(numChildren) * margin +
         static_cast<int32_t>(numChildren) * h, w, h);
     Widget *child = createWidget(ctx, parentItemId, rect, WidgetType::Label);
@@ -543,7 +543,8 @@ static void render(Context &ctx, const Widget *currentWidget) {
                     Renderer::drawImage(ctx, r.top.x, r.top.y, r.width, r.height, currentWidget->mImage);
                 }
                 if (!currentWidget->mText.empty()) {
-                    Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
+                    const Color4 fg = ctx.mStyle.mTextColor;
+                    const Color4 bg = ctx.mStyle.mBg;
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
@@ -554,7 +555,8 @@ static void render(Context &ctx, const Widget *currentWidget) {
             {
                 Renderer::drawRect(ctx, r.top.x, r.top.y, r.width, r.height, false, ctx.mStyle.mFg);
                 if (!currentWidget->mText.empty()) {
-                    Color4 fg = ctx.mStyle.mTextColor, bg = ctx.mStyle.mBg;
+                    const Color4 fg = ctx.mStyle.mTextColor;
+                    const Color4 bg = ctx.mStyle.mBg;
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
