@@ -385,6 +385,7 @@ struct CallbackI {
     /// @brief The default class constructor.
     CallbackI() : mfuncCallback{ nullptr } {
         clear();
+        incRef();
     }
 
     /// @brief The class constructor

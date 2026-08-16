@@ -39,6 +39,10 @@ struct IODevice {
     /// @return true if an event was polled, false if not.
     static bool update(SDL_Event &event);
 
+    /// @brief Send an event to the io-device.
+    /// @param event The event to send.
+    static void sendEvent(SDL_Event &event);
+
     /// @brief Get the current ticks from the io-device.
     /// @return The current ticks.
     static uint32_t getTicks();

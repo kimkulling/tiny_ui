@@ -30,6 +30,10 @@ bool IODevice::update(SDL_Event &event) {
      return SDL_PollEvent(&event);
 }
 
+void IODevice::sendEvent( SDL_Event &event) {
+    SDL_PushEvent(static_cast<SDL_Event*>(&event));
+}
+
 uint32_t IODevice::getTicks() {
      return SDL_GetTicks();
 }
