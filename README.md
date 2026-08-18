@@ -94,13 +94,12 @@ results to
 
 ## Planned
 
-- Datagrid
-- Groups
-- Tabs
-- Togglebuttons
-- Layouter
-- Engine Integration
-- Tutorials
+1. Layouter
+2. Copy & Paste
+2. Groups
+3. Tabs
+4. Engine Integration examples
+5. Tutorials
 
 ---
 

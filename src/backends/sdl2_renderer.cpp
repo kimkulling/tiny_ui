@@ -201,7 +201,7 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
     return ResultOk;
 }
 
-ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const Rect &r, const Color4 &fgC,
+ret_code Renderer::drawText(Context &ctx, const char *string, size_t maxLen, Font *font, const Rect &r, const Color4 &fgC,
         const Color4 &bgC, Alignment alignment) {
     if (string == nullptr) {
         return InvalidHandle;
@@ -239,7 +239,7 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         return ErrorCode;
     }
 
-    const size_t stringLen = strlen(string);
+    const size_t stringLen = strnlen(string, maxLen);
     int32_t margin{ctx.mStyle.mMargin};
     SDL_Rect Message_rect{};
     switch (alignment) {
