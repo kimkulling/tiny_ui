@@ -38,142 +38,148 @@ namespace tinyui {
 static constexpr Id RootHandle = 1;
 
 namespace {
-Id createHandle() {
-    static Id id{ RootHandle };
-    return ++id;
-}
 
-Image *findImage(Context &ctx, const char *filename) {
-    if (filename == nullptr) {
-        return nullptr;
+    Id createHandle() {
+        static Id id{ RootHandle };
+        return ++id;
     }
 
-    auto it = ctx.mImageCache.find(filename);
-    if (it == ctx.mImageCache.end()) {
-        return nullptr;
+    Image *findImage(Context &ctx, const char *filename) {
+        if (filename == nullptr) {
+            return nullptr;
+        }
+
+        auto it = ctx.mImageCache.find(filename);
+        if (it == ctx.mImageCache.end()) {
+            return nullptr;
+        }
+
+        return it->second;
     }
 
-    return it->second;
-}
+    Image *loadIntoImageCache(Context &ctx, const char *filename) {
+        if (filename == nullptr) {
+            return nullptr;
+        }
 
-Image *loadIntoImageCache(Context &ctx, const char *filename) {
-    if (filename == nullptr) {
-        return nullptr;
-    }
+        Image *image = findImage(ctx, filename);
+        if (image != nullptr) {
+            return image;
+        }
 
-    Image *image = findImage(ctx, filename);
-    if (image != nullptr) {
+        int w{ -1 };
+        int h{ -1 };
+        int bytesPerPixel{ -1 };
+        unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
+        if (data == nullptr) {
+            return nullptr;
+        }
+
+        image = new Image;
+        if (image == nullptr) {
+            return nullptr;
+        }
+
+        int32_t pitch = w * bytesPerPixel;
+        pitch = (pitch + 3) & ~3;
+        image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
+        image->mX = w;
+        image->mY = h;
+        image->mComp = bytesPerPixel;
+        ctx.mImageCache[filename] = image;
+
         return image;
     }
 
-    int w{ -1 };
-    int h{ -1 };
-    int bytesPerPixel{ -1 };
-    unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
-    if (data == nullptr) {
-        return nullptr;
-    }
-
-    image = new Image;
-    if (image == nullptr) {
-        return nullptr;
-    }
-
-    int32_t pitch = w * bytesPerPixel;
-    pitch = (pitch + 3) & ~3;
-    image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
-    image->mX = w;
-    image->mY = h;
-    image->mComp = bytesPerPixel;
-    ctx.mImageCache[filename] = image;
-
-    return image;
-}
-
-void releaseImageCache(Context &ctx) {
-    for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
-        if (Image *image = it->second; image != nullptr) {
-            Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
-            delete image;
+    void releaseImageCache(Context &ctx) {
+        for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
+            if (Image *image = it->second; image != nullptr) {
+                Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
+                delete image;
+            }
         }
+        ctx.mImageCache.clear();
     }
-    ctx.mImageCache.clear();
-}
 
-Widget *getValidRoot(Context &ctx) {
-    if (ctx.mRoot != nullptr) {
+    Widget *getValidRoot(Context &ctx) {
+        if (ctx.mRoot != nullptr) {
+            return ctx.mRoot;
+        }
+
+        ctx.mRoot = new Widget;
+        ctx.mRoot->mType = WidgetType::RootContainer;
+        ctx.mRoot->mHandle = WidgetHandle::getRootHandle();
+
         return ctx.mRoot;
     }
 
-    ctx.mRoot = new Widget;
-    ctx.mRoot->mType = WidgetType::RootContainer;
-    ctx.mRoot->mHandle = WidgetHandle::getRootHandle();
+    Widget *setParent(Context &ctx, Widget *child, WidgetHandle parentId) {
+        Widget *parent{ nullptr };
+        if (parentId.mId == 0) {
+            parent = getValidRoot(ctx);
+        } else {
+            parent = Widgets::findWidget(parentId, ctx.mRoot);
+        }
 
-    return ctx.mRoot;
-}
+        if (parent == nullptr) {
+            return nullptr;
+        }
 
-Widget *setParent(Context &ctx, Widget *child, WidgetHandle parentId) {
-    Widget *parent{ nullptr };
-    if (parentId.mId == 0) {
-        parent = getValidRoot(ctx);
-    } else {
-        parent = Widgets::findWidget(parentId, ctx.mRoot);
+        parent->mChildren.emplace_back(child);
+        parent->mRect.mergeWithRect(child->mRect);
+
+        return parent;
     }
 
-    if (parent == nullptr) {
-        return nullptr;
+    Widget *createWidget(Context &ctx, WidgetHandle parentId, const Rect &rect, WidgetType type) {
+        auto *widget = new Widget;
+        widget->mHandle = WidgetHandle{ createHandle() };
+        widget->mType = type;
+        widget->mRect = rect;
+        widget->mParent = setParent(ctx, widget, parentId);
+        if (widget->mParent == nullptr) {
+            assert(widget->mParent != nullptr);
+            delete widget;
+            widget = nullptr;
+        }
+
+        return widget;
     }
 
-    parent->mChildren.emplace_back(child);
-    parent->mRect.mergeWithRect(child->mRect);
-
-    return parent;
-}
-
-Widget *createWidget(Context &ctx, WidgetHandle parentId, const Rect &rect, WidgetType type) {
-    auto *widget = new Widget;
-    widget->mHandle = WidgetHandle{ createHandle() };
-    widget->mType = type;
-    widget->mRect = rect;
-    widget->mParent = setParent(ctx, widget, parentId);
-    if (widget->mParent == nullptr) {
-        assert(widget->mParent != nullptr);
-        delete widget;
-        widget = nullptr;
+    void deleteKeyFromText(Context &ctx) {
+        ctx.mFocus->mText.erase(ctx.mFocus->mText.size() - 1);
     }
 
-    return widget;
-}
-
-void deleteKeyFromText(Context &ctx) {
-    ctx.mFocus->mText.erase(ctx.mFocus->mText.size() - 1);
-}
-
-void appendKeyToText(Context &ctx, char *buffer) {
-    if (buffer == nullptr) {
-        return;
-    }
-
-    if (ctx.mFocus->mKeyInputType == KeyInputType::Numeric) {
-        if (buffer[0] < '0' || buffer[0] > '9') {
+    void appendKeyToText(Context &ctx, char *buffer) {
+        if (buffer == nullptr) {
+            TINYUI_TRACE("appendKeyToText: buffer is nullptr");
             return;
         }
-    }
-    
-    ctx.mFocus->mText.append(buffer);
-}
+        if (ctx.mFocus == nullptr) {
+            TINYUI_TRACE("appendKeyToText: ctx.mFocus is nullptr");
+            return;
+        }
 
-void handleInputField(Context &ctx, EventPayload *eventPayload) {
-    char buffer[2] = {
-        static_cast<char>(eventPayload->payload[0]),
-        '\0'
-    };
-    if (buffer[0] == SDLK_BACKSPACE) {
-        deleteKeyFromText(ctx);
-    } else {
-        appendKeyToText(ctx, buffer);
+        if (ctx.mFocus->mKeyInputType == KeyInputType::Numeric) {
+            if (buffer[0] < '0' || buffer[0] > '9') {
+                return;
+            }
+        }
+        
+        ctx.mFocus->mText.append(buffer);
     }
-}
+
+    void handleInputField(Context &ctx, EventPayload *eventPayload) {
+        char buffer[2] = {
+            static_cast<char>(eventPayload->payload[0]),
+            '\0'
+        };
+        if (buffer[0] == SDLK_BACKSPACE) {
+            deleteKeyFromText(ctx);
+        } else {
+            appendKeyToText(ctx, buffer);
+        }
+    }
 } // namespace
 
 void eventDispatcher(Context &ctx, int32_t eventId, EventPayload *eventPayload) {
@@ -545,7 +551,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                 if (!currentWidget->mText.empty()) {
                     const Color4 fg = ctx.mStyle.mTextColor;
                     const Color4 bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mText.length(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             }
@@ -557,7 +563,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                 if (!currentWidget->mText.empty()) {
                     const Color4 fg = ctx.mStyle.mTextColor;
                     const Color4 bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mText.length(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             }
@@ -568,7 +574,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                 if (!currentWidget->mText.empty()) {
                     const Color4 fg = ctx.mStyle.mTextColor;
                     const Color4 bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont, 
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mText.length(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             } 
@@ -614,7 +620,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                         const Color4 fg = ctx.mStyle.mTextColor;
                         const Color4 bg = ctx.mStyle.mBg;
                         Rect textRect(checkBoxRect.top.x + checkBoxRect.width + 5, r.top.y, r.width - checkBoxRect.width - 5, r.height);
-                        Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont,
+                        Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mText.length(), ctx.mDefaultFont,
                                 textRect, fg, bg, currentWidget->mAlignment);                
                     }
                 }
@@ -628,7 +634,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                 if (!currentWidget->mText.empty()) {
                     const Color4 fg = ctx.mStyle.mTextColor;
                     const Color4 bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), ctx.mDefaultFont,
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mText.length(), ctx.mDefaultFont,
                             currentWidget->mRect, fg, bg, currentWidget->mAlignment);                
                 }
             }
