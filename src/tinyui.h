@@ -422,6 +422,12 @@ struct CallbackI {
             }
         }
     }
+
+    /// @brief Get the reference count.
+    /// @return The reference count.
+    uint32_t getRefs() const {
+        return mNumRefs;
+    }
 };
 
 /// @brief The event callback array.
