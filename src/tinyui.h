@@ -134,7 +134,7 @@ static constexpr ret_code ResultOk  = 0;
 struct Version {
     uint32_t major{0};   ///< The major version number.
     uint32_t minor{0};   ///< The minor version number.
-    uint32_t patch{2};   ///< The patch version number.
+    uint32_t patch{4};   ///< The patch version number.
 
     /// @brief The default class constructor.
     Version() = default;
