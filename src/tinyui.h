@@ -285,7 +285,7 @@ struct Rect {
         if (y2_ < r.bottom.y || y2_ == -1) {
             y2_ = r.bottom.y;
         }
-        set(x1_, y1_, x2_, y2_);
+        set(x1_, y1_, x2_ - x1_, y2_ - y1_);
     }
 
     bool isInited() const {
