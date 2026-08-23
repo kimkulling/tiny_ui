@@ -12,12 +12,12 @@ A lightweight C++23 UI library for Windows and Linux, using SDL2 as the renderer
   - Panel
   - Button
     - Text
-    - Images   
+    - Images
   - Label
   - Progress Bar
   - Imageview
-  - Checkboxes
-  - TreeView (experimental)
+  - Checkboxes / Selectionboxes
+  - Tree-View (experimental)
   - Input-Field (experimental)
   - Status Bar
   - Standard-Dialogs
@@ -94,13 +94,12 @@ results to
 
 ## Planned
 
-- Datagrid
-- Selection-Boxes
-- Tabs
-- Togglebuttons
-- Layouter
-- Engine Integration
-- Tutorials
+1. Layouter
+2. Copy & Paste
+2. Groups
+3. Tabs
+4. Engine Integration examples
+5. Tutorials
 
 ---
 

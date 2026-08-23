@@ -134,7 +134,7 @@ static constexpr ret_code ResultOk  = 0;
 struct Version {
     uint32_t major{0};   ///< The major version number.
     uint32_t minor{0};   ///< The minor version number.
-    uint32_t patch{2};   ///< The patch version number.
+    uint32_t patch{4};   ///< The patch version number.
 
     /// @brief The default class constructor.
     Version() = default;
@@ -287,6 +287,10 @@ struct Rect {
         }
         set(x1_, y1_, x2_, y2_);
     }
+
+    bool isInited() const {
+        return top.x != -1 && top.y != -1 && width != -1 && height != -1;
+    }
 };
 
 /// @brief The alignment enum.
@@ -422,6 +426,12 @@ struct CallbackI {
                 delete this;
             }
         }
+    }
+
+    /// @brief Get the reference count.
+    /// @return The reference count.
+    uint32_t getRefs() const {
+        return mNumRefs;
     }
 };
 
@@ -569,5 +579,11 @@ inline void clamp(T min, T max, T &value) {
         value = max;
     }
 }
+
+#ifdef TINYUI_TRACE_ENABLED
+#  define TINYUI_TRACE(...) tinyui::TinyUi::getContext().mLogger(tinyui::LogSeverity::Trace, __VA_ARGS__)
+#else
+#  define TINYUI_TRACE(...)   
+#endif TINYUI_TRACE_ENABLED
 
 } // Namespace TinyUi

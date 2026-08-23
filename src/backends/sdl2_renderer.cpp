@@ -201,7 +201,7 @@ ret_code Renderer::releaseRenderer(Context &ctx) {
     return ResultOk;
 }
 
-ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const Rect &r, const Color4 &fgC,
+ret_code Renderer::drawText(Context &ctx, const char *string, size_t maxLen, Font *font, const Rect &r, const Color4 &fgC,
         const Color4 &bgC, Alignment alignment) {
     if (string == nullptr) {
         return InvalidHandle;
@@ -238,26 +238,27 @@ ret_code Renderer::drawText(Context &ctx, const char *string, Font *font, const 
         ctx.mLogger(LogSeverity::Error, msg.c_str());
         return ErrorCode;
     }
-    
+
+    const size_t stringLen = strnlen(string, maxLen);
     int32_t margin{ctx.mStyle.mMargin};
     SDL_Rect Message_rect{};
     switch (alignment) {
         case Alignment::Left:
             Message_rect.x = r.top.x + margin;
             Message_rect.y = r.top.y + margin;
-            Message_rect.w = font->mSize*static_cast<int>(strlen(string));
+            Message_rect.w = font->mSize*static_cast<int>(stringLen);
             Message_rect.h = font->mSize + margin*2;
             break;
         case Alignment::Center:
             Message_rect.x = r.top.x + 2 * margin + surfaceMessage->clip_rect.w / 2;
             Message_rect.y = r.top.y + margin;
-            Message_rect.w = font->mSize * static_cast<int>(strlen(string));
+            Message_rect.w = font->mSize * static_cast<int>(stringLen);
             Message_rect.h = font->mSize + margin * 2;
             break;
         case Alignment::Right:
-            Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - static_cast<int>(font->mSize) * static_cast<int>(strlen(string));
+            Message_rect.x = r.top.x + surfaceMessage->clip_rect.w - static_cast<int>(font->mSize) * static_cast<int>(stringLen);
             Message_rect.y = r.top.y + margin;
-            Message_rect.w = font->mSize * static_cast<int>(strlen(string));
+            Message_rect.w = font->mSize * static_cast<int>(stringLen);
             Message_rect.h = font->mSize + margin * 2;
             break;
         case Alignment::Invalid:
