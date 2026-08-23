@@ -74,3 +74,8 @@ if( TINY_UI_SAMPLES)
     )
 
 endif()
+
+# Include tests if they exist
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
+    add_subdirectory(test)
+endif()

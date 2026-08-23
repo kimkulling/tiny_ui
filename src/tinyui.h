@@ -39,8 +39,8 @@ SOFTWARE.
  * Documentation                                                              *
  *
  * Introduction
- * The intention of this UI-Library is to help people (special me) to develop 
- * ingame UI's more easily. You can introduce the code to create the widgets and 
+ * The intention of this UI-Library is to help people (special me) to develop
+ * ingame UI's more easily. You can introduce the code to create the widgets and
  * dialogs directly in you c/c++ code.
  *
  * Supported widgets
@@ -100,8 +100,8 @@ using ret_code = int32_t;
 struct WidgetHandle {
     static constexpr Id RootItem = 0;       ///< The root item id.
     static constexpr Id InvalidId = 999999; ///< The invalid id of the widget handle.
-    Id mId{InvalidId};                      ///< The unique id of the widget.    
-    
+    Id mId{InvalidId};                      ///< The unique id of the widget.
+
     /// @brief Check if the widget handle is valid.
     /// @return true if the widget handle is valid, false if not.
     bool isValid() const {
@@ -150,7 +150,7 @@ struct Color4 {
 
 /// @brief The image data.
 struct Image {
-    SurfaceImpl *mSurfaceImpl{ nullptr };   ///< The surface implementation. 
+    SurfaceImpl *mSurfaceImpl{ nullptr };   ///< The surface implementation.
     int32_t mX{ 0 };                        ///< The width of the image.
     int32_t mY{ 0 };                        ///< The height of the image.
     int32_t mComp{ 0 };                     ///< The number of components.
@@ -159,7 +159,7 @@ struct Image {
 /// @brief The image cache.
 using ImageCache = std::unordered_map<const char*, Image*>;
 
-/// @brief  A 2-dimensional vector 
+/// @brief  A 2-dimensional vector
 /// @tparam T The pod template type
 template<class T>
 struct Vec2 {
@@ -268,23 +268,24 @@ struct Rect {
     /// @brief Merge the rectangle with another rectangle.
     /// @param r The rectangle to merge with.
     void mergeWithRect(const Rect &r) {
-        if (top.x > r.top.x || top.x == -1) {
-            top.x = r.top.x;
+        int x1_ = top.x;
+        if (x1_ > r.top.x || x1_ == -1) {
+            x1_ = r.top.x;
+        }
+        int y1_ = top.y;
+        if (y1_ > r.top.y || y1_ == -1) {
+            y1_ = r.top.y;
         }
 
-        if (top.y > r.top.y || top.y == -1) {
-            top.y = r.top.y;
+        int x2_ = bottom.x;
+        if (x2_ < r.bottom.x || x2_ == -1) {
+            x2_ = r.bottom.x;
         }
-
-        if (const int x2_ = top.x + r.width; bottom.x < x2_) {
-            bottom.x = x2_;
-            width = r.width;
+        int y2_ = bottom.y;
+        if (y2_ < r.bottom.y || y2_ == -1) {
+            y2_ = r.bottom.y;
         }
-
-        if (const int y2_ = bottom.y + r.height; bottom.y < y2_) {
-            bottom.y = y2_;
-            height = r.height;
-        }
+        set(x1_, y1_, x2_, y2_);
     }
 };
 
@@ -358,10 +359,10 @@ struct Events {
 /// @brief The payload identifier for the events.
 enum class EventDataType : int32_t {
     Invalid = -1,   ///< The invalid event data type.
-    FillState,      ///< The fill state.    
+    FillState,      ///< The fill state.
     KeyDownState,   ///< The key down state.
     KeyUpState,     ///< The key up state.
-    Count           ///< The number of event data        
+    Count           ///< The number of event data
 };
 
 /// @brief The event data struct.
@@ -466,7 +467,7 @@ struct Context {
     /// @param style The style to use.
     /// @return The created context.
     static Context *create(const char *title, const Style &style);
-    
+
     /// @brief Will destroy a valid tinyui context.
     /// @param ctx  The context to destroy.
     static void destroy(Context *ctx);
@@ -488,7 +489,7 @@ struct TinyUi {
     /// @param[in] style    The style to use.
     /// @return true if successful.
     static bool createContext(const char *title, const Style &style);
-    
+
     /// @brief Will destroy the context.
     /// @return true if successful.
     static bool destroyContext();
@@ -547,7 +548,7 @@ struct TinyUi {
     /// @brief Get the default font.
     /// @param[in] defaultFont The default font to set.
     static void setDefaultFont(const char *defaultFont);
-    
+
     /// @brief Will return the current counted ticks in ms.
     /// @return The ticks in ms.
     static uint32_t getTicks();
