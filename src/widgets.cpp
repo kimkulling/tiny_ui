@@ -126,7 +126,10 @@ namespace {
         }
 
         parent->mChildren.emplace_back(child);
-        parent->mRect.mergeWithRect(child->mRect);
+        if (!parent->mRect.isInited()) {
+            parent->mRect = child->mRect;
+        }
+        //parent->mRect.mergeWithRect(child->mRect);
 
         return parent;
     }
@@ -345,7 +348,7 @@ WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *image, cons
         return WidgetHandle{WidgetHandle::InvalidId};
     }
 
-    Widget *child = createWidget(ctx, parentId, rect, WidgetType::Button);    
+    Widget *child = createWidget(ctx, parentId, rect, WidgetType::Button);
     child->mCallback = callback;
     if (callback != nullptr) {
         callback->incRef();
@@ -354,7 +357,7 @@ WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *image, cons
     if (image != nullptr) {
         child->mImage = loadIntoImageCache(ctx, image);
     }
-    
+
     return child->mHandle;
 }
 
@@ -432,7 +435,7 @@ WidgetHandle Widgets::treeView(WidgetHandle parentId, const char *title, const R
     if (ctx.mRoot == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
-    
+
     Widget *widget = createWidget(ctx, parentId, rect, WidgetType::TreeView);
     if (title != nullptr) {
         widget->mText.assign(title);
@@ -440,9 +443,9 @@ WidgetHandle Widgets::treeView(WidgetHandle parentId, const char *title, const R
 
     auto *callback = new CallbackI(onTreeViewItemClicked, nullptr, Events::MouseButtonDownEvent);
     widget->mCallback = callback;
-    if (callback != nullptr) {
+    /* if (callback != nullptr) {
         callback->incRef();
-    }
+    }*/
 
     return widget->mHandle;
 }
@@ -461,8 +464,8 @@ WidgetHandle Widgets::treeItem(WidgetHandle parentItemId, const char *text) {
     if (parentWidget == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
-    
-    const auto &parentRect = parentWidget->mRect;    
+
+    const auto &parentRect = parentWidget->mRect;
     const int32_t margin = ctx.mStyle.mMargin;
     const int32_t w = parentRect.width;
     const int32_t h = parentRect.height;
@@ -473,7 +476,7 @@ WidgetHandle Widgets::treeItem(WidgetHandle parentItemId, const char *text) {
     if (child == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
     }
-    
+
     child->mIntention = parentWidget->mIntention + 1;
     if (text != nullptr) {
         child->mText.assign(text);
@@ -505,7 +508,7 @@ WidgetHandle Widgets::progressBar(WidgetHandle parentId, const Rect &rect, int f
         callback->mInstance = child;
         ctx.mUpdateCallbackList.push_back(callback);
     }
- 
+
     return child->mHandle;
 }
 
@@ -551,7 +554,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                 if (!currentWidget->mText.empty()) {
                     const Color4 fg = ctx.mStyle.mTextColor;
                     const Color4 bg = ctx.mStyle.mBg;
-                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mText.length(), ctx.mDefaultFont, 
+                    Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mText.length(), ctx.mDefaultFont,
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
             }
@@ -568,7 +571,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                 }
             }
             break;
-            
+
             case WidgetType::Label:
             {
                 if (!currentWidget->mText.empty()) {
@@ -577,7 +580,7 @@ static void render(Context &ctx, const Widget *currentWidget) {
                     Renderer::drawText(ctx, currentWidget->mText.c_str(), currentWidget->mText.length(), ctx.mDefaultFont, 
                         currentWidget->mRect, fg, bg, currentWidget->mAlignment);
                 }
-            } 
+            }
             break;
 
         case WidgetType::Panel:
@@ -602,8 +605,8 @@ static void render(Context &ctx, const Widget *currentWidget) {
                 if (fillRate != 0) {
                     width = r.width * fillRate / 100;
                 }
-                Renderer::drawRect(ctx, r.top.x, r.top.y, width, r.height, true, ctx.mStyle.mTextColor);                       
-            } 
+                Renderer::drawRect(ctx, r.top.x, r.top.y, width, r.height, true, ctx.mStyle.mTextColor);
+            }
             break;
 
             case WidgetType::CheckBox:
@@ -700,7 +703,7 @@ void Widgets::onMouseButton(int x, int y, int eventType, MouseState state) {
                 found->mCallback->mfuncCallback[eventType](found->mHandle, found->mCallback->mInstance);
             }
         }
-    } 
+    }
 }
 
 void Widgets::onMouseMove(int x, int y, int eventType, MouseState state) {
@@ -778,11 +781,11 @@ bool Widgets::clearItem(WidgetHandle id, bool recursive) {
     if (widget == nullptr) {
         return false;
     }
-    
+
     if (widget->mParent == nullptr) {
         return false;
     }
-    
+
     auto &siblings = widget->mParent->mChildren;
     auto it = std::find(siblings.begin(), siblings.end(), widget);
     bool result{ false };
@@ -790,7 +793,7 @@ bool Widgets::clearItem(WidgetHandle id, bool recursive) {
         siblings.erase(it);
         result = true;
     }
-    
+
     if (recursive) {
         for (size_t i = 0; i < widget->mChildren.size(); ++i) {
             recursiveClear(widget->mChildren[i]);
@@ -938,7 +941,7 @@ ret_code Widgets::getSaveFileDialog(const char *title, const char *extensions, s
 
     filename = buffer;
 #endif // TINYUI_WINDOWS
-    
+
     return ResultOk;
 }
 

@@ -6,7 +6,7 @@ PROJECT(tiny_ui)
 set(CMAKE_CXX_STANDARD 23 )
 SET( TUI_VERSION_MAJOR 0 )
 SET( TUI_VERSION_MINOR 0 )
-SET( TUI_VERSION_PATCH 4 )
+SET( TUI_VERSION_PATCH 5 )
 SET( TUI_VERSION ${TUI_VERSION_MAJOR}.${TUI_VERSION_MINOR}.${TUI_VERSION_PATCH} )
 SET( PROJECT_VERSION "${OSRE_VERSION}" )
 
@@ -73,4 +73,9 @@ if( TINY_UI_SAMPLES)
         $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
     )
 
+endif()
+
+# Include tests if they exist
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
+    add_subdirectory(test)
 endif()

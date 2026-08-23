@@ -204,8 +204,10 @@ void TinyUi::setDefaultFont(const char *defaultFont) {
         return;
     }
 
-    if (strncmp( ctx.mStyle.mFont.mName, defaultFont, strlen(defaultFont)) == 0) {
-        return;
+    if (ctx.mStyle.mFont.mName != nullptr) {
+        if (strncmp(ctx.mStyle.mFont.mName, defaultFont, strlen(ctx.mStyle.mFont.mName)) == 0) {
+            return;
+        }
     }
 
     ctx.mStyle.mFont.mName = defaultFont;
