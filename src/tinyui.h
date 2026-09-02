@@ -592,6 +592,6 @@ inline void clamp(T min, T max, T &value) {
 #  define TINYUI_TRACE(...) tinyui::TinyUi::getContext().mLogger(tinyui::LogSeverity::Trace, __VA_ARGS__)
 #else
 #  define TINYUI_TRACE(...)   
-#endif TINYUI_TRACE_ENABLED
+#endif // TINYUI_TRACE_ENABLED
 
 } // Namespace TinyUi
