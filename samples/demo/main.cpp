@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
     
     Widgets::checkBox(panel, "Check me", Rect(100, 200, 100, ButtonHeight), false, nullptr);
 
-    Widgets::imageButton(panel, "button_test.png", Rect(100, 250, 100, ButtonHeight), nullptr);
+    Widgets::imageButton(panel, "images/button_test.png", Rect(100, 250, 100, ButtonHeight), nullptr);
 
     auto &ctx = TinyUi::getContext();
 

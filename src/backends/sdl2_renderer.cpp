@@ -36,7 +36,8 @@ namespace {
         ctx.mDefaultFont = new Font;
         ctx.mDefaultFont->mFont = new FontImpl;
         ctx.mDefaultFont->mSize = ctx.mStyle.mFont.mSize;
-        ctx.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(ctx.mStyle.mFont.mName, ctx.mStyle.mFont.mSize);
+        std::string fontName = "fonts/" + std::string(ctx.mStyle.mFont.mName);
+        ctx.mDefaultFont->mFont->mFontImpl = TTF_OpenFont(fontName.c_str(), ctx.mStyle.mFont.mSize);
     }
 
     Font *loadDefaultFont(Context &ctx) {

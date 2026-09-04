@@ -31,6 +31,15 @@ namespace tinyui {
 ///
 /// IO-Devices are used to contrl any kind of input / output operations.
 struct IODevice {
+    // No copying or moving allowed.
+    IODevice(const IODevice &) = delete;
+    IODevice(IODevice &&) = delete;
+    IODevice &operator=(const IODevice &) = delete;
+    IODevice &operator=(IODevice &&) = delete;
+
+    /// @brief Default constructor.
+    IODevice() = default;
+
     /// @brief Default destructor.
     ~IODevice() = default;
 
