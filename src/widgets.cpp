@@ -129,7 +129,6 @@ namespace {
         if (!parent->mRect.isInited()) {
             parent->mRect = child->mRect;
         }
-        //parent->mRect.mergeWithRect(child->mRect);
 
         return parent;
     }
@@ -150,6 +149,14 @@ namespace {
     }
 
     void deleteKeyFromText(Context &ctx) {
+        if (ctx.mFocus == nullptr) {
+            return;
+        }
+        
+        if (ctx.mFocus->mText.empty()) {
+            return;
+        }
+
         ctx.mFocus->mText.erase(ctx.mFocus->mText.size() - 1);
     }
 
@@ -443,9 +450,6 @@ WidgetHandle Widgets::treeView(WidgetHandle parentId, const char *title, const R
 
     auto *callback = new CallbackI(onTreeViewItemClicked, nullptr, Events::MouseButtonDownEvent);
     widget->mCallback = callback;
-    /* if (callback != nullptr) {
-        callback->incRef();
-    }*/
 
     return widget->mHandle;
 }

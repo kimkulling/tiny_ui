@@ -108,7 +108,20 @@ inline SDLContext *getBackendContext(Context &ctx) {
 
 /// @brief The renderer implementation using the SDL2 library.
 struct Renderer {
-    static ret_code initRenderer(Context &ctx);
+    // No copying or moving allowed.
+    Renderer(const Renderer &) = delete;
+    Renderer(Renderer &&) = delete;
+    Renderer &operator=(const Renderer &) = delete;
+    Renderer &operator=(Renderer &&) = delete;
+
+    /// @brief Default constructor.
+    Renderer() = default;
+
+    /// @brief Default destructor.
+    ~Renderer() = default;
+
+    // Render implementation functions. 
+    static ret_code initRenderer(Context &ctx);    
     static ret_code releaseRenderer(Context &ctx);
     static ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
     static ret_code initScreen(Context &ctx, SDL_Window *mWindow, SDL_Renderer *mRenderer);

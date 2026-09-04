@@ -73,6 +73,15 @@ if( TINY_UI_SAMPLES)
         $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
     )
 
+    add_custom_target(tiny_ui_copy_assets ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_SOURCE_DIR}/assets
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>
+        COMMENT "Copying assets to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
+    )
+    add_dependencies(tiny_ui_sample tiny_ui_copy_assets)
+    add_dependencies(tiny_ui_hello_world tiny_ui_copy_assets)
+
 endif()
 
 # Include tests if they exist
