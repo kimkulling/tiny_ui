@@ -165,7 +165,7 @@ struct Image {
 };
 
 /// @brief The image cache.
-using ImageCache = std::unordered_map<const char*, Image*>;
+using ImageCache = std::unordered_map<std::string, Image*>;
 
 /// @brief  A 2-dimensional vector
 /// @tparam T The pod template type
@@ -296,6 +296,8 @@ struct Rect {
         set(x1_, y1_, x2_ - x1_, y2_ - y1_);
     }
 
+    /// @brief Check if the rectangle is initialized.
+    /// @return true if the rectangle is initialized, false if not.
     bool isInited() const {
         return top.x != -1 && top.y != -1 && width != -1 && height != -1;
     }
@@ -485,10 +487,36 @@ struct Context {
     /// @param style The style to use.
     /// @return The created context.
     static Context *create(const char *title, const Style &style);
+    
+    /// @brief Will create a new tiny ui context.
+    /// @param title The title of the context.
+    /// @param style The style to use.
+    /// @param logger The logger function to use.
+    /// @return The created context.
+    static Context *create(const char *title, const Style &style, tui_log_func logger);
 
-    /// @brief Will destroy a valid tinyui context.
+    /// @brief Will destroy a valid tiny-ui context.
     /// @param ctx  The context to destroy.
     static void destroy(Context *ctx);
+
+    /// @brief Will return the current tiny ui context.
+    /// @return The current tiny ui context.
+    static Context *getCurrent();
+
+    /// @brief Will add an image to the image cache.
+    /// @param name The name of the image.
+    /// @param image The image to add.
+    void addImage(const char *name, Image *image);
+
+    /// @brief Will lookfor for an imgae described by its name.
+    /// @param name The name of the image-
+    /// @return The image if found, nullptr otherwise.
+    Image *getImage(const char *name);
+
+    /// @brief Will add an image to the image cache.
+    /// @param name The name of the image.
+    /// @return true if successful.
+    bool removeImage(const char *name);
 
 private:
     /// @brief The default class constructor
@@ -507,7 +535,9 @@ struct TinyUi {
     /// @param[in] style    The style to use.
     /// @return true if successful.
     static bool createContext(const char *title, const Style &style);
-
+    
+    static bool createContext(const char *title, const Style &style, tui_log_func logger);
+    
     /// @brief Will destroy the context.
     /// @return true if successful.
     static bool destroyContext();

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 option(TINY_UI_SAMPLES "The build will create the samples." ON)
+option(TINY_UI_TESTS "The build will include unit tests." ON)
 
 PROJECT(tiny_ui)
 set(CMAKE_CXX_STANDARD 23 )
@@ -27,6 +28,9 @@ INCLUDE_DIRECTORIES(
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
+
+# Find GoogleTest for unit tests
+find_package(GTest QUIET)
 
 SET(tinyui_backends_src
     src/backends/sdl2_renderer.cpp
@@ -84,7 +88,7 @@ if( TINY_UI_SAMPLES)
 
 endif()
 
-# Include tests if they exist
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
+# Include unit tests if enabled and test directory exists
+if(TINY_UI_TESTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
     add_subdirectory(test)
 endif()

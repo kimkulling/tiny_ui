@@ -78,8 +78,47 @@ Context *Context::create(const char *title, const Style &style) {
     return ctx;
 }
 
+Context *Context::create(const char *title, const Style &style, tui_log_func logger) {
+    auto *ctx = new Context;
+    ctx->mLogger = logger;
+    ctx->mAppTitle = title;
+    ctx->mWindowsTitle = title;
+    ctx->mStyle = style;
+
+    logVersion(*ctx);
+
+    return ctx;
+}
+
 void Context::destroy(Context *ctx) {
     delete ctx;
+}
+
+void Context::addImage(const char *name, Image *image) {
+    if (name == nullptr || image == nullptr) {
+        return;
+    }
+    const std::string key(name);
+    mImageCache[key] = image;
+}
+
+Image *Context::getImage(const char *name) {
+    if (name == nullptr) {
+        return nullptr;
+    }
+    const std::string key(name);
+    Image *image = nullptr;
+    if (mImageCache.contains(key)) {
+        image = mImageCache[key];
+    }
+    return image;
+}
+
+bool Context::removeImage(const char *name) {
+    if (name == nullptr) {
+        return false;
+    }
+    return mImageCache.erase(std::string(name)) > 0;
 }
 
 bool TinyUi::createContext(const char *title, const Style &style) {
@@ -88,6 +127,17 @@ bool TinyUi::createContext(const char *title, const Style &style) {
     }
 
     gCtx = Context::create(title,  style);
+
+    return true;
+}
+
+bool TinyUi::createContext(const char *title, const Style &style, tui_log_func logger) {
+    if (gCtx != nullptr) {
+        return false;
+    }
+
+    gCtx = Context::create(title, style, logger);
+    gCtx->mLogger = logger;
 
     return true;
 }
