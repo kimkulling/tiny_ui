@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Find GoogleTest package (should be found in main CMakeLists.txt)
-find_package(GTest REQUIRED)
+find_package(GTest CONFIG REQUIRED)
 
 # Enable testing
 enable_testing()
