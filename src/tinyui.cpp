@@ -85,7 +85,9 @@ Context *Context::create(const char *title, const Style &style, tui_log_func log
     ctx->mWindowsTitle = title;
     ctx->mStyle = style;
 
-    logVersion(*ctx);
+    if (ctx->mLogger != nullptr) {
+        logVersion(*ctx);
+    }
 
     return ctx;
 }
