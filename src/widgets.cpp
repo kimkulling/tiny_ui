@@ -43,19 +43,6 @@ namespace {
         static Id id{ RootHandle };
         return ++id;
     }
-
-    Image *findImage(Context &ctx, const char *filename) {
-        if (filename == nullptr) {
-            return nullptr;
-        }
-
-        auto it = ctx.mImageCache.find(filename);
-        if (it == ctx.mImageCache.end()) {
-            return nullptr;
-        }
-
-        return it->second;
-    }
     
     void releaseImageCache(Context &ctx) {
         for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
