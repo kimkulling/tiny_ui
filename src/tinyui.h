@@ -534,12 +534,14 @@ struct Context {
     /// @return A pointer showing to the image or nullptr in case of an error.
     Image *loadIntoImageCache(const char *filename);
 
+    void clearImageCache();
+
 private:
     /// @brief The default class constructor
     Context() = default;
 
     /// @brief The class destructor.
-    ~Context() = default;
+    ~Context();
 };
 
 /// @brief The tiny ui application interface.

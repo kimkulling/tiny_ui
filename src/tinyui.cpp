@@ -51,12 +51,18 @@ static constexpr char const *SeverityToken[] = {
 };
 
 static void logVersion(const Context &ctx) {
-    const std::string msg ="TinyUI Version: " + std::to_string(ctx.mVersion.major) + "." + std::to_string(ctx.mVersion.minor) + "." + std::to_string(ctx.mVersion.patch);
+    const std::string msg ="TinyUI Version: "
+        + std::to_string(ctx.mVersion.major)
+        + "."
+        + std::to_string(ctx.mVersion.minor)
+        + "."
+        + std::to_string(ctx.mVersion.patch);
     ctx.mLogger(LogSeverity::Info, msg.c_str());
 }
 
 void log_message(LogSeverity severity, const char *message) {
     assert(message != nullptr);
+
     if (severity == LogSeverity::Message) {
         std::cout << message << "\n";
     } else {
@@ -65,6 +71,10 @@ void log_message(LogSeverity severity, const char *message) {
 }
 
 Context *gCtx = nullptr;
+
+Context::~Context() {
+    clearImageCache();
+}
 
 Context *Context::create(const char *title, const Style &style) {
     auto *ctx = new Context;
@@ -155,7 +165,16 @@ Image *Context::loadIntoImageCache(const char *filename) {
     mImageCache[filename] = image;
 
     return image;
+}
 
+void Context::clearImageCache() {
+    for (auto it = mImageCache.begin(); it != mImageCache.end(); ++it) {
+        if (auto *image = it->second; image != nullptr) {
+            Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
+            delete image;
+        }
+    }
+    mImageCache.clear();
 }
 
 bool TinyUi::createContext(const char *title, const Style &style) {

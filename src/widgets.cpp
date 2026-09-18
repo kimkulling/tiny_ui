@@ -44,16 +44,6 @@ namespace {
         return ++id;
     }
     
-    void releaseImageCache(Context &ctx) {
-        for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
-            if (Image *image = it->second; image != nullptr) {
-                Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
-                delete image;
-            }
-        }
-        ctx.mImageCache.clear();
-    }
-
     Widget *getValidRoot(Context &ctx) {
         if (ctx.mRoot != nullptr) {
             return ctx.mRoot;
@@ -729,7 +719,6 @@ void Widgets::clear() {
     Widget *current{ctx.mRoot};
     recursiveClear(current);
     ctx.mRoot = nullptr;
-    releaseImageCache(ctx);
 }
 
 bool Widgets::clearItem(WidgetHandle id, bool recursive) {
