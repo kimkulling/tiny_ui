@@ -25,9 +25,9 @@ INCLUDE_DIRECTORIES(
     contrib/stb_image    
 )
 
-find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2       CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
-find_package(SDL2_ttf CONFIG REQUIRED)
+find_package(SDL2_ttf   CONFIG REQUIRED)
 
 # Find GoogleTest for unit tests
 find_package(GTest QUIET)
@@ -39,7 +39,7 @@ SET(tinyui_backends_src
     src/backends/sdl2_iodevice.cpp
 )
 
-SOURCE_GROUP( Backends  FILES ${tinyui_backends_src} )
+SOURCE_GROUP(Backends  FILES ${tinyui_backends_src} )
 
 ADD_LIBRARY(tiny_ui
     src/tinyui.h

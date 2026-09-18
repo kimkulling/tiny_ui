@@ -43,64 +43,7 @@ namespace {
         static Id id{ RootHandle };
         return ++id;
     }
-
-    Image *findImage(Context &ctx, const char *filename) {
-        if (filename == nullptr) {
-            return nullptr;
-        }
-
-        auto it = ctx.mImageCache.find(filename);
-        if (it == ctx.mImageCache.end()) {
-            return nullptr;
-        }
-
-        return it->second;
-    }
-
-    Image *loadIntoImageCache(Context &ctx, const char *filename) {
-        if (filename == nullptr) {
-            return nullptr;
-        }
-
-        Image *image = findImage(ctx, filename);
-        if (image != nullptr) {
-            return image;
-        }
-
-        int w{ -1 };
-        int h{ -1 };
-        int bytesPerPixel{ -1 };
-        unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
-        if (data == nullptr) {
-            return nullptr;
-        }
-
-        image = new Image;
-        if (image == nullptr) {
-            return nullptr;
-        }
-
-        int32_t pitch = w * bytesPerPixel;
-        pitch = (pitch + 3) & ~3;
-        image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
-        image->mX = w;
-        image->mY = h;
-        image->mComp = bytesPerPixel;
-        ctx.mImageCache[filename] = image;
-
-        return image;
-    }
-
-    void releaseImageCache(Context &ctx) {
-        for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
-            if (Image *image = it->second; image != nullptr) {
-                Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
-                delete image;
-            }
-        }
-        ctx.mImageCache.clear();
-    }
-
+    
     Widget *getValidRoot(Context &ctx) {
         if (ctx.mRoot != nullptr) {
             return ctx.mRoot;
@@ -345,7 +288,7 @@ WidgetHandle Widgets::textButton(WidgetHandle parentId, const char *text, const 
     return child->mHandle;
 }
 
-WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *image, const Rect &rect, CallbackI *callback) {
+WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *imageName, const Rect &rect, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
@@ -361,8 +304,8 @@ WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *image, cons
         callback->incRef();
     }
 
-    if (image != nullptr) {
-        child->mImage = loadIntoImageCache(ctx, image);
+    if (imageName  != nullptr) {
+        child->mImage = ctx.loadIntoImageCache(imageName);
     }
 
     return child->mHandle;
@@ -396,7 +339,7 @@ WidgetHandle Widgets::imageBox(WidgetHandle parentId, const char* image, const R
     Widget *child = createWidget(ctx, parentId, rect, WidgetType::ImageBox);
     child->mFilledRect = filled;
     if (image != nullptr) {
-        child->mImage = loadIntoImageCache(ctx, image);
+        child->mImage = ctx.loadIntoImageCache(image);
     }
 
     return child->mHandle;
@@ -776,7 +719,6 @@ void Widgets::clear() {
     Widget *current{ctx.mRoot};
     recursiveClear(current);
     ctx.mRoot = nullptr;
-    releaseImageCache(ctx);
 }
 
 bool Widgets::clearItem(WidgetHandle id, bool recursive) {

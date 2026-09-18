@@ -23,6 +23,14 @@ SOFTWARE.
 */
 #pragma once
 
+/**
+ * @file widgets.h
+ * @brief Widget definitions for the TinyUI library.
+ *
+ * This file contains all widget types, widget creation functions, and widget management
+ * utilities for the TinyUI library.
+ */
+
 #include "tinyui.h"
 
 namespace tinyui {

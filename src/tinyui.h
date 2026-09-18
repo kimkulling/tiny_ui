@@ -23,6 +23,14 @@ SOFTWARE.
 */
 #pragma once
 
+/**
+ * @file tinyui.h
+ * @brief Main header file for the TinyUI library.
+ *
+ * This file contains the core types, structures, and interfaces for the TinyUI library,
+ * including widget definitions, context management, and rendering interfaces.
+ */
+
 #include "tinyui_config.h"
 
 #include <cstdint>
@@ -98,7 +106,7 @@ struct SDLContext;
 
 // Type declarations ----------------------------------------------------------
 
-/// @brief This enum is used to describe the alignment of a widget.
+/// @brief The unique identifier type used for widgets.
 using Id = uint64_t;
 
 /// @brief The return code type used in the ui library.
@@ -462,7 +470,10 @@ struct BackendContext {
     void *mHandle{nullptr}; ///< The backend specific handle.
 };
 
-/// @brief The tiny ui context.
+/// @brief The main context struct for the TinyUI library.
+///
+/// This struct holds all the global state and configuration for a TinyUI instance,
+/// including the widget tree, styles, fonts, images, and event handling.
 struct Context {
     bool               mCreated{false};             ///< The created state.
     bool               mRequestShutdown{false};     ///< The request shutdown state.
@@ -500,7 +511,7 @@ struct Context {
     static void destroy(Context *ctx);
 
     /// @brief Will return the current tiny ui context.
-    /// @return The current tiny ui context.
+    /// @return The current tiny ui context, nullptr if not created.
     static Context *getCurrent();
 
     /// @brief Will add an image to the image cache.
@@ -508,8 +519,8 @@ struct Context {
     /// @param image The image to add.
     void addImage(const char *name, Image *image);
 
-    /// @brief Will lookfor for an imgae described by its name.
-    /// @param name The name of the image-
+    /// @brief Will look for an image described by its name.
+    /// @param name The name of the image.
     /// @return The image if found, nullptr otherwise.
     Image *getImage(const char *name);
 
@@ -518,15 +529,22 @@ struct Context {
     /// @return true if successful.
     bool removeImage(const char *name);
 
+    /// @brief Will load an image into the image cache.
+    /// @param[in] filename  The name of the image to load.
+    /// @return A pointer showing to the image or nullptr in case of an error.
+    Image *loadIntoImageCache(const char *filename);
+
+    void clearImageCache();
+
 private:
     /// @brief The default class constructor
     Context() = default;
 
     /// @brief The class destructor.
-    ~Context() = default;
+    ~Context();
 };
 
-/// @brief The tiny ui app interface.
+/// @brief The tiny ui application interface.
 ///
 /// The tiny ui interface is used to create and manage the tiny ui context and to run the tiny ui.
 struct TinyUi {
@@ -536,6 +554,11 @@ struct TinyUi {
     /// @return true if successful.
     static bool createContext(const char *title, const Style &style);
     
+    /// @brief Will create the tinyui context with a custom logger.
+    /// @param[in] title    The app title.
+    /// @param[in] style    The style to use.
+    /// @param[in] logger   The custom logger function.
+    /// @return true if successful.
     static bool createContext(const char *title, const Style &style, tui_log_func logger);
     
     /// @brief Will destroy the context.

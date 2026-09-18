@@ -51,12 +51,18 @@ static constexpr char const *SeverityToken[] = {
 };
 
 static void logVersion(const Context &ctx) {
-    const std::string msg ="TinyUI Version: " + std::to_string(ctx.mVersion.major) + "." + std::to_string(ctx.mVersion.minor) + "." + std::to_string(ctx.mVersion.patch);
+    const std::string msg ="TinyUI Version: "
+        + std::to_string(ctx.mVersion.major)
+        + "."
+        + std::to_string(ctx.mVersion.minor)
+        + "."
+        + std::to_string(ctx.mVersion.patch);
     ctx.mLogger(LogSeverity::Info, msg.c_str());
 }
 
 void log_message(LogSeverity severity, const char *message) {
     assert(message != nullptr);
+
     if (severity == LogSeverity::Message) {
         std::cout << message << "\n";
     } else {
@@ -65,6 +71,10 @@ void log_message(LogSeverity severity, const char *message) {
 }
 
 Context *gCtx = nullptr;
+
+Context::~Context() {
+    clearImageCache();
+}
 
 Context *Context::create(const char *title, const Style &style) {
     auto *ctx = new Context;
@@ -96,6 +106,10 @@ void Context::destroy(Context *ctx) {
     delete ctx;
 }
 
+Context *Context::getCurrent() {
+    return gCtx;
+}
+
 void Context::addImage(const char *name, Image *image) {
     if (name == nullptr || image == nullptr) {
         return;
@@ -121,6 +135,46 @@ bool Context::removeImage(const char *name) {
         return false;
     }
     return mImageCache.erase(std::string(name)) > 0;
+}
+
+Image *Context::loadIntoImageCache(const char *filename) {
+    if (filename == nullptr) {
+        return nullptr;
+    }
+
+    Image *image = getImage(filename);
+    if (image != nullptr) {
+        return image;
+    }
+
+    int w{ -1 };
+    int h{ -1 };
+    int bytesPerPixel{ -1 };
+    unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
+    if (data == nullptr) {
+        return nullptr;
+    }
+
+    image = new Image;
+    int32_t pitch = w * bytesPerPixel;
+    pitch = (pitch + 3) & ~3;
+    image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
+    image->mX = w;
+    image->mY = h;
+    image->mComp = bytesPerPixel;
+    mImageCache[filename] = image;
+
+    return image;
+}
+
+void Context::clearImageCache() {
+    for (auto it = mImageCache.begin(); it != mImageCache.end(); ++it) {
+        if (auto *image = it->second; image != nullptr) {
+            Renderer::releaseSurfaceImpl(image->mSurfaceImpl);
+            delete image;
+        }
+    }
+    mImageCache.clear();
 }
 
 bool TinyUi::createContext(const char *title, const Style &style) {
