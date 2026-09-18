@@ -109,8 +109,6 @@ struct SDLContext;
 /// @brief The unique identifier type used for widgets.
 using Id = uint64_t;
 
-/// @brief This enum is used to describe the alignment of a widget.
-
 /// @brief The return code type used in the ui library.
 using ret_code = int32_t;
 
@@ -531,6 +529,9 @@ struct Context {
     /// @return true if successful.
     bool removeImage(const char *name);
 
+    /// @brief Will load an image into the image cache.
+    /// @param[in] filename  The name of the image to load.
+    /// @return A pointer showing to the image or nullptr in case of an error.
     Image *loadIntoImageCache(const char *filename);
 
 private:
