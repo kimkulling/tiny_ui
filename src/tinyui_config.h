@@ -23,5 +23,12 @@ SOFTWARE.
 */
 #pragma once
 
+/**
+ * @file tinyui_config.h
+ * @brief Configuration file for the TinyUI library.
+ *
+ * This file contains configuration macros and settings for the TinyUI library.
+ */
+
 // Enable this to get verbose logs.
 //#define TINYUI_TRACE_ENABLED

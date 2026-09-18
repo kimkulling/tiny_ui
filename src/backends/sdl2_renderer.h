@@ -23,6 +23,13 @@ SOFTWARE.
 */
 #pragma once
 
+/**
+ * @file sdl2_renderer.h
+ * @brief SDL2 renderer implementation for TinyUI.
+ *
+ * This file contains the SDL2-based rendering backend for the TinyUI library.
+ */
+
 #include "tinyui.h"
 
 #include <SDL.h>
@@ -55,9 +62,11 @@ struct SurfaceImpl {
     }
 };
 
+/// @brief The font implementation using the SDL2_ttf library.
 struct FontImpl {
     TTF_Font *mFontImpl{nullptr};
     
+    /// @brief Clear the font implementation.
     void clear() {
         if (mFontImpl != nullptr) {
             TTF_CloseFont(mFontImpl);
@@ -121,7 +130,13 @@ struct Renderer {
     ~Renderer() = default;
 
     // Render implementation functions. 
+    /// @brief Initialize the renderer.
+    /// @param ctx The TinyUI context.
+    /// @return ResultOk if successful, ErrorCode otherwise.
     static ret_code initRenderer(Context &ctx);    
+    /// @brief Release the renderer.
+    /// @param ctx The TinyUI context.
+    /// @return ResultOk if successful, ErrorCode otherwise.
     static ret_code releaseRenderer(Context &ctx);
     static ret_code initScreen(Context &ctx, int32_t x, int32_t y, int32_t w, int32_t h);
     static ret_code initScreen(Context &ctx, SDL_Window *mWindow, SDL_Renderer *mRenderer);

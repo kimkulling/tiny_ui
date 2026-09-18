@@ -23,13 +23,20 @@ SOFTWARE.
 */
 #pragma once
 
+/**
+ * @file sdl2_iodevice.h
+ * @brief SDL2 I/O device implementation for TinyUI.
+ *
+ * This file contains the SDL2-based input/output device backend for the TinyUI library.
+ */
+
 #include <SDL.h>
 
 namespace tinyui {
 
-/// @brief the SDL2 implementation for an io-device.
+/// @brief The SDL2 implementation for an io-device.
 ///
-/// IO-Devices are used to contrl any kind of input / output operations.
+/// IO-Devices are used to control any kind of input / output operations.
 struct IODevice {
     // No copying or moving allowed.
     IODevice(const IODevice &) = delete;
