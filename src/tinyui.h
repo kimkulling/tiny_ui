@@ -109,8 +109,6 @@ struct SDLContext;
 /// @brief The unique identifier type used for widgets.
 using Id = uint64_t;
 
-/// @brief This enum is used to describe the alignment of a widget.
-
 /// @brief The return code type used in the ui library.
 using ret_code = int32_t;
 
