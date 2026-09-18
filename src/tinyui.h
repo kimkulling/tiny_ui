@@ -529,6 +529,9 @@ struct Context {
     /// @return true if successful.
     bool removeImage(const char *name);
 
+    /// @brief Will load an image into the image cache.
+    /// @param[in] filename  The name of the image to load.
+    /// @return A pointer showing to the image or nullptr in case of an error.
     Image *loadIntoImageCache(const char *filename);
 
 private:
