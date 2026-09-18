@@ -531,6 +531,8 @@ struct Context {
     /// @return true if successful.
     bool removeImage(const char *name);
 
+    Image *loadIntoImageCache(const char *filename);
+
 private:
     /// @brief The default class constructor
     Context() = default;

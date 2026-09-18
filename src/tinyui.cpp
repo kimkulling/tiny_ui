@@ -96,6 +96,10 @@ void Context::destroy(Context *ctx) {
     delete ctx;
 }
 
+Context *Context::getCurrent() {
+    return gCtx;
+}
+
 void Context::addImage(const char *name, Image *image) {
     if (name == nullptr || image == nullptr) {
         return;
@@ -121,6 +125,37 @@ bool Context::removeImage(const char *name) {
         return false;
     }
     return mImageCache.erase(std::string(name)) > 0;
+}
+
+Image *Context::loadIntoImageCache(const char *filename) {
+    if (filename == nullptr) {
+        return nullptr;
+    }
+
+    Image *image = getImage(filename);
+    if (image != nullptr) {
+        return image;
+    }
+
+    int w{ -1 };
+    int h{ -1 };
+    int bytesPerPixel{ -1 };
+    unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
+    if (data == nullptr) {
+        return nullptr;
+    }
+
+    image = new Image;
+    int32_t pitch = w * bytesPerPixel;
+    pitch = (pitch + 3) & ~3;
+    image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
+    image->mX = w;
+    image->mY = h;
+    image->mComp = bytesPerPixel;
+    mImageCache[filename] = image;
+
+    return image;
+
 }
 
 bool TinyUi::createContext(const char *title, const Style &style) {

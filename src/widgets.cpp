@@ -57,12 +57,12 @@ namespace {
         return it->second;
     }
 
-    Image *loadIntoImageCache(Context &ctx, const char *filename) {
+    /*Image *loadIntoImageCache(Context &ctx, const char *filename) {
         if (filename == nullptr) {
             return nullptr;
         }
 
-        Image *image = findImage(ctx, filename);
+        Image *image = ctx.getImage(filename);
         if (image != nullptr) {
             return image;
         }
@@ -76,10 +76,6 @@ namespace {
         }
 
         image = new Image;
-        if (image == nullptr) {
-            return nullptr;
-        }
-
         int32_t pitch = w * bytesPerPixel;
         pitch = (pitch + 3) & ~3;
         image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
@@ -89,7 +85,7 @@ namespace {
         ctx.mImageCache[filename] = image;
 
         return image;
-    }
+    }*/
 
     void releaseImageCache(Context &ctx) {
         for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
@@ -345,7 +341,7 @@ WidgetHandle Widgets::textButton(WidgetHandle parentId, const char *text, const 
     return child->mHandle;
 }
 
-WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *image, const Rect &rect, CallbackI *callback) {
+WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *imageName, const Rect &rect, CallbackI *callback) {
     auto &ctx = TinyUi::getContext();
     if (ctx.mBackendCtx == nullptr) {
         return WidgetHandle{WidgetHandle::InvalidId};
@@ -361,8 +357,8 @@ WidgetHandle Widgets::imageButton(WidgetHandle parentId, const char *image, cons
         callback->incRef();
     }
 
-    if (image != nullptr) {
-        child->mImage = loadIntoImageCache(ctx, image);
+    if (imageName  != nullptr) {
+        child->mImage = ctx.loadIntoImageCache(imageName);
     }
 
     return child->mHandle;
@@ -396,7 +392,7 @@ WidgetHandle Widgets::imageBox(WidgetHandle parentId, const char* image, const R
     Widget *child = createWidget(ctx, parentId, rect, WidgetType::ImageBox);
     child->mFilledRect = filled;
     if (image != nullptr) {
-        child->mImage = loadIntoImageCache(ctx, image);
+        child->mImage = ctx.loadIntoImageCache(image);
     }
 
     return child->mHandle;
