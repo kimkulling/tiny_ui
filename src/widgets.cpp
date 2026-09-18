@@ -56,37 +56,7 @@ namespace {
 
         return it->second;
     }
-
-    /*Image *loadIntoImageCache(Context &ctx, const char *filename) {
-        if (filename == nullptr) {
-            return nullptr;
-        }
-
-        Image *image = ctx.getImage(filename);
-        if (image != nullptr) {
-            return image;
-        }
-
-        int w{ -1 };
-        int h{ -1 };
-        int bytesPerPixel{ -1 };
-        unsigned char *data = stbi_load(filename, &w, &h, &bytesPerPixel, 0);
-        if (data == nullptr) {
-            return nullptr;
-        }
-
-        image = new Image;
-        int32_t pitch = w * bytesPerPixel;
-        pitch = (pitch + 3) & ~3;
-        image->mSurfaceImpl = Renderer::createSurfaceImpl(data, w, h, bytesPerPixel, pitch);
-        image->mX = w;
-        image->mY = h;
-        image->mComp = bytesPerPixel;
-        ctx.mImageCache[filename] = image;
-
-        return image;
-    }*/
-
+    
     void releaseImageCache(Context &ctx) {
         for (auto it = ctx.mImageCache.begin(); it != ctx.mImageCache.end(); ++it) {
             if (Image *image = it->second; image != nullptr) {
